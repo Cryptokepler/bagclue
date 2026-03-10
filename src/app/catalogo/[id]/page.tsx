@@ -34,14 +34,27 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
             className="aspect-[3/4] relative overflow-hidden border border-[#FF69B4]/10"
             style={{ background: `linear-gradient(135deg, ${gradient.from}, ${gradient.to})` }}
           >
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className="font-[family-name:var(--font-playfair)] text-5xl text-gray-900/10 tracking-widest">{product.brand}</span>
-              <span className="text-sm text-gray-900/20 mt-4 tracking-wider">Imagen próximamente</span>
-            </div>
-            <div className="absolute top-4 left-4">
+            {product.image ? (
+              <img
+                src={product.image}
+                alt={`${product.brand} ${product.model} ${product.color}`}
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+            ) : (
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="font-[family-name:var(--font-playfair)] text-5xl text-gray-900/10 tracking-widest">{product.brand}</span>
+                <span className="text-sm text-gray-900/20 mt-4 tracking-wider">Imagen próximamente</span>
+              </div>
+            )}
+            <div className="absolute top-4 left-4 flex flex-col gap-2">
               <span className={`text-xs tracking-wider uppercase px-3 py-1.5 border ${getStatusColor(product.status)}`}>
                 {getStatusLabel(product.status)}
               </span>
+              {product.badge && (
+                <span className="text-xs tracking-wider uppercase px-3 py-1.5 border bg-[#FF69B4]/20 text-[#FF69B4] border-[#FF69B4]/30">
+                  🔥 {product.badge}
+                </span>
+              )}
             </div>
             <div className="absolute top-4 right-4">
               <span className="text-[10px] tracking-wider bg-white/70 text-emerald-400 px-2.5 py-1.5 border border-emerald-500/20">
@@ -53,7 +66,11 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
           {/* Details */}
           <div className="flex flex-col justify-center">
             <span className="text-xs tracking-[0.5em] uppercase text-[#FF69B4]/60">{product.brand}</span>
-            <h1 className="font-[family-name:var(--font-playfair)] text-4xl md:text-5xl text-gray-900 mt-2 mb-6">{product.model}</h1>
+            <h1 className="font-[family-name:var(--font-playfair)] text-4xl md:text-5xl text-gray-900 mt-2 mb-4">{product.model}</h1>
+
+            {product.description && (
+              <p className="text-sm text-gray-900/60 leading-relaxed mb-6 italic">{product.description}</p>
+            )}
 
             <div className="space-y-4 mb-8">
               <div className="flex justify-between border-b border-[#FF69B4]/10 pb-3">
