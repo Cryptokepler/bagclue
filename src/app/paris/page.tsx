@@ -10,13 +10,13 @@ export default function ParisPage() {
       <div className="max-w-6xl mx-auto px-6">
         {/* Hero */}
         <div className="text-center mb-20">
-          <span className="text-xs tracking-[0.5em] uppercase text-[#E91E8C]/60">Servicio exclusivo</span>
-          <h1 className="font-[family-name:var(--font-playfair)] text-4xl md:text-6xl text-[#F5F0EB] mt-3">París 2U</h1>
-          <p className="text-lg text-[#F5F0EB]/50 mt-6 max-w-2xl mx-auto leading-relaxed">
+          <span className="text-xs tracking-[0.5em] uppercase text-[#FF69B4]/60">Servicio exclusivo</span>
+          <h1 className="font-[family-name:var(--font-playfair)] text-4xl md:text-6xl text-gray-900 mt-3">París 2U</h1>
+          <p className="text-lg text-gray-900/50 mt-6 max-w-2xl mx-auto leading-relaxed">
             Compramos las piezas que deseas directamente en París y las traemos a México para ti. Acceso exclusivo a boutiques europeas.
           </p>
           <p className="text-2xl mt-4">🇫🇷</p>
-          <div className="w-16 h-px bg-[#E91E8C]/30 mx-auto mt-6" />
+          <div className="w-16 h-px bg-[#FF69B4]/30 mx-auto mt-6" />
         </div>
 
         {/* How it works */}
@@ -26,10 +26,10 @@ export default function ParisPage() {
             { step: '02', title: 'Sourcing', desc: 'Nuestro equipo en París busca y adquiere tu pieza directamente en boutiques oficiales.' },
             { step: '03', title: 'Recibe', desc: 'Te enviamos tu pieza a México con toda la documentación de autenticidad y origen.' },
           ].map(s => (
-            <div key={s.step} className="border border-[#E91E8C]/10 p-8 text-center hover:border-[#E91E8C]/30 transition-all duration-500">
-              <span className="font-[family-name:var(--font-playfair)] text-4xl text-[#E91E8C]/20">{s.step}</span>
-              <h3 className="font-[family-name:var(--font-playfair)] text-xl text-[#F5F0EB] mt-4 mb-3">{s.title}</h3>
-              <p className="text-sm text-[#F5F0EB]/50 leading-relaxed">{s.desc}</p>
+            <div key={s.step} className="border border-[#FF69B4]/10 p-8 text-center hover:border-[#FF69B4]/30 transition-all duration-500">
+              <span className="font-[family-name:var(--font-playfair)] text-4xl text-[#FF69B4]/20">{s.step}</span>
+              <h3 className="font-[family-name:var(--font-playfair)] text-xl text-gray-900 mt-4 mb-3">{s.title}</h3>
+              <p className="text-sm text-gray-900/50 leading-relaxed">{s.desc}</p>
             </div>
           ))}
         </div>
@@ -37,9 +37,9 @@ export default function ParisPage() {
         {/* Pre-venta items */}
         <div className="mb-20">
           <div className="text-center mb-12">
-            <span className="text-xs tracking-[0.5em] uppercase text-[#E91E8C]/60">Desde París</span>
-            <h2 className="font-[family-name:var(--font-playfair)] text-3xl text-[#F5F0EB] mt-3">Piezas en Pre-venta</h2>
-            <p className="text-sm text-[#F5F0EB]/40 mt-3">Artículos que estamos trayendo desde Francia</p>
+            <span className="text-xs tracking-[0.5em] uppercase text-[#FF69B4]/60">Desde París</span>
+            <h2 className="font-[family-name:var(--font-playfair)] text-3xl text-gray-900 mt-3">Piezas en Pre-venta</h2>
+            <p className="text-sm text-gray-900/40 mt-3">Artículos que estamos trayendo desde Francia</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {parisProducts.map(p => <ProductCard key={p.id} product={p} />)}
@@ -47,9 +47,9 @@ export default function ParisPage() {
         </div>
 
         {/* CTA */}
-        <div className="text-center bg-[#111] border border-[#E91E8C]/10 p-12">
-          <h2 className="font-[family-name:var(--font-playfair)] text-2xl text-[#F5F0EB] mb-4">¿Buscas algo especial?</h2>
-          <p className="text-[#F5F0EB]/50 mb-8 max-w-lg mx-auto">Si no encuentras la pieza que buscas, escríbenos. Podemos conseguirla directamente en París.</p>
+        <div className="text-center bg-[#111] border border-[#FF69B4]/10 p-12">
+          <h2 className="font-[family-name:var(--font-playfair)] text-2xl text-gray-900 mb-4">¿Buscas algo especial?</h2>
+          <p className="text-gray-900/50 mb-8 max-w-lg mx-auto">Si no encuentras la pieza que buscas, escríbenos. Podemos conseguirla directamente en París.</p>
           <InstagramCTA text="Solicitar pieza" />
         </div>
       </div>
