@@ -3,10 +3,10 @@
 @theme {
   --font-playfair: var(--font-playfair);
   --font-inter: var(--font-inter);
-  --color-gold: #C9A96E;
-  --color-cream: #F5F0EB;
+  --color-gold: #E91E8C;
+  --color-cream: #FFF0F5;
   --color-dark: #0A0A0A;
-  --color-rose: #D4A0A0;
+  --color-rose: #FF69B4;
 }
 
 html {
@@ -60,6 +60,6 @@ h1, h2, h3, h4, h5, h6 {
   background: #0A0A0A;
 }
 ::-webkit-scrollbar-thumb {
-  background: #C9A96E;
+  background: #E91E8C;
   border-radius: 3px;
 }

@@ -6,7 +6,7 @@ export default function ProductCard({ product }: { product: Product }) {
 
   return (
     <Link href={`/catalogo/${product.id}`} className="group block">
-      <div className="relative overflow-hidden bg-[#111] border border-[#C9A96E]/10 hover:border-[#C9A96E]/30 transition-all duration-500">
+      <div className="relative overflow-hidden bg-[#111] border border-[#E91E8C]/10 hover:border-[#E91E8C]/30 transition-all duration-500">
         {/* Image placeholder */}
         <div
           className="aspect-[3/4] relative overflow-hidden"
@@ -19,7 +19,7 @@ export default function ProductCard({ product }: { product: Product }) {
 
           {/* Hover overlay */}
           <div className="absolute inset-0 bg-[#0A0A0A]/60 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
-            <span className="text-xs tracking-widest uppercase text-[#C9A96E] border border-[#C9A96E]/50 px-4 py-2">Ver detalles</span>
+            <span className="text-xs tracking-widest uppercase text-[#E91E8C] border border-[#E91E8C]/50 px-4 py-2">Ver detalles</span>
           </div>
 
           {/* Status badge */}
@@ -39,11 +39,11 @@ export default function ProductCard({ product }: { product: Product }) {
 
         {/* Info */}
         <div className="p-4">
-          <p className="text-[10px] tracking-widest uppercase text-[#C9A96E]/70">{product.brand}</p>
+          <p className="text-[10px] tracking-widest uppercase text-[#E91E8C]/70">{product.brand}</p>
           <h3 className="font-[family-name:var(--font-playfair)] text-lg text-[#F5F0EB] mt-1">{product.model}</h3>
           <p className="text-xs text-[#F5F0EB]/40 mt-1">{product.color} · {product.origin}</p>
           <div className="mt-3 flex items-center justify-between">
-            <span className={`text-sm ${product.price ? 'text-[#C9A96E]' : 'text-[#F5F0EB]/50 italic'}`}>
+            <span className={`text-sm ${product.price ? 'text-[#E91E8C]' : 'text-[#F5F0EB]/50 italic'}`}>
               {formatPrice(product.price)}
             </span>
             <span className="text-[10px] text-[#F5F0EB]/30">{product.id}</span>

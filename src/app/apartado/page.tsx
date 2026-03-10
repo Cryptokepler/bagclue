@@ -6,12 +6,12 @@ export default function ApartadoPage() {
       <div className="max-w-4xl mx-auto px-6">
         {/* Header */}
         <div className="text-center mb-20">
-          <span className="text-xs tracking-[0.5em] uppercase text-[#C9A96E]/60">Plan de pagos</span>
+          <span className="text-xs tracking-[0.5em] uppercase text-[#E91E8C]/60">Plan de pagos</span>
           <h1 className="font-[family-name:var(--font-playfair)] text-4xl md:text-5xl text-[#F5F0EB] mt-3">Apartado</h1>
           <p className="text-lg text-[#F5F0EB]/50 mt-6 max-w-2xl mx-auto leading-relaxed">
             Llévate tu pieza de lujo sin pagar todo de una vez. Nuestro sistema de apartado te permite asegurar tu pieza con pagos semanales.
           </p>
-          <div className="w-16 h-px bg-[#C9A96E]/30 mx-auto mt-8" />
+          <div className="w-16 h-px bg-[#E91E8C]/30 mx-auto mt-8" />
         </div>
 
         {/* Steps */}
@@ -22,8 +22,8 @@ export default function ApartadoPage() {
             { step: '03', title: 'Abonos semanales', desc: 'Realiza abonos semanales cómodos hasta completar el pago total. Tu pieza queda apartada exclusivamente para ti.' },
             { step: '04', title: 'Recibe tu pieza', desc: 'Una vez completado el pago, te enviamos tu pieza de lujo con certificado de autenticidad Entrupy.' },
           ].map(s => (
-            <div key={s.step} className="border border-[#C9A96E]/10 p-8 hover:border-[#C9A96E]/30 transition-all duration-500">
-              <span className="font-[family-name:var(--font-playfair)] text-4xl text-[#C9A96E]/20">{s.step}</span>
+            <div key={s.step} className="border border-[#E91E8C]/10 p-8 hover:border-[#E91E8C]/30 transition-all duration-500">
+              <span className="font-[family-name:var(--font-playfair)] text-4xl text-[#E91E8C]/20">{s.step}</span>
               <h3 className="font-[family-name:var(--font-playfair)] text-xl text-[#F5F0EB] mt-4 mb-3">{s.title}</h3>
               <p className="text-sm text-[#F5F0EB]/50 leading-relaxed">{s.desc}</p>
             </div>
@@ -31,7 +31,7 @@ export default function ApartadoPage() {
         </div>
 
         {/* Benefits */}
-        <div className="bg-[#111] border border-[#C9A96E]/10 p-10 mb-20">
+        <div className="bg-[#111] border border-[#E91E8C]/10 p-10 mb-20">
           <h2 className="font-[family-name:var(--font-playfair)] text-2xl text-[#F5F0EB] mb-8 text-center">Beneficios</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
