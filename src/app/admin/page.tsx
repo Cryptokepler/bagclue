@@ -44,12 +44,18 @@ export default async function AdminDashboardPage() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-6 py-8">
         {/* Actions */}
-        <div className="mb-8">
+        <div className="mb-8 flex gap-4">
           <a
             href="/admin/productos/new"
             className="inline-block bg-[#FF69B4] text-[#0a0a0a] font-medium px-6 py-3 hover:bg-[#FF69B4]/90 transition-colors"
           >
             + Crear Producto
+          </a>
+          <a
+            href="/admin/orders"
+            className="inline-block border border-[#FF69B4]/20 text-gray-300 px-6 py-3 hover:border-[#FF69B4] transition-colors"
+          >
+            Ver Órdenes
           </a>
         </div>
 
