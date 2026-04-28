@@ -1,14 +1,13 @@
 'use client'
 
 import { useEffect, Suspense } from 'react'
-import { useSearchParams, useRouter } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import { useCart } from '@/contexts/CartContext'
 
 function SuccessContent() {
   const searchParams = useSearchParams()
   const session_id = searchParams.get('session_id')
   const { clearCart } = useCart()
-  const router = useRouter()
 
   useEffect(() => {
     // Limpiar carrito después de compra exitosa
@@ -50,8 +49,7 @@ function SuccessContent() {
           <button
             type="button"
             onClick={() => {
-              console.log('Navigating to /catalogo')
-              router.push('/catalogo')
+              window.location.href = '/catalogo'
             }}
             className="border border-[#FF69B4]/20 text-gray-900 px-8 py-3 hover:border-[#FF69B4] transition-colors cursor-pointer"
           >
@@ -60,8 +58,7 @@ function SuccessContent() {
           <button
             type="button"
             onClick={() => {
-              console.log('Navigating to /')
-              router.push('/')
+              window.location.href = '/'
             }}
             className="bg-[#FF69B4] text-white px-8 py-3 hover:bg-[#FF69B4]/90 transition-colors cursor-pointer"
           >

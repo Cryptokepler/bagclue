@@ -1,9 +1,6 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
-
 export default function CheckoutCancelPage() {
-  const router = useRouter()
   return (
     <div className="pt-28 pb-24">
       <div className="max-w-2xl mx-auto px-6 text-center">
@@ -31,8 +28,7 @@ export default function CheckoutCancelPage() {
           <button
             type="button"
             onClick={() => {
-              console.log('Navigating to /cart')
-              router.push('/cart')
+              window.location.href = '/cart'
             }}
             className="bg-[#FF69B4] text-white px-8 py-3 hover:bg-[#FF69B4]/90 transition-colors cursor-pointer"
           >
@@ -41,8 +37,7 @@ export default function CheckoutCancelPage() {
           <button
             type="button"
             onClick={() => {
-              console.log('Navigating to /catalogo')
-              router.push('/catalogo')
+              window.location.href = '/catalogo'
             }}
             className="border border-[#FF69B4]/20 text-gray-900 px-8 py-3 hover:border-[#FF69B4] transition-colors cursor-pointer"
           >
