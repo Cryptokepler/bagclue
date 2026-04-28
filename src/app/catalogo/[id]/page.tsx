@@ -5,6 +5,7 @@ import { Product, dbStatusToLegacy } from '@/types/database';
 import { brandGradients, formatPrice, getStatusColor, getStatusLabel, type Brand } from '@/data/products';
 import ProductCard from '@/components/ProductCard';
 import InstagramCTA from '@/components/InstagramCTA';
+import AddToCartButton from '@/components/AddToCartButton';
 
 export const dynamic = 'force-dynamic'; // Disable static generation for now
 
@@ -170,7 +171,33 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
               </div>
             )}
 
-            <InstagramCTA text="Consultar por Instagram" />
+            {/* CTA Logic */}
+            {product.status === 'available' && product.is_published && (product.stock ?? 0) > 0 && product.price ? (
+              <AddToCartButton 
+                product={{
+                  id: product.id,
+                  slug: product.slug,
+                  title: product.title,
+                  brand: product.brand,
+                  price: product.price,
+                  currency: product.currency || 'MXN',
+                  status: product.status,
+                  image: mainImage
+                }}
+              />
+            ) : product.status === 'preorder' ? (
+              <InstagramCTA text="Consultar pre-venta" />
+            ) : product.status === 'reserved' ? (
+              <InstagramCTA text="Apartada / Consultar disponibilidad" />
+            ) : product.status === 'sold' ? (
+              <div className="w-full border border-gray-300 text-gray-400 py-3 text-center cursor-not-allowed">
+                Vendida
+              </div>
+            ) : !product.price ? (
+              <InstagramCTA text="Consultar precio" />
+            ) : (
+              <InstagramCTA text="Consultar por Instagram" />
+            )}
 
             <div className="mt-6 flex items-center gap-2">
               <div className="w-2 h-2 bg-emerald-400 rounded-full" />
