@@ -43,6 +43,16 @@ export default async function AdminDashboardPage() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-6 py-8">
+        {/* Actions */}
+        <div className="mb-8">
+          <a
+            href="/admin/productos/new"
+            className="inline-block bg-[#FF69B4] text-[#0a0a0a] font-medium px-6 py-3 hover:bg-[#FF69B4]/90 transition-colors"
+          >
+            + Crear Producto
+          </a>
+        </div>
+
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           <div className="bg-white/5 border border-[#FF69B4]/20 p-6">
@@ -134,11 +144,17 @@ export default async function AdminDashboardPage() {
                         )}
                       </td>
                       <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-3">
+                          <a
+                            href={`/admin/productos/${product.id}`}
+                            className="text-xs text-[#FF69B4] hover:underline"
+                          >
+                            Editar
+                          </a>
                           <a
                             href={`/catalogo/${product.slug}`}
                             target="_blank"
-                            className="text-xs text-[#FF69B4] hover:underline"
+                            className="text-xs text-gray-400 hover:text-[#FF69B4]"
                           >
                             Ver
                           </a>
