@@ -1,6 +1,9 @@
-import Link from 'next/link'
+'use client'
+
+import { useRouter } from 'next/navigation'
 
 export default function CheckoutCancelPage() {
+  const router = useRouter()
   return (
     <div className="pt-28 pb-24">
       <div className="max-w-2xl mx-auto px-6 text-center">
@@ -25,18 +28,18 @@ export default function CheckoutCancelPage() {
         </div>
 
         <div className="flex gap-4 justify-center">
-          <Link
-            href="/cart"
-            className="bg-[#FF69B4] text-white px-8 py-3 hover:bg-[#FF69B4]/90 transition-colors"
+          <button
+            onClick={() => router.push('/cart')}
+            className="bg-[#FF69B4] text-white px-8 py-3 hover:bg-[#FF69B4]/90 transition-colors cursor-pointer"
           >
             Volver al carrito
-          </Link>
-          <Link
-            href="/catalogo"
-            className="border border-[#FF69B4]/20 text-gray-900 px-8 py-3 hover:border-[#FF69B4] transition-colors"
+          </button>
+          <button
+            onClick={() => router.push('/catalogo')}
+            className="border border-[#FF69B4]/20 text-gray-900 px-8 py-3 hover:border-[#FF69B4] transition-colors cursor-pointer"
           >
             Seguir comprando
-          </Link>
+          </button>
         </div>
       </div>
     </div>
