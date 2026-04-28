@@ -3,6 +3,7 @@
 import { useState, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import AdminNav from '@/components/admin/AdminNav'
 
 const brands = ['Chanel', 'Hermès', 'Goyard', 'Céline', 'Louis Vuitton', 'Balenciaga']
 const statuses = ['available', 'preorder', 'reserved', 'sold', 'hidden']
@@ -72,23 +73,7 @@ export default function NewProductPage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
-      {/* Header */}
-      <header className="border-b border-[#FF69B4]/10">
-        <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div>
-            <h1 className="font-[family-name:var(--font-playfair)] text-2xl text-white">
-              Crear Producto
-            </h1>
-            <p className="text-xs text-gray-400 mt-1">Nuevo producto en el catálogo</p>
-          </div>
-          <Link
-            href="/admin"
-            className="text-sm text-gray-400 hover:text-[#FF69B4] transition-colors"
-          >
-            ← Volver al admin
-          </Link>
-        </div>
-      </header>
+      <AdminNav />
 
       {/* Form */}
       <main className="max-w-4xl mx-auto px-6 py-8">

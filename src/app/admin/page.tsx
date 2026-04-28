@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { isAuthenticated } from '@/lib/session'
 import { supabaseAdmin } from '@/lib/supabase-admin'
-import LogoutButton from '@/components/admin/LogoutButton'
+import AdminNav from '@/components/admin/AdminNav'
 
 async function getProducts() {
   const { data: products, error } = await supabaseAdmin
@@ -28,18 +28,7 @@ export default async function AdminDashboardPage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
-      {/* Header */}
-      <header className="border-b border-[#FF69B4]/10">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div>
-            <h1 className="font-[family-name:var(--font-playfair)] text-2xl text-white">
-              BAGCLUE Admin
-            </h1>
-            <p className="text-xs text-gray-400 mt-1">Panel de gestión de productos</p>
-          </div>
-          <LogoutButton />
-        </div>
-      </header>
+      <AdminNav />
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-6 py-8">
