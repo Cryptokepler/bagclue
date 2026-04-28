@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Inter } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import ClientProviders from "@/components/ClientProviders";
+import ConditionalLayout from "@/components/ConditionalLayout";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -37,9 +36,9 @@ export default function RootLayout({
     <html lang="es" className={`${playfair.variable} ${inter.variable}`}>
       <body className="bg-white text-gray-900 font-sans antialiased">
         <ClientProviders>
-          <Navbar />
-          <main className="min-h-screen">{children}</main>
-          <Footer />
+          <ConditionalLayout>
+            {children}
+          </ConditionalLayout>
         </ClientProviders>
       </body>
     </html>
