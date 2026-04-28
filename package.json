@@ -11,7 +11,9 @@
   "dependencies": {
     "@next/third-parties": "^16.1.6",
     "@supabase/supabase-js": "^2.105.1",
+    "bcryptjs": "^3.0.3",
     "dotenv": "^17.4.2",
+    "iron-session": "^8.0.4",
     "next": "16.1.6",
     "react": "19.2.3",
     "react-dom": "19.2.3"
