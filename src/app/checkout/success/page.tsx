@@ -48,13 +48,21 @@ function SuccessContent() {
 
         <div className="flex gap-4 justify-center">
           <button
-            onClick={() => router.push('/catalogo')}
+            type="button"
+            onClick={() => {
+              console.log('Navigating to /catalogo')
+              router.push('/catalogo')
+            }}
             className="border border-[#FF69B4]/20 text-gray-900 px-8 py-3 hover:border-[#FF69B4] transition-colors cursor-pointer"
           >
             Ver más productos
           </button>
           <button
-            onClick={() => router.push('/')}
+            type="button"
+            onClick={() => {
+              console.log('Navigating to /')
+              router.push('/')
+            }}
             className="bg-[#FF69B4] text-white px-8 py-3 hover:bg-[#FF69B4]/90 transition-colors cursor-pointer"
           >
             Volver al inicio
