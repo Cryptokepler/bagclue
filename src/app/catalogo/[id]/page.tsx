@@ -1,20 +1,64 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { products, brandGradients, formatPrice, getStatusColor, getStatusLabel } from '@/data/products';
+import { supabase } from '@/lib/supabase';
+import { Product, dbStatusToLegacy } from '@/types/database';
+import { brandGradients, formatPrice, getStatusColor, getStatusLabel, type Brand } from '@/data/products';
 import ProductCard from '@/components/ProductCard';
 import InstagramCTA from '@/components/InstagramCTA';
 
-export function generateStaticParams() {
-  return products.map(p => ({ id: p.id }));
+export const dynamic = 'force-dynamic'; // Disable static generation for now
+
+async function getProduct(slug: string) {
+  const { data: product, error } = await supabase
+    .from('products')
+    .select('*, product_images(*)')
+    .eq('slug', slug)
+    .eq('is_published', true)
+    .single();
+
+  if (error || !product) return null;
+  return product;
+}
+
+async function getRelatedProducts(brand: string, currentSlug: string) {
+  const { data: products } = await supabase
+    .from('products')
+    .select('*, product_images(*)')
+    .eq('brand', brand)
+    .eq('is_published', true)
+    .neq('slug', currentSlug)
+    .limit(4);
+
+  return products || [];
 }
 
 export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  const product = products.find(p => p.id === id);
-  if (!product) notFound();
+  const { id: slug } = await params;
+  const productData = await getProduct(slug);
+  
+  if (!productData) notFound();
 
-  const gradient = brandGradients[product.brand];
-  const related = products.filter(p => p.id !== product.id && p.brand === product.brand).slice(0, 4);
+  const product = productData as any;
+  const relatedData = await getRelatedProducts(product.brand, slug);
+  
+  const gradient = brandGradients[product.brand as Brand] || { from: '#1a1a1a', to: '#4A4A4A' };
+  const legacyStatus = dbStatusToLegacy(product.status);
+  const mainImage = product.product_images?.[0]?.url || '';
+
+  // Transform related products to legacy format for ProductCard
+  const related = relatedData.map((p: any) => ({
+    id: p.slug,
+    brand: p.brand,
+    model: p.model || p.title,
+    color: p.color || '',
+    origin: p.origin || '',
+    status: dbStatusToLegacy(p.status),
+    price: p.price,
+    category: p.category,
+    image: p.product_images?.[0]?.url || '',
+    badge: p.badge || undefined,
+    description: p.description || undefined
+  }));
 
   return (
     <div className="pt-28 pb-24">
@@ -25,7 +69,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
           <span>/</span>
           <Link href="/catalogo" className="hover:text-[#FF69B4]">Catálogo</Link>
           <span>/</span>
-          <span className="text-gray-900/50">{product.id}</span>
+          <span className="text-gray-900/50">{slug}</span>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
@@ -34,10 +78,10 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
             className="aspect-[3/4] relative overflow-hidden border border-[#FF69B4]/10"
             style={{ background: `linear-gradient(135deg, ${gradient.from}, ${gradient.to})` }}
           >
-            {product.image ? (
+            {mainImage ? (
               <img
-                src={product.image}
-                alt={`${product.brand} ${product.model} ${product.color}`}
+                src={mainImage}
+                alt={product.title}
                 className="absolute inset-0 w-full h-full object-cover"
               />
             ) : (
@@ -47,8 +91,8 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
               </div>
             )}
             <div className="absolute top-4 left-4 flex flex-col gap-2">
-              <span className={`text-xs tracking-wider uppercase px-3 py-1.5 border ${getStatusColor(product.status)}`}>
-                {getStatusLabel(product.status)}
+              <span className={`text-xs tracking-wider uppercase px-3 py-1.5 border ${getStatusColor(legacyStatus)}`}>
+                {getStatusLabel(legacyStatus)}
               </span>
               {product.badge && (
                 <span className="text-xs tracking-wider uppercase px-3 py-1.5 border bg-[#FF69B4]/20 text-[#FF69B4] border-[#FF69B4]/30">
@@ -66,7 +110,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
           {/* Details */}
           <div className="flex flex-col justify-center">
             <span className="text-xs tracking-[0.5em] uppercase text-[#FF69B4]/60">{product.brand}</span>
-            <h1 className="font-[family-name:var(--font-playfair)] text-4xl md:text-5xl text-gray-900 mt-2 mb-4">{product.model}</h1>
+            <h1 className="font-[family-name:var(--font-playfair)] text-4xl md:text-5xl text-gray-900 mt-2 mb-4">{product.title}</h1>
 
             {product.description && (
               <p className="text-sm text-gray-900/60 leading-relaxed mb-6 italic">{product.description}</p>
@@ -75,25 +119,39 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
             <div className="space-y-4 mb-8">
               <div className="flex justify-between border-b border-[#FF69B4]/10 pb-3">
                 <span className="text-sm text-gray-900/40">Código</span>
-                <span className="text-sm text-gray-900">{product.id}</span>
+                <span className="text-sm text-gray-900">{slug}</span>
               </div>
               <div className="flex justify-between border-b border-[#FF69B4]/10 pb-3">
                 <span className="text-sm text-gray-900/40">Marca</span>
                 <span className="text-sm text-gray-900">{product.brand}</span>
               </div>
-              <div className="flex justify-between border-b border-[#FF69B4]/10 pb-3">
-                <span className="text-sm text-gray-900/40">Color</span>
-                <span className="text-sm text-gray-900">{product.color}</span>
-              </div>
-              <div className="flex justify-between border-b border-[#FF69B4]/10 pb-3">
-                <span className="text-sm text-gray-900/40">Origen</span>
-                <span className="text-sm text-gray-900">{product.origin}</span>
-              </div>
+              {product.model && (
+                <div className="flex justify-between border-b border-[#FF69B4]/10 pb-3">
+                  <span className="text-sm text-gray-900/40">Modelo</span>
+                  <span className="text-sm text-gray-900">{product.model}</span>
+                </div>
+              )}
+              {product.color && (
+                <div className="flex justify-between border-b border-[#FF69B4]/10 pb-3">
+                  <span className="text-sm text-gray-900/40">Color</span>
+                  <span className="text-sm text-gray-900">{product.color}</span>
+                </div>
+              )}
+              {product.origin && (
+                <div className="flex justify-between border-b border-[#FF69B4]/10 pb-3">
+                  <span className="text-sm text-gray-900/40">Origen</span>
+                  <span className="text-sm text-gray-900">{product.origin}</span>
+                </div>
+              )}
               <div className="flex justify-between border-b border-[#FF69B4]/10 pb-3">
                 <span className="text-sm text-gray-900/40">Estado</span>
-                <span className={`text-xs tracking-wider uppercase px-2.5 py-1 border ${getStatusColor(product.status)}`}>
-                  {getStatusLabel(product.status)}
+                <span className={`text-xs tracking-wider uppercase px-2.5 py-1 border ${getStatusColor(legacyStatus)}`}>
+                  {getStatusLabel(legacyStatus)}
                 </span>
+              </div>
+              <div className="flex justify-between border-b border-[#FF69B4]/10 pb-3">
+                <span className="text-sm text-gray-900/40">Condición</span>
+                <span className="text-sm text-gray-900 capitalize">{product.condition.replace('_', ' ')}</span>
               </div>
             </div>
 
@@ -106,7 +164,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
               )}
             </div>
 
-            {product.status !== 'Apartada' && (
+            {legacyStatus !== 'Apartada' && (
               <div className="mb-6 p-4 border border-[#FF69B4]/10 bg-[#FF69B4]/5">
                 <p className="text-xs text-[#FF69B4]">💎 Apartado disponible — Llévate esta pieza con pagos semanales</p>
               </div>
@@ -126,7 +184,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
           <div className="mt-24 border-t border-[#FF69B4]/10 pt-16">
             <h2 className="font-[family-name:var(--font-playfair)] text-2xl text-gray-900 mb-8 text-center">Piezas Relacionadas</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {related.map(p => <ProductCard key={p.id} product={p} />)}
+              {related.map((p: any) => <ProductCard key={p.id} product={p} />)}
             </div>
           </div>
         )}
