@@ -13,7 +13,10 @@ function SuccessContent() {
     success: boolean
     message?: string
     error?: string
+    order_id?: string
   } | null>(null)
+  const [trackingUrl, setTrackingUrl] = useState<string | null>(null)
+  const [copySuccess, setCopySuccess] = useState(false)
 
   useEffect(() => {
     // Verificar sesión de pago UNA SOLA VEZ
@@ -52,6 +55,31 @@ function SuccessContent() {
     
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session_id]) // ✅ SOLO session_id - evita loop
+
+  // Obtener tracking URL después de verificar pago
+  useEffect(() => {
+    const fetchTrackingUrl = async () => {
+      if (verifyResult?.success && verifyResult.order_id) {
+        try {
+          const response = await fetch(`/api/orders/${verifyResult.order_id}/tracking-url`)
+          const data = await response.json()
+          setTrackingUrl(data.tracking_url)
+        } catch (error) {
+          console.error('[SUCCESS] Error fetching tracking URL:', error)
+        }
+      }
+    }
+
+    fetchTrackingUrl()
+  }, [verifyResult])
+
+  const handleCopyLink = () => {
+    if (trackingUrl) {
+      navigator.clipboard.writeText(trackingUrl)
+      setCopySuccess(true)
+      setTimeout(() => setCopySuccess(false), 2000)
+    }
+  }
 
   return (
     <div className="pt-28 pb-24">
@@ -102,6 +130,38 @@ function SuccessContent() {
             <li>✓ Tu pedido incluye certificado de autenticidad Entrupy</li>
           </ul>
         </div>
+
+        {/* Tracking Link */}
+        {trackingUrl && (
+          <div className="bg-white border border-[#FF69B4]/20 p-6 mb-8">
+            <h2 className="text-lg font-medium text-gray-900 mb-4">Seguimiento de tu pedido</h2>
+            
+            <button
+              onClick={() => window.location.href = trackingUrl}
+              className="w-full bg-[#FF69B4] text-white py-3 mb-4 hover:bg-[#FF69B4]/90 transition-colors"
+            >
+              📦 Ver seguimiento de mi pedido
+            </button>
+            
+            <div className="bg-gray-50 p-3 rounded">
+              <p className="text-xs text-gray-600 mb-2">Guarda este link:</p>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={trackingUrl}
+                  readOnly
+                  className="flex-1 text-xs bg-white border border-gray-300 px-3 py-2 rounded"
+                />
+                <button
+                  onClick={handleCopyLink}
+                  className="px-4 py-2 text-xs border border-[#FF69B4]/20 hover:border-[#FF69B4] transition-colors"
+                >
+                  {copySuccess ? '✓ Copiado' : 'Copiar'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="flex gap-4 justify-center">
           <button

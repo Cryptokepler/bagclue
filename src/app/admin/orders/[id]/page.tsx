@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { isAuthenticated } from '@/lib/session'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import AdminNav from '@/components/admin/AdminNav'
+import ShippingInfoForm from '@/components/admin/ShippingInfoForm'
 
 async function getOrder(id: string) {
   const { data: order, error } = await supabaseAdmin
@@ -140,6 +141,20 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
                 </div>
               </div>
             </div>
+
+            {/* Shipping Info Form */}
+            <ShippingInfoForm
+              orderId={order.id}
+              initialData={{
+                customer_phone: order.customer_phone,
+                shipping_address: order.shipping_address,
+                shipping_status: order.shipping_status,
+                shipping_provider: order.shipping_provider,
+                tracking_number: order.tracking_number,
+                tracking_url: order.tracking_url,
+                notes: order.notes
+              }}
+            />
           </div>
 
           {/* Sidebar */}
