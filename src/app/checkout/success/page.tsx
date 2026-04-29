@@ -16,7 +16,7 @@ function SuccessContent() {
   } | null>(null)
 
   useEffect(() => {
-    // Verificar sesión de pago
+    // Verificar sesión de pago UNA SOLA VEZ
     const verifySession = async () => {
       if (!session_id) {
         setVerifying(false)
@@ -25,16 +25,20 @@ function SuccessContent() {
 
       try {
         console.log('[SUCCESS] Verificando sesión:', session_id)
-        const response = await fetch(`/api/checkout/verify-session?session_id=${session_id}`)
+        const response = await fetch(`/api/checkout/verify-session?session_id=${session_id}`, {
+          signal: AbortSignal.timeout(10000) // 10s timeout
+        })
         const data = await response.json()
         
         console.log('[SUCCESS] Resultado verificación:', data)
         setVerifyResult(data)
-      } catch (error) {
+      } catch (error: any) {
         console.error('[SUCCESS] Error verificando sesión:', error)
         setVerifyResult({
           success: false,
-          error: 'Error al verificar el pago'
+          error: error.name === 'TimeoutError' 
+            ? 'Verificación en proceso (puede tardar unos segundos)'
+            : 'Error al verificar el pago'
         })
       } finally {
         setVerifying(false)
@@ -45,7 +49,9 @@ function SuccessContent() {
     
     // Limpiar carrito después de compra exitosa
     clearCart()
-  }, [session_id, clearCart])
+    
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session_id]) // ✅ SOLO session_id - evita loop
 
   return (
     <div className="pt-28 pb-24">
