@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, Suspense } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useCart } from '@/contexts/CartContext'
 
@@ -8,11 +8,44 @@ function SuccessContent() {
   const searchParams = useSearchParams()
   const session_id = searchParams.get('session_id')
   const { clearCart } = useCart()
+  const [verifying, setVerifying] = useState(true)
+  const [verifyResult, setVerifyResult] = useState<{
+    success: boolean
+    message?: string
+    error?: string
+  } | null>(null)
 
   useEffect(() => {
+    // Verificar sesión de pago
+    const verifySession = async () => {
+      if (!session_id) {
+        setVerifying(false)
+        return
+      }
+
+      try {
+        console.log('[SUCCESS] Verificando sesión:', session_id)
+        const response = await fetch(`/api/checkout/verify-session?session_id=${session_id}`)
+        const data = await response.json()
+        
+        console.log('[SUCCESS] Resultado verificación:', data)
+        setVerifyResult(data)
+      } catch (error) {
+        console.error('[SUCCESS] Error verificando sesión:', error)
+        setVerifyResult({
+          success: false,
+          error: 'Error al verificar el pago'
+        })
+      } finally {
+        setVerifying(false)
+      }
+    }
+
+    verifySession()
+    
     // Limpiar carrito después de compra exitosa
     clearCart()
-  }, [clearCart])
+  }, [session_id, clearCart])
 
   return (
     <div className="pt-28 pb-24">
@@ -30,9 +63,28 @@ function SuccessContent() {
             Tu pedido ha sido confirmado
           </p>
           {session_id && (
-            <p className="text-xs text-gray-900/40 mb-8">
+            <p className="text-xs text-gray-900/40 mb-4">
               ID de sesión: {session_id}
             </p>
+          )}
+          
+          {/* Estado de verificación */}
+          {verifying && (
+            <div className="mt-4 p-3 bg-blue-50 border border-blue-200 text-blue-700 text-sm">
+              🔄 Verificando pago...
+            </div>
+          )}
+          {!verifying && verifyResult && (
+            <div className={`mt-4 p-3 border text-sm ${
+              verifyResult.success 
+                ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
+                : 'bg-amber-50 border-amber-200 text-amber-700'
+            }`}>
+              {verifyResult.success 
+                ? '✅ Pago verificado y orden actualizada'
+                : `⚠️ ${verifyResult.message || verifyResult.error || 'Verificación pendiente'}`
+              }
+            </div>
           )}
         </div>
 
