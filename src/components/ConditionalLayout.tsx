@@ -9,7 +9,7 @@ import Footer from './Footer'
 export default function ConditionalLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname()
   const isAdmin = pathname.startsWith('/admin')
-  const isTracking = pathname.startsWith('/track/')
+  const isTracking = pathname.startsWith('/track/') || pathname.startsWith('/layaway/')
 
   if (isAdmin) {
     // Admin routes: no navbar, no footer

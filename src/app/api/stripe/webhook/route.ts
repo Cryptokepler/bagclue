@@ -93,6 +93,20 @@ export async function POST(request: NextRequest) {
 }
 
 async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
+  const metadata_type = session.metadata?.type
+  
+  // Handle layaway payments
+  if (metadata_type === 'layaway_deposit') {
+    await handleLayawayDeposit(session)
+    return
+  }
+  
+  if (metadata_type === 'layaway_balance') {
+    await handleLayawayBalance(session)
+    return
+  }
+  
+  // Handle normal order payment
   const order_id = session.metadata?.order_id
 
   if (!order_id) {
@@ -274,4 +288,172 @@ async function handleCheckoutExpired(session: Stripe.Checkout.Session) {
   }
 
   console.log(`[WEBHOOK] SUCCESS: Order ${order_id} cancelled and products released`)
+}
+
+// ===== LAYAWAY HANDLERS =====
+
+async function handleLayawayDeposit(session: Stripe.Checkout.Session) {
+  const layaway_id = session.metadata?.layaway_id
+
+  if (!layaway_id) {
+    console.error('[WEBHOOK] ERROR: No layaway_id in deposit session metadata')
+    return
+  }
+
+  console.log(`[WEBHOOK] Processing layaway deposit for: ${layaway_id}`)
+
+  // Update layaway: pending → active
+  const { data: layaway, error: layawayError } = await supabaseAdmin
+    .from('layaways')
+    .update({
+      status: 'active',
+      deposit_payment_intent_id: session.payment_intent as string || null,
+      deposit_paid_at: new Date().toISOString()
+    })
+    .eq('id', layaway_id)
+    .select('product_id')
+    .single()
+
+  console.log('[WEBHOOK] Resultado actualizar layaway (deposit):', {
+    success: !layawayError,
+    layawayId: layaway_id,
+    updatedStatus: 'active',
+    error: layawayError?.message || null
+  })
+
+  if (layawayError || !layaway) {
+    console.error('[WEBHOOK] ERROR updating layaway (deposit):', layawayError)
+    return
+  }
+
+  // Update product: available → reserved
+  const { error: productError } = await supabaseAdmin
+    .from('products')
+    .update({ status: 'reserved' })
+    .eq('id', layaway.product_id)
+
+  console.log('[WEBHOOK] Resultado actualizar product (reserved):', {
+    success: !productError,
+    productId: layaway.product_id,
+    updatedStatus: 'reserved',
+    error: productError?.message || null
+  })
+
+  console.log(`[WEBHOOK] SUCCESS: Layaway ${layaway_id} activated and product reserved`)
+}
+
+async function handleLayawayBalance(session: Stripe.Checkout.Session) {
+  const layaway_id = session.metadata?.layaway_id
+
+  if (!layaway_id) {
+    console.error('[WEBHOOK] ERROR: No layaway_id in balance session metadata')
+    return
+  }
+
+  console.log(`[WEBHOOK] Processing layaway balance for: ${layaway_id}`)
+
+  // Get layaway details
+  const { data: layaway, error: fetchError } = await supabaseAdmin
+    .from('layaways')
+    .select('*')
+    .eq('id', layaway_id)
+    .single()
+
+  if (fetchError || !layaway) {
+    console.error('[WEBHOOK] ERROR fetching layaway:', fetchError)
+    return
+  }
+
+  // Update layaway: active → completed
+  const { error: layawayError } = await supabaseAdmin
+    .from('layaways')
+    .update({
+      status: 'completed',
+      balance_payment_intent_id: session.payment_intent as string || null,
+      balance_paid_at: new Date().toISOString(),
+      completed_at: new Date().toISOString()
+    })
+    .eq('id', layaway_id)
+
+  console.log('[WEBHOOK] Resultado actualizar layaway (completed):', {
+    success: !layawayError,
+    layawayId: layaway_id,
+    updatedStatus: 'completed',
+    error: layawayError?.message || null
+  })
+
+  if (layawayError) {
+    console.error('[WEBHOOK] ERROR updating layaway (balance):', layawayError)
+    return
+  }
+
+  // Create full order
+  const { data: order, error: orderError } = await supabaseAdmin
+    .from('orders')
+    .insert({
+      customer_name: layaway.customer_name,
+      customer_email: layaway.customer_email,
+      customer_phone: layaway.customer_phone,
+      total: layaway.product_price,
+      subtotal: layaway.product_price,
+      shipping: 0,
+      status: 'confirmed',
+      payment_status: 'paid',
+      stripe_session_id: session.id,
+      stripe_payment_intent_id: session.payment_intent as string || null,
+      layaway_id: layaway.id
+    })
+    .select()
+    .single()
+
+  console.log('[WEBHOOK] Resultado crear order (from layaway):', {
+    success: !orderError,
+    orderId: order?.id || null,
+    error: orderError?.message || null
+  })
+
+  if (orderError || !order) {
+    console.error('[WEBHOOK] ERROR creating order from layaway:', orderError)
+    return
+  }
+
+  // Create order item
+  const { error: itemError } = await supabaseAdmin
+    .from('order_items')
+    .insert({
+      order_id: order.id,
+      product_id: layaway.product_id,
+      quantity: 1,
+      unit_price: layaway.product_price
+    })
+
+  console.log('[WEBHOOK] Resultado crear order_item:', {
+    success: !itemError,
+    error: itemError?.message || null
+  })
+
+  if (itemError) {
+    console.error('[WEBHOOK] ERROR creating order item:', itemError)
+  }
+
+  // Link order back to layaway
+  await supabaseAdmin
+    .from('layaways')
+    .update({ order_id: order.id })
+    .eq('id', layaway_id)
+
+  // Update product: reserved → sold
+  const { error: productError } = await supabaseAdmin
+    .from('products')
+    .update({ status: 'sold', stock: 0 })
+    .eq('id', layaway.product_id)
+
+  console.log('[WEBHOOK] Resultado actualizar product (sold):', {
+    success: !productError,
+    productId: layaway.product_id,
+    updatedStatus: 'sold',
+    error: productError?.message || null
+  })
+
+  console.log(`[WEBHOOK] SUCCESS: Layaway ${layaway_id} completed, order ${order.id} created, product sold`)
 }

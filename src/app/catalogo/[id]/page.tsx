@@ -6,6 +6,7 @@ import { brandGradients, formatPrice, getStatusColor, getStatusLabel, type Brand
 import ProductCard from '@/components/ProductCard';
 import InstagramCTA from '@/components/InstagramCTA';
 import AddToCartButton from '@/components/AddToCartButton';
+import LayawayButton from '@/components/LayawayButton';
 
 export const dynamic = 'force-dynamic'; // Disable static generation for now
 
@@ -173,18 +174,30 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
 
             {/* CTA Logic */}
             {product.status === 'available' && product.is_published && (product.stock ?? 0) > 0 && product.price ? (
-              <AddToCartButton 
-                product={{
-                  id: product.id,
-                  slug: product.slug,
-                  title: product.title,
-                  brand: product.brand,
-                  price: product.price,
-                  currency: product.currency || 'MXN',
-                  status: product.status,
-                  image: mainImage
-                }}
-              />
+              <div className="space-y-3">
+                <AddToCartButton 
+                  product={{
+                    id: product.id,
+                    slug: product.slug,
+                    title: product.title,
+                    brand: product.brand,
+                    price: product.price,
+                    currency: product.currency || 'MXN',
+                    status: product.status,
+                    image: mainImage
+                  }}
+                />
+                {(product as any).allow_layaway !== false && (
+                  <LayawayButton 
+                    product={{
+                      id: product.id,
+                      price: product.price,
+                      layaway_deposit_percent: (product as any).layaway_deposit_percent || 20,
+                      currency: product.currency || 'MXN'
+                    }}
+                  />
+                )}
+              </div>
             ) : product.status === 'preorder' ? (
               <InstagramCTA text="Consultar pre-venta" />
             ) : product.status === 'reserved' ? (
