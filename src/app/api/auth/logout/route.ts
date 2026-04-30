@@ -1,13 +1,27 @@
-import { NextResponse } from 'next/server'
-import { getSession } from '@/lib/session'
+import { NextRequest, NextResponse } from 'next/server'
+import { supabaseCustomer } from '@/lib/supabase-customer'
 
-export async function POST() {
+export async function POST(req: NextRequest) {
   try {
-    const session = await getSession()
-    session.destroy()
-    return NextResponse.json({ success: true })
+    const { error } = await supabaseCustomer.auth.signOut()
+
+    if (error) {
+      console.error('Logout error:', error)
+      return NextResponse.json(
+        { error: 'Failed to logout' },
+        { status: 500 }
+      )
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: 'Logged out successfully',
+    })
   } catch (error) {
-    console.error('Logout error:', error)
-    return NextResponse.json({ error: 'Error interno' }, { status: 500 })
+    console.error('Logout route error:', error)
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    )
   }
 }
