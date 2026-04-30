@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabase-admin'
 
 export async function GET(
   request: NextRequest,
@@ -14,7 +14,7 @@ export async function GET(
     }
 
     // Buscar orden por tracking_token
-    const { data: order, error } = await supabase
+    const { data: order, error } = await supabaseAdmin
       .from('orders')
       .select(`
         id,
@@ -42,7 +42,7 @@ export async function GET(
     }
 
     // Buscar items de la orden
-    const { data: items, error: itemsError } = await supabase
+    const { data: items, error: itemsError } = await supabaseAdmin
       .from('order_items')
       .select(`
         quantity,
@@ -57,7 +57,7 @@ export async function GET(
 
     // Buscar información de productos
     const productIds = items.map(item => item.product_id)
-    const { data: products, error: productsError } = await supabase
+    const { data: products, error: productsError } = await supabaseAdmin
       .from('products')
       .select('id, title, brand, product_images(url)')
       .in('id', productIds)
