@@ -23,6 +23,8 @@ export async function GET(
         customer_email,
         customer_phone,
         total,
+        subtotal,
+        shipping,
         status,
         payment_status,
         shipping_address,
@@ -47,7 +49,8 @@ export async function GET(
       .select(`
         quantity,
         unit_price,
-        product_id
+        product_id,
+        product_snapshot
       `)
       .eq('order_id', order.id)
 
@@ -71,9 +74,9 @@ export async function GET(
       const product = products.find(p => p.id === item.product_id)
       return {
         ...item,
-        product_title: product?.title || 'Producto',
-        product_brand: product?.brand || '',
-        product_image: product?.product_images?.[0]?.url || ''
+        product_title: item.product_snapshot?.title || product?.title || 'Producto',
+        product_brand: item.product_snapshot?.brand || product?.brand || '',
+        product_image: item.product_snapshot?.image || product?.product_images?.[0]?.url || ''
       }
     })
 
@@ -84,6 +87,8 @@ export async function GET(
         customer_name: order.customer_name,
         customer_phone: order.customer_phone,
         total: order.total,
+        subtotal: order.subtotal || order.total,
+        shipping: order.shipping || 0,
         status: order.status,
         payment_status: order.payment_status,
         shipping_address: order.shipping_address,

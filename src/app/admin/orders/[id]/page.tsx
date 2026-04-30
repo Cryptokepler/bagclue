@@ -146,12 +146,14 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
             <ShippingInfoForm
               orderId={order.id}
               initialData={{
+                status: order.status,
                 customer_phone: order.customer_phone,
                 shipping_address: order.shipping_address,
                 shipping_status: order.shipping_status,
                 shipping_provider: order.shipping_provider,
                 tracking_number: order.tracking_number,
                 tracking_url: order.tracking_url,
+                tracking_token: order.tracking_token,
                 notes: order.notes
               }}
             />
