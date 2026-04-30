@@ -10,7 +10,8 @@
 ## 📦 Lo que se implementó
 
 ### ✅ Auth Base Completo
-- **Magic Link:** Autenticación sin contraseñas via email
+- **Google OAuth:** Autenticación principal con "Continuar con Google"
+- **Magic Link:** Autenticación secundaria sin contraseñas via email
 - **Customer Profiles:** Tabla automática con RLS
 - **Login/Logout:** Flujo completo funcional
 - **Dashboard básico:** Vista /account con info del usuario

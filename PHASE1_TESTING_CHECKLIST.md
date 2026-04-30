@@ -24,11 +24,30 @@ Ver instrucciones completas en: `MIGRATION_015_INSTRUCTIONS.md`
 
 ## 🎯 Criterios PASS/FAIL (Fase 1)
 
-### Test 1: Cliente puede pedir magic link ✅/❌
+### Test 1A: Cliente puede entrar con Google (PRIMARY) ✅/❌
 **Pasos:**
 1. Ir a https://bagclue.vercel.app/account/login
-2. Ingresar un email válido (ej: test@example.com)
-3. Click en "Enviar enlace mágico"
+2. Click en botón "Continuar con Google"
+3. Seleccionar cuenta Google
+4. Autorizar acceso
+
+**Resultado esperado:**
+- Redirige a pantalla OAuth de Google
+- Después de autorizar → redirige a https://bagclue.vercel.app/account
+- Muestra dashboard con mensaje de bienvenida
+- Muestra email de Google
+
+**PASS:** ✅ Login con Google exitoso  
+**FAIL:** ❌ Error en OAuth o redirect incorrecto
+
+---
+
+### Test 1B: Cliente puede pedir magic link (SECONDARY) ✅/❌
+**Pasos:**
+1. Ir a https://bagclue.vercel.app/account/login
+2. Scroll hasta sección "o usa tu correo"
+3. Ingresar un email válido (ej: test@example.com)
+4. Click en "Enviar enlace mágico"
 
 **Resultado esperado:**
 - Mensaje de éxito: "✉️ Revisa tu correo - te enviamos el enlace de acceso"
@@ -39,7 +58,7 @@ Ver instrucciones completas en: `MIGRATION_015_INSTRUCTIONS.md`
 
 ---
 
-### Test 2: Cliente puede entrar ✅/❌
+### Test 2: Cliente puede entrar con magic link ✅/❌
 **Pasos:**
 1. Abrir el magic link del email
 2. Verificar redirección
@@ -118,11 +137,27 @@ Ver instrucciones completas en: `MIGRATION_015_INSTRUCTIONS.md`
 
 ---
 
-### Test 7: PASS/FAIL FINAL ✅/❌
+### Test 7: No duplica perfil en re-login ✅/❌
+**Pasos:**
+1. Logout de la cuenta
+2. Volver a entrar con el mismo método (Google o magic link)
+3. Verificar en Supabase → `customer_profiles`
+
+**Resultado esperado:**
+- Solo debe existir UN registro para ese email
+- No debe crear perfiles duplicados
+- El campo `user_id` debe ser el mismo
+
+**PASS:** ✅ No duplica perfil  
+**FAIL:** ❌ Crea múltiples perfiles para mismo usuario
+
+---
+
+### Test 8: PASS/FAIL FINAL ✅/❌
 
 **Criterio:**
-- ✅ **PASS:** Si tests 1-6 pasan TODOS
-- ❌ **FAIL:** Si CUALQUIERA de los tests 1-6 falla
+- ✅ **PASS:** Si tests 1A-7 pasan TODOS
+- ❌ **FAIL:** Si CUALQUIERA de los tests falla
 
 ---
 
