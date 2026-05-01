@@ -1,5 +1,7 @@
 'use client'
 
+import Link from 'next/link'
+
 interface CustomerProfile {
   id: string
   user_id: string
@@ -76,25 +78,41 @@ export default function AccountDashboard({ profile }: AccountDashboardProps) {
         </div>
       </div>
 
-      {/* Coming Soon Sections */}
+      {/* Quick Actions */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-gray-50 rounded-lg p-6 border-2 border-dashed border-gray-300">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            📦 Mis Pedidos
-          </h3>
+        <Link 
+          href="/account/orders"
+          className="bg-white rounded-lg p-6 border border-gray-200 hover:border-[#FF69B4] hover:shadow-md transition-all group"
+        >
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-lg font-semibold text-gray-900">
+              📦 Mis Pedidos
+            </h3>
+            <span className="text-[#FF69B4] opacity-0 group-hover:opacity-100 transition-opacity">
+              →
+            </span>
+          </div>
           <p className="text-sm text-gray-600">
-            Próximamente podrás ver el historial de tus pedidos aquí.
+            Ver el historial completo de tus compras
           </p>
-        </div>
+        </Link>
 
-        <div className="bg-gray-50 rounded-lg p-6 border-2 border-dashed border-gray-300">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            🏷️ Mis Apartados
-          </h3>
+        <Link 
+          href="/account/layaways"
+          className="bg-white rounded-lg p-6 border border-gray-200 hover:border-[#FF69B4] hover:shadow-md transition-all group"
+        >
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-lg font-semibold text-gray-900">
+              🏷️ Mis Apartados
+            </h3>
+            <span className="text-[#FF69B4] opacity-0 group-hover:opacity-100 transition-opacity">
+              →
+            </span>
+          </div>
           <p className="text-sm text-gray-600">
-            Próximamente podrás gestionar tus apartados aquí.
+            Gestionar tus productos apartados
           </p>
-        </div>
+        </Link>
       </div>
     </div>
   )
