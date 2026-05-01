@@ -14,33 +14,50 @@ export default function LoginForm() {
 
   // Check if already logged in with timeout protection
   useEffect(() => {
-    const checkAuth = async () => {
-      // Parse error params first
-      const params = new URLSearchParams(window.location.search)
-      if (params.get('error')) {
-        const errorType = params.get('error')
-        let errorMsg = 'Error en inicio de sesión'
-        
-        if (errorType === 'oauth_failed') errorMsg = 'Autenticación con Google falló'
-        if (errorType === 'oauth_exchange_failed') errorMsg = 'Error procesando autenticación'
-        if (errorType === 'session_expired') errorMsg = 'Tu sesión expiró. Inicia sesión de nuevo.'
-        
-        setMessage({ type: 'error', text: errorMsg })
+    console.log('[LOGIN_CHECK_START]')
+    
+    let completed = false
+    
+    // ABSOLUTE TIMEOUT: force show form after 6 seconds no matter what
+    const absoluteTimeout = setTimeout(() => {
+      if (!completed) {
+        console.log('[LOGIN_CHECK_ABSOLUTE_TIMEOUT] Forcing form display after 6s')
         setInitialLoading(false)
-        return
+        completed = true
       }
+    }, 6000)
 
-      // Check if we have hash params (OAuth callback with implicit flow)
-      const hash = window.location.hash
-      if (hash && hash.includes('access_token')) {
-        // Supabase will auto-detect and set session
-        // Wait a bit for it to process
-        setInitialLoading(true)
-        await new Promise(resolve => setTimeout(resolve, 1000))
-      }
-
+    const checkAuth = async () => {
       try {
+        // Parse error params first
+        const params = new URLSearchParams(window.location.search)
+        if (params.get('error')) {
+          const errorType = params.get('error')
+          let errorMsg = 'Error en inicio de sesión'
+          
+          if (errorType === 'oauth_failed') errorMsg = 'Autenticación con Google falló'
+          if (errorType === 'oauth_exchange_failed') errorMsg = 'Error procesando autenticación'
+          if (errorType === 'session_expired') errorMsg = 'Tu sesión expiró. Inicia sesión de nuevo.'
+          
+          console.log('[LOGIN_CHECK_ERROR_PARAM]', errorType)
+          setMessage({ type: 'error', text: errorMsg })
+          setInitialLoading(false)
+          completed = true
+          clearTimeout(absoluteTimeout)
+          return
+        }
+
+        // Check if we have hash params (OAuth callback with implicit flow)
+        const hash = window.location.hash
+        if (hash && hash.includes('access_token')) {
+          console.log('[LOGIN_CHECK_HASH_DETECTED] OAuth callback, waiting 1s for Supabase to process')
+          // Supabase will auto-detect and set session
+          // Wait a bit for it to process
+          await new Promise(resolve => setTimeout(resolve, 1000))
+        }
+
         // Timeout protection: max 5 seconds for getUser()
+        console.log('[LOGIN_CHECK_GET_USER] Starting getUser() with 5s timeout')
         const authCheckPromise = supabaseCustomer.auth.getUser()
         const timeoutPromise = new Promise((_, reject) => 
           setTimeout(() => reject(new Error('timeout')), 5000)
@@ -51,54 +68,81 @@ export default function LoginForm() {
           timeoutPromise
         ]) as any
 
+        if (completed) {
+          console.log('[LOGIN_CHECK_ALREADY_COMPLETED] Absolute timeout won, skipping')
+          return
+        }
+
         if (error) {
           // AuthSessionMissingError is EXPECTED when user is not logged in
-          // Don't treat it as an error - just show login form
           const isSessionMissing = error.name === 'AuthSessionMissingError' || 
                                    error.message?.includes('session_missing') ||
                                    error.message?.includes('Auth session missing')
           
-          if (!isSessionMissing) {
-            // Real error (not just missing session) - log it
-            console.error('Auth check error:', error)
+          if (isSessionMissing) {
+            console.log('[LOGIN_CHECK_NO_SESSION] No session found (expected)')
+          } else {
+            console.error('[LOGIN_CHECK_ERROR]', error)
           }
           
           // Show login form regardless
           setInitialLoading(false)
+          completed = true
+          clearTimeout(absoluteTimeout)
           return
         }
 
         if (user) {
+          console.log('[LOGIN_CHECK_SUCCESS_SESSION] User found, redirecting to /account')
           // User is logged in - redirect to account
+          completed = true
+          clearTimeout(absoluteTimeout)
           router.push('/account')
         } else {
+          console.log('[LOGIN_CHECK_NO_USER] No user, showing login form')
           // No user - show login form
           setInitialLoading(false)
+          completed = true
+          clearTimeout(absoluteTimeout)
         }
       } catch (error: any) {
+        if (completed) {
+          console.log('[LOGIN_CHECK_CATCH_ALREADY_COMPLETED] Absolute timeout won')
+          return
+        }
+
         // Check if it's just missing session (expected state)
         const isSessionMissing = error.name === 'AuthSessionMissingError' || 
                                  error.message?.includes('session_missing') ||
                                  error.message?.includes('Auth session missing')
         
-        if (!isSessionMissing) {
-          console.error('Auth check failed:', error)
-        }
-        
-        if (error.message === 'timeout') {
-          // getUser() timed out - probably corrupted session
+        if (isSessionMissing) {
+          console.log('[LOGIN_CHECK_CATCH_NO_SESSION] Caught session missing error')
+        } else if (error.message === 'timeout') {
+          console.log('[LOGIN_CHECK_TIMEOUT] getUser() timed out after 5s')
           setMessage({
             type: 'error',
             text: 'Sesión corrupta detectada. Haz click en "Limpiar sesión" abajo.',
           })
+        } else {
+          console.error('[LOGIN_CHECK_CATCH_ERROR]', error)
         }
         
         // Always show form even if check fails
         setInitialLoading(false)
+        completed = true
+        clearTimeout(absoluteTimeout)
+      } finally {
+        console.log('[LOGIN_CHECK_FINALLY] completed =', completed)
       }
     }
 
     checkAuth()
+
+    // Cleanup
+    return () => {
+      clearTimeout(absoluteTimeout)
+    }
   }, [router])
 
   // Clear corrupted session
@@ -191,13 +235,13 @@ export default function LoginForm() {
     }
   }
 
-  // Show minimal loading on first mount (max 5s due to timeout)
+  // Show minimal loading on first mount (max 6s due to absolute timeout)
   if (initialLoading) {
     return (
       <div className="max-w-md mx-auto mt-16 p-8 bg-white rounded-lg shadow-lg">
         <div className="text-center">
           <p className="text-gray-600">Verificando sesión...</p>
-          <p className="text-xs text-gray-400 mt-2">Máximo 5 segundos</p>
+          <p className="text-xs text-gray-400 mt-2">Máximo 6 segundos</p>
         </div>
       </div>
     )
