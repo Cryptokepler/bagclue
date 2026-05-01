@@ -1,6 +1,10 @@
-import { createClient } from '@supabase/supabase-js'
+/**
+ * DEPRECATED - Use @/lib/supabase-customer instead
+ * This file maintained for backward compatibility only
+ * 
+ * Importing this in 'use client' components creates multiple
+ * GoTrueClient instances. Use supabaseCustomer for all client-side auth.
+ */
+import { supabaseCustomer } from './supabase-customer'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+export const supabase = supabaseCustomer

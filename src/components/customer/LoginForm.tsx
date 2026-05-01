@@ -11,12 +11,23 @@ export default function LoginForm() {
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const router = useRouter()
 
-  // Check auth status and redirect if logged in
+  // Check if already logged in (only if not in OAuth callback flow)
   useEffect(() => {
-    const checkAuthAndRedirect = async () => {
-      // Wait a bit for Supabase to auto-detect session from URL
-      await new Promise(resolve => setTimeout(resolve, 500))
+    // Don't check auth if we have error params (from failed OAuth)
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('error')) {
+      const errorType = params.get('error')
+      let errorMsg = 'Error en inicio de sesión'
       
+      if (errorType === 'oauth_failed') errorMsg = 'Autenticación con Google falló'
+      if (errorType === 'oauth_exchange_failed') errorMsg = 'Error procesando autenticación'
+      
+      setMessage({ type: 'error', text: errorMsg })
+      return
+    }
+
+    // Check if user is already authenticated
+    const checkAuth = async () => {
       const { data: { user } } = await supabaseCustomer.auth.getUser()
       
       if (user) {
@@ -24,7 +35,7 @@ export default function LoginForm() {
       }
     }
 
-    checkAuthAndRedirect()
+    checkAuth()
   }, [router])
 
   // Google OAuth Sign In
@@ -36,7 +47,7 @@ export default function LoginForm() {
       const { error } = await supabaseCustomer.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/account/login`,
+          redirectTo: `${window.location.origin}/api/auth/callback?next=/account`,
         },
       })
 
@@ -47,8 +58,18 @@ export default function LoginForm() {
           text: 'Error al iniciar sesión con Google',
         })
         setGoogleLoading(false)
+        return
       }
-      // Si no hay error, el navegador redirige a Google
+
+      // Success - browser will redirect to Google
+      // Add timeout fallback in case redirect fails
+      setTimeout(() => {
+        setGoogleLoading(false)
+        setMessage({
+          type: 'error',
+          text: 'La redirección falló. Intenta de nuevo.',
+        })
+      }, 10000)
     } catch (error) {
       console.error('Google sign in error:', error)
       setMessage({

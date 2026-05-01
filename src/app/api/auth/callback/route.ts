@@ -8,6 +8,7 @@ export async function GET(req: NextRequest) {
   const type = searchParams.get('type')
   const error = searchParams.get('error')
   const error_description = searchParams.get('error_description')
+  const next = searchParams.get('next') || '/account'
 
   // Handle OAuth errors
   if (error) {
@@ -25,8 +26,8 @@ export async function GET(req: NextRequest) {
         return NextResponse.redirect(new URL('/account/login?error=oauth_exchange_failed', req.url))
       }
 
-      // Successful OAuth login - redirect to account dashboard
-      return NextResponse.redirect(new URL('/account', req.url))
+      // Successful OAuth login - redirect to next destination
+      return NextResponse.redirect(new URL(next, req.url))
     }
 
     // Magic Link Flow
