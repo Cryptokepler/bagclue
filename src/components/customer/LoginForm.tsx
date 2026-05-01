@@ -11,48 +11,21 @@ export default function LoginForm() {
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const router = useRouter()
 
-  // Handle OAuth callback with hash params
+  // Check auth status and redirect if logged in
   useEffect(() => {
-    const handleOAuthCallback = async () => {
-      // Check if we have hash params (OAuth callback)
-      const hashParams = new URLSearchParams(window.location.hash.substring(1))
-      const accessToken = hashParams.get('access_token')
-      const refreshToken = hashParams.get('refresh_token')
+    const checkAuthAndRedirect = async () => {
+      // Wait a bit for Supabase to auto-detect session from URL
+      await new Promise(resolve => setTimeout(resolve, 500))
       
-      if (accessToken) {
-        setGoogleLoading(true)
-        
-        try {
-          // Set the session with the tokens from hash
-          const { error } = await supabaseCustomer.auth.setSession({
-            access_token: accessToken,
-            refresh_token: refreshToken || '',
-          })
-
-          if (error) {
-            console.error('Session error:', error)
-            setMessage({
-              type: 'error',
-              text: 'Error al completar inicio de sesión',
-            })
-            setGoogleLoading(false)
-          } else {
-            // Clear hash and redirect to account
-            window.location.href = '/account'
-          }
-        } catch (error) {
-          console.error('OAuth callback error:', error)
-          setMessage({
-            type: 'error',
-            text: 'Error de autenticación',
-          })
-          setGoogleLoading(false)
-        }
+      const { data: { user } } = await supabaseCustomer.auth.getUser()
+      
+      if (user) {
+        router.push('/account')
       }
     }
 
-    handleOAuthCallback()
-  }, [])
+    checkAuthAndRedirect()
+  }, [router])
 
   // Google OAuth Sign In
   const handleGoogleSignIn = async () => {
