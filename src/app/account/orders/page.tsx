@@ -1,0 +1,227 @@
+import { redirect } from 'next/navigation'
+import Link from 'next/link'
+import AccountLayout from '@/components/customer/AccountLayout'
+import { supabaseCustomer } from '@/lib/supabase-customer'
+
+async function getCustomerOrders() {
+  try {
+    const { data: { user }, error: userError } = await supabaseCustomer.auth.getUser()
+    
+    if (userError || !user) {
+      return null
+    }
+    
+    // Get orders - RLS policy will filter to only user's orders
+    const { data: orders, error } = await supabaseCustomer
+      .from('orders')
+      .select(`
+        id,
+        customer_name,
+        customer_email,
+        total,
+        status,
+        payment_status,
+        tracking_token,
+        tracking_number,
+        shipping_status,
+        created_at,
+        order_items(
+          id,
+          quantity,
+          unit_price,
+          product_snapshot
+        )
+      `)
+      .order('created_at', { ascending: false })
+    
+    if (error) {
+      console.error('[ORDERS PAGE] Error fetching orders:', error)
+      return []
+    }
+    
+    return orders || []
+  } catch (error) {
+    console.error('[ORDERS PAGE] Unexpected error:', error)
+    return []
+  }
+}
+
+function getStatusBadge(status: string) {
+  const styles: Record<string, string> = {
+    pending: 'bg-yellow-100 text-yellow-700 border-yellow-200',
+    confirmed: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+    preparing: 'bg-blue-100 text-blue-700 border-blue-200',
+    shipped: 'bg-purple-100 text-purple-700 border-purple-200',
+    delivered: 'bg-green-100 text-green-700 border-green-200',
+    cancelled: 'bg-red-100 text-red-700 border-red-200'
+  }
+  
+  const labels: Record<string, string> = {
+    pending: 'Pendiente',
+    confirmed: 'Confirmado',
+    preparing: 'Preparando',
+    shipped: 'Enviado',
+    delivered: 'Entregado',
+    cancelled: 'Cancelado'
+  }
+  
+  return {
+    style: styles[status] || styles.pending,
+    label: labels[status] || status
+  }
+}
+
+function getPaymentBadge(status: string) {
+  if (status === 'paid') {
+    return {
+      style: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+      label: 'Pagado'
+    }
+  }
+  return {
+    style: 'bg-yellow-100 text-yellow-700 border-yellow-200',
+    label: 'Pendiente'
+  }
+}
+
+export default async function CustomerOrdersPage() {
+  const { data: { user } } = await supabaseCustomer.auth.getUser()
+  
+  if (!user) {
+    redirect('/account/login')
+  }
+  
+  const orders = await getCustomerOrders()
+  
+  if (orders === null) {
+    redirect('/account/login')
+  }
+
+  return (
+    <AccountLayout>
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="font-[family-name:var(--font-playfair)] text-3xl text-gray-900 mb-2">
+            Mis Pedidos
+          </h1>
+          <p className="text-gray-600">
+            Historial completo de tus compras en Bagclue
+          </p>
+        </div>
+        
+        {/* Orders List */}
+        {orders.length === 0 ? (
+          <div className="bg-white border border-gray-200 rounded-lg p-12 text-center">
+            <p className="text-4xl mb-4">🛍️</p>
+            <h2 className="text-xl font-medium text-gray-900 mb-2">
+              No tienes pedidos todavía
+            </h2>
+            <p className="text-gray-600 mb-6">
+              Explora nuestro catálogo y encuentra tu próxima pieza de lujo
+            </p>
+            <Link
+              href="/catalogo"
+              className="inline-block bg-[#FF69B4] text-white px-8 py-3 hover:bg-[#FF69B4]/90 transition-colors"
+            >
+              Ver catálogo
+            </Link>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {orders.map((order: any) => {
+              const statusBadge = getStatusBadge(order.status)
+              const paymentBadge = getPaymentBadge(order.payment_status)
+              
+              // Get first product image for preview
+              const firstItem = order.order_items?.[0]
+              const productCount = order.order_items?.length || 0
+              
+              return (
+                <Link
+                  key={order.id}
+                  href={`/account/orders/${order.id}`}
+                  className="block bg-white border border-gray-200 rounded-lg p-6 hover:border-[#FF69B4] hover:shadow-md transition-all group"
+                >
+                  <div className="flex gap-6">
+                    {/* Order Info */}
+                    <div className="flex-1">
+                      {/* Header */}
+                      <div className="flex items-start justify-between mb-3">
+                        <div>
+                          <div className="flex items-center gap-3 mb-1">
+                            <span className="font-mono text-sm text-gray-600">
+                              #{order.id.slice(0, 8)}
+                            </span>
+                            <span className={`text-xs px-2 py-1 rounded border ${statusBadge.style}`}>
+                              {statusBadge.label}
+                            </span>
+                            <span className={`text-xs px-2 py-1 rounded border ${paymentBadge.style}`}>
+                              {paymentBadge.label}
+                            </span>
+                          </div>
+                          <p className="text-sm text-gray-600">
+                            {new Date(order.created_at).toLocaleDateString('es-MX', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric'
+                            })}
+                          </p>
+                        </div>
+                        
+                        <div className="text-right">
+                          <p className="text-2xl font-medium text-gray-900">
+                            ${order.total.toLocaleString()}
+                          </p>
+                          <p className="text-xs text-gray-500">MXN</p>
+                        </div>
+                      </div>
+                      
+                      {/* Products Summary */}
+                      <div className="space-y-2">
+                        {order.order_items?.slice(0, 2).map((item: any, idx: number) => (
+                          <div key={idx} className="flex items-center gap-2 text-sm text-gray-700">
+                            <span className="w-1.5 h-1.5 bg-[#FF69B4] rounded-full"></span>
+                            <span className="font-medium">
+                              {item.product_snapshot?.brand}
+                            </span>
+                            <span>
+                              {item.product_snapshot?.title}
+                            </span>
+                          </div>
+                        ))}
+                        
+                        {productCount > 2 && (
+                          <p className="text-sm text-gray-500 ml-3.5">
+                            +{productCount - 2} producto{productCount - 2 > 1 ? 's' : ''} más
+                          </p>
+                        )}
+                      </div>
+                      
+                      {/* Tracking Info */}
+                      {order.tracking_number && (
+                        <div className="mt-3 pt-3 border-t border-gray-100">
+                          <div className="flex items-center gap-2 text-sm">
+                            <span className="text-gray-600">Rastreo:</span>
+                            <span className="font-mono text-gray-900">{order.tracking_number}</span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Arrow */}
+                    <div className="flex items-center">
+                      <span className="text-[#FF69B4] group-hover:translate-x-1 transition-transform">
+                        →
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              )
+            })}
+          </div>
+        )}
+      </div>
+    </AccountLayout>
+  )
+}

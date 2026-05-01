@@ -39,6 +39,7 @@ export interface ProductImage {
 
 export interface Order {
   id: string
+  user_id: string | null
   customer_name: string
   customer_email: string
   customer_phone: string | null
@@ -50,6 +51,12 @@ export interface Order {
   payment_status: PaymentStatus
   stripe_session_id: string | null
   stripe_payment_intent_id: string | null
+  tracking_token: string | null
+  tracking_number: string | null
+  tracking_url: string | null
+  shipping_status: string | null
+  shipping_provider: string | null
+  shipping_address: string | null
   notes: string | null
   created_at: string
   updated_at: string
