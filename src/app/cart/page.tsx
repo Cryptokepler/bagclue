@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, FormEvent } from 'react'
+import { useState, useEffect, FormEvent } from 'react'
 import { useCart } from '@/contexts/CartContext'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { supabaseCustomer } from '@/lib/supabase-customer'
 
 export default function CartPage() {
   const { items, removeFromCart, clearCart, cartTotal } = useCart()
@@ -12,6 +13,41 @@ export default function CartPage() {
   const [error, setError] = useState('')
   const [customerName, setCustomerName] = useState('')
   const [customerEmail, setCustomerEmail] = useState('')
+  const [customerPhone, setCustomerPhone] = useState('')
+  const [user, setUser] = useState<any>(null)
+  const [loadingUser, setLoadingUser] = useState(true)
+
+  // Load user data if logged in
+  useEffect(() => {
+    async function loadUserData() {
+      try {
+        const { data: { user }, error } = await supabaseCustomer.auth.getUser()
+        
+        if (!error && user) {
+          setUser(user)
+          setCustomerEmail(user.email || '')
+          
+          // Load profile data
+          const { data: profile } = await supabaseCustomer
+            .from('customer_profiles')
+            .select('name, phone')
+            .eq('user_id', user.id)
+            .single()
+          
+          if (profile) {
+            if (profile.name) setCustomerName(profile.name)
+            if (profile.phone) setCustomerPhone(profile.phone)
+          }
+        }
+      } catch (e) {
+        console.error('[CART] Error loading user data:', e)
+      } finally {
+        setLoadingUser(false)
+      }
+    }
+    
+    loadUserData()
+  }, [])
 
   const handleCheckout = async (e: FormEvent) => {
     e.preventDefault()
@@ -19,13 +55,22 @@ export default function CartPage() {
     setLoading(true)
 
     try {
+      // Get access token if user is logged in
+      const { data: { session } } = await supabaseCustomer.auth.getSession()
+      const headers: HeadersInit = { 'Content-Type': 'application/json' }
+      
+      if (session?.access_token) {
+        headers['Authorization'] = `Bearer ${session.access_token}`
+      }
+
       const res = await fetch('/api/checkout/create-session', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           items: items.map(item => ({ product_id: item.product_id })),
           customer_name: customerName,
-          customer_email: customerEmail
+          customer_email: customerEmail,
+          customer_phone: customerPhone || undefined
         })
       })
 
@@ -127,8 +172,34 @@ export default function CartPage() {
         {/* Checkout Form */}
         <form onSubmit={handleCheckout} className="space-y-6">
           <div className="bg-[#FF69B4]/5 border border-[#FF69B4]/20 p-6">
-            <h2 className="text-lg font-medium text-gray-900 mb-4">Datos de contacto</h2>
+            <h2 className="text-lg font-medium text-gray-900 mb-4">
+              Datos de contacto
+              {user && (
+                <span className="ml-2 text-sm font-normal text-[#FF69B4]">
+                  (usando cuenta logueada)
+                </span>
+              )}
+            </h2>
             <div className="space-y-4">
+              <div>
+                <label className="block text-sm text-gray-900/60 mb-2">Email *</label>
+                <input
+                  type="email"
+                  value={customerEmail}
+                  onChange={e => setCustomerEmail(e.target.value)}
+                  readOnly={!!user}
+                  required
+                  className={`w-full border border-[#FF69B4]/20 text-gray-900 px-4 py-2 focus:border-[#FF69B4] outline-none ${
+                    user ? 'bg-gray-50 cursor-not-allowed' : ''
+                  }`}
+                  placeholder="tu@email.com"
+                />
+                {user && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    Email de tu cuenta. No puede modificarse.
+                  </p>
+                )}
+              </div>
               <div>
                 <label className="block text-sm text-gray-900/60 mb-2">Nombre completo *</label>
                 <input
@@ -141,14 +212,13 @@ export default function CartPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm text-gray-900/60 mb-2">Email *</label>
+                <label className="block text-sm text-gray-900/60 mb-2">Teléfono (opcional)</label>
                 <input
-                  type="email"
-                  value={customerEmail}
-                  onChange={e => setCustomerEmail(e.target.value)}
-                  required
+                  type="tel"
+                  value={customerPhone}
+                  onChange={e => setCustomerPhone(e.target.value)}
                   className="w-full border border-[#FF69B4]/20 text-gray-900 px-4 py-2 focus:border-[#FF69B4] outline-none"
-                  placeholder="tu@email.com"
+                  placeholder="+52 55 1234 5678"
                 />
               </div>
             </div>

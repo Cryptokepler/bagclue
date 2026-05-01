@@ -3,6 +3,8 @@
 import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useCart } from '@/contexts/CartContext'
+import { supabaseCustomer } from '@/lib/supabase-customer'
+import Link from 'next/link'
 
 function SuccessContent() {
   const searchParams = useSearchParams()
@@ -17,6 +19,16 @@ function SuccessContent() {
   } | null>(null)
   const [trackingUrl, setTrackingUrl] = useState<string | null>(null)
   const [copySuccess, setCopySuccess] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+
+  // Check if user is logged in
+  useEffect(() => {
+    async function checkAuth() {
+      const { data: { user } } = await supabaseCustomer.auth.getUser()
+      setIsLoggedIn(!!user)
+    }
+    checkAuth()
+  }, [])
 
   useEffect(() => {
     // Verificar sesión de pago UNA SOLA VEZ
@@ -163,26 +175,54 @@ function SuccessContent() {
           </div>
         )}
 
-        <div className="flex gap-4 justify-center">
-          <button
-            type="button"
-            onClick={() => {
-              window.location.href = '/catalogo'
-            }}
-            className="border border-[#FF69B4]/20 text-gray-900 px-8 py-3 hover:border-[#FF69B4] transition-colors cursor-pointer"
-          >
-            Ver más productos
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              window.location.href = '/'
-            }}
-            className="bg-[#FF69B4] text-white px-8 py-3 hover:bg-[#FF69B4]/90 transition-colors cursor-pointer"
-          >
-            Volver al inicio
-          </button>
-        </div>
+        {/* Navigation buttons */}
+        {isLoggedIn ? (
+          <div className="space-y-4">
+            <div className="flex gap-4 justify-center">
+              <Link
+                href="/account/orders"
+                className="bg-[#FF69B4] text-white px-8 py-3 hover:bg-[#FF69B4]/90 transition-colors inline-block"
+              >
+                Ver mis pedidos
+              </Link>
+              <Link
+                href="/account"
+                className="border border-[#FF69B4]/20 text-gray-900 px-8 py-3 hover:border-[#FF69B4] transition-colors inline-block"
+              >
+                Ir a mi cuenta
+              </Link>
+            </div>
+            <div className="flex gap-4 justify-center">
+              <Link
+                href="/catalogo"
+                className="text-sm text-gray-600 hover:text-[#FF69B4] transition-colors"
+              >
+                Ver más productos →
+              </Link>
+            </div>
+          </div>
+        ) : (
+          <div className="flex gap-4 justify-center">
+            <button
+              type="button"
+              onClick={() => {
+                window.location.href = '/catalogo'
+              }}
+              className="border border-[#FF69B4]/20 text-gray-900 px-8 py-3 hover:border-[#FF69B4] transition-colors cursor-pointer"
+            >
+              Ver más productos
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                window.location.href = '/'
+              }}
+              className="bg-[#FF69B4] text-white px-8 py-3 hover:bg-[#FF69B4]/90 transition-colors cursor-pointer"
+            >
+              Volver al inicio
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )

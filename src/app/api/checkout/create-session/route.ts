@@ -9,7 +9,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { items, customer_email, customer_name } = body
+    const { items, customer_email, customer_name, customer_phone, shipping_address } = body
 
     if (!items || items.length === 0) {
       return NextResponse.json({ error: 'Carrito vacío' }, { status: 400 })
@@ -17,6 +17,27 @@ export async function POST(request: NextRequest) {
 
     if (!customer_email || !customer_name) {
       return NextResponse.json({ error: 'Datos de cliente requeridos' }, { status: 400 })
+    }
+
+    // Get user_id if logged in (validate Authorization header)
+    let user_id: string | null = null
+    let customer_email_final = customer_email
+
+    const authHeader = request.headers.get('authorization')
+    if (authHeader) {
+      try {
+        const token = authHeader.replace('Bearer ', '')
+        const { data: { user }, error } = await supabaseAdmin.auth.getUser(token)
+        
+        if (!error && user) {
+          user_id = user.id
+          // Use authenticated user's email as source of truth
+          customer_email_final = user.email || customer_email
+        }
+      } catch (e) {
+        // Guest checkout - user_id stays null
+        console.log('[CHECKOUT] Guest checkout (no valid auth token)')
+      }
     }
 
     // Validar productos y reservarlos
@@ -98,7 +119,10 @@ export async function POST(request: NextRequest) {
       .from('orders')
       .insert({
         customer_name,
-        customer_email,
+        customer_email: customer_email_final,
+        customer_phone: customer_phone || null,
+        shipping_address: shipping_address || null,
+        user_id,
         subtotal,
         shipping: 0, // Sin envío por ahora
         total: subtotal,
@@ -156,7 +180,7 @@ export async function POST(request: NextRequest) {
       mode: 'payment',
       success_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/checkout/cancel`,
-      customer_email,
+      customer_email: customer_email_final,
       metadata: {
         order_id: order.id
       },
