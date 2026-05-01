@@ -8,35 +8,83 @@ export default function LoginForm() {
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [googleLoading, setGoogleLoading] = useState(false)
+  const [initialLoading, setInitialLoading] = useState(true)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const router = useRouter()
 
-  // Check if already logged in (only if not in OAuth callback flow)
+  // Check if already logged in with timeout protection
   useEffect(() => {
-    // Don't check auth if we have error params (from failed OAuth)
-    const params = new URLSearchParams(window.location.search)
-    if (params.get('error')) {
-      const errorType = params.get('error')
-      let errorMsg = 'Error en inicio de sesión'
-      
-      if (errorType === 'oauth_failed') errorMsg = 'Autenticación con Google falló'
-      if (errorType === 'oauth_exchange_failed') errorMsg = 'Error procesando autenticación'
-      
-      setMessage({ type: 'error', text: errorMsg })
-      return
-    }
-
-    // Check if user is already authenticated
     const checkAuth = async () => {
-      const { data: { user } } = await supabaseCustomer.auth.getUser()
-      
-      if (user) {
-        router.push('/account')
+      // Parse error params first
+      const params = new URLSearchParams(window.location.search)
+      if (params.get('error')) {
+        const errorType = params.get('error')
+        let errorMsg = 'Error en inicio de sesión'
+        
+        if (errorType === 'oauth_failed') errorMsg = 'Autenticación con Google falló'
+        if (errorType === 'oauth_exchange_failed') errorMsg = 'Error procesando autenticación'
+        if (errorType === 'session_expired') errorMsg = 'Tu sesión expiró. Inicia sesión de nuevo.'
+        
+        setMessage({ type: 'error', text: errorMsg })
+        setInitialLoading(false)
+        return
+      }
+
+      try {
+        // Timeout protection: max 5 seconds for getUser()
+        const authCheckPromise = supabaseCustomer.auth.getUser()
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('timeout')), 5000)
+        )
+
+        const { data: { user }, error } = await Promise.race([
+          authCheckPromise,
+          timeoutPromise
+        ]) as any
+
+        if (error) {
+          console.error('Auth check error:', error)
+          // Error but don't show to user - just show login form
+          setInitialLoading(false)
+          return
+        }
+
+        if (user) {
+          // User is logged in - redirect to account
+          router.push('/account')
+        } else {
+          // No user - show login form
+          setInitialLoading(false)
+        }
+      } catch (error: any) {
+        console.error('Auth check failed:', error)
+        
+        if (error.message === 'timeout') {
+          // getUser() timed out - probably corrupted session
+          setMessage({
+            type: 'error',
+            text: 'Sesión corrupta detectada. Haz click en "Limpiar sesión" abajo.',
+          })
+        }
+        
+        // Always show form even if check fails
+        setInitialLoading(false)
       }
     }
 
     checkAuth()
   }, [router])
+
+  // Clear corrupted session
+  const handleClearSession = async () => {
+    try {
+      await supabaseCustomer.auth.signOut()
+      setMessage({ type: 'success', text: 'Sesión limpiada. Ahora puedes iniciar sesión.' })
+    } catch (error) {
+      console.error('Sign out error:', error)
+      setMessage({ type: 'error', text: 'Error al limpiar sesión. Limpia cookies manualmente.' })
+    }
+  }
 
   // Google OAuth Sign In
   const handleGoogleSignIn = async () => {
@@ -117,6 +165,18 @@ export default function LoginForm() {
     }
   }
 
+  // Show minimal loading on first mount (max 5s due to timeout)
+  if (initialLoading) {
+    return (
+      <div className="max-w-md mx-auto mt-16 p-8 bg-white rounded-lg shadow-lg">
+        <div className="text-center">
+          <p className="text-gray-600">Verificando sesión...</p>
+          <p className="text-xs text-gray-400 mt-2">Máximo 5 segundos</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="max-w-md mx-auto mt-16 p-8 bg-white rounded-lg shadow-lg">
       <h1 className="text-3xl font-bold text-center mb-2">Iniciar Sesión</h1>
@@ -188,6 +248,14 @@ export default function LoginForm() {
             }`}
           >
             {message.text}
+            {message.type === 'error' && message.text.includes('corrupta') && (
+              <button
+                onClick={handleClearSession}
+                className="mt-2 w-full bg-red-600 text-white py-2 px-4 rounded text-sm hover:bg-red-700"
+              >
+                Limpiar sesión
+              </button>
+            )}
           </div>
         )}
 
@@ -205,6 +273,18 @@ export default function LoginForm() {
           ← Volver a la tienda
         </a>
       </div>
+
+      {/* Debug helper - remove in production */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="mt-4 text-center">
+          <button
+            onClick={handleClearSession}
+            className="text-xs text-gray-400 hover:text-gray-600"
+          >
+            [Dev] Limpiar sesión
+          </button>
+        </div>
+      )}
     </div>
   )
 }
