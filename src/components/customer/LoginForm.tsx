@@ -43,8 +43,18 @@ export default function LoginForm() {
         ]) as any
 
         if (error) {
-          console.error('Auth check error:', error)
-          // Error but don't show to user - just show login form
+          // AuthSessionMissingError is EXPECTED when user is not logged in
+          // Don't treat it as an error - just show login form
+          const isSessionMissing = error.name === 'AuthSessionMissingError' || 
+                                   error.message?.includes('session_missing') ||
+                                   error.message?.includes('Auth session missing')
+          
+          if (!isSessionMissing) {
+            // Real error (not just missing session) - log it
+            console.error('Auth check error:', error)
+          }
+          
+          // Show login form regardless
           setInitialLoading(false)
           return
         }
@@ -57,7 +67,14 @@ export default function LoginForm() {
           setInitialLoading(false)
         }
       } catch (error: any) {
-        console.error('Auth check failed:', error)
+        // Check if it's just missing session (expected state)
+        const isSessionMissing = error.name === 'AuthSessionMissingError' || 
+                                 error.message?.includes('session_missing') ||
+                                 error.message?.includes('Auth session missing')
+        
+        if (!isSessionMissing) {
+          console.error('Auth check failed:', error)
+        }
         
         if (error.message === 'timeout') {
           // getUser() timed out - probably corrupted session

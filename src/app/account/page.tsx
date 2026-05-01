@@ -38,8 +38,19 @@ export default function AccountPage() {
         ]) as any
 
         if (authError) {
-          console.error('Auth error:', authError)
-          router.push('/account/login?error=session_expired')
+          // AuthSessionMissingError is EXPECTED when user is not logged in
+          const isSessionMissing = authError.name === 'AuthSessionMissingError' || 
+                                   authError.message?.includes('session_missing') ||
+                                   authError.message?.includes('Auth session missing')
+          
+          if (isSessionMissing) {
+            // Not logged in - redirect to login without error param
+            router.push('/account/login')
+          } else {
+            // Real error - log it and redirect with error param
+            console.error('Auth error:', authError)
+            router.push('/account/login?error=session_expired')
+          }
           return
         }
 
@@ -89,6 +100,18 @@ export default function AccountPage() {
         setProfile(profileData)
         setLoading(false)
       } catch (error: any) {
+        // Check if it's just missing session (expected state)
+        const isSessionMissing = error.name === 'AuthSessionMissingError' || 
+                                 error.message?.includes('session_missing') ||
+                                 error.message?.includes('Auth session missing')
+        
+        if (isSessionMissing) {
+          // Not logged in - just redirect to login
+          router.push('/account/login')
+          return
+        }
+        
+        // Real error - log it
         console.error('Load profile failed:', error)
         
         if (error.message === 'timeout') {
