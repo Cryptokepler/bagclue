@@ -30,6 +30,15 @@ export default function LoginForm() {
         return
       }
 
+      // Check if we have hash params (OAuth callback with implicit flow)
+      const hash = window.location.hash
+      if (hash && hash.includes('access_token')) {
+        // Supabase will auto-detect and set session
+        // Wait a bit for it to process
+        setInitialLoading(true)
+        await new Promise(resolve => setTimeout(resolve, 1000))
+      }
+
       try {
         // Timeout protection: max 5 seconds for getUser()
         const authCheckPromise = supabaseCustomer.auth.getUser()
@@ -112,7 +121,7 @@ export default function LoginForm() {
       const { error } = await supabaseCustomer.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/api/auth/callback?next=/account`,
+          redirectTo: `${window.location.origin}/account/login`,
         },
       })
 

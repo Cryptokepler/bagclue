@@ -16,7 +16,7 @@ export const supabaseCustomer = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     persistSession: true,
     autoRefreshToken: true,
-    detectSessionInUrl: false, // Disabled - we use /api/auth/callback instead
-    flowType: 'pkce', // Use PKCE flow for OAuth (more secure)
+    detectSessionInUrl: true, // Enable hash-based detection for implicit flow
+    flowType: 'implicit', // Use implicit flow (hash-based, works in browser)
   },
 })
