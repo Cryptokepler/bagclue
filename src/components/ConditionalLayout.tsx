@@ -9,10 +9,17 @@ import Footer from './Footer'
 export default function ConditionalLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname()
   const isAdmin = pathname.startsWith('/admin')
+  const isAccount = pathname.startsWith('/account')
   const isTracking = pathname.startsWith('/track/') || pathname.startsWith('/layaway/')
 
   if (isAdmin) {
     // Admin routes: no navbar, no footer
+    return <>{children}</>
+  }
+
+  if (isAccount) {
+    // Account routes: uses AccountLayout internally
+    // No navbar/footer from ConditionalLayout
     return <>{children}</>
   }
 
