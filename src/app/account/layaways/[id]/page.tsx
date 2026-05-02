@@ -48,7 +48,7 @@ async function getLayawayDetail(id: string) {
     
     // Ordenar payments por payment_number
     if (layaway && layaway.payments) {
-      layaway.payments.sort((a, b) => a.payment_number - b.payment_number)
+      layaway.payments.sort((a: any, b: any) => a.payment_number - b.payment_number)
     }
     
     return layaway as Layaway

@@ -46,7 +46,7 @@ async function getCustomerLayaways() {
       return []
     }
     
-    return (layaways || []) as Layaway[]
+    return (layaways || []) as unknown as Layaway[]
   } catch (error) {
     console.error('[LAYAWAYS PAGE] Unexpected error:', error)
     return []
