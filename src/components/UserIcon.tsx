@@ -6,7 +6,7 @@ export default function UserIcon() {
   return (
     <Link href="/account" className="relative group">
       <svg
-        className="w-6 h-6 text-gray-900 group-hover:text-[#FF69B4] transition-colors"
+        className="w-5 h-5 text-gray-900 group-hover:text-[#FF69B4] transition-colors"
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"
