@@ -44,6 +44,41 @@ function getPaymentBadge(status: string) {
   }
 }
 
+function getShippingBadge(shippingStatus: string | null | undefined) {
+  if (!shippingStatus) {
+    return {
+      style: 'bg-gray-100 text-gray-600 border-gray-200',
+      label: 'Pendiente de envío',
+      icon: '📦'
+    }
+  }
+
+  const badges: Record<string, { style: string; label: string; icon: string }> = {
+    pending: {
+      style: 'bg-gray-100 text-gray-600 border-gray-200',
+      label: 'Pendiente de envío',
+      icon: '📦'
+    },
+    preparing: {
+      style: 'bg-blue-100 text-blue-700 border-blue-200',
+      label: 'Preparando pieza',
+      icon: '📦'
+    },
+    shipped: {
+      style: 'bg-purple-100 text-purple-700 border-purple-200',
+      label: 'Enviado',
+      icon: '🚚'
+    },
+    delivered: {
+      style: 'bg-green-100 text-green-700 border-green-200',
+      label: 'Entregado',
+      icon: '✅'
+    }
+  }
+
+  return badges[shippingStatus] || badges.pending
+}
+
 export default function CustomerOrdersPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
@@ -72,9 +107,11 @@ export default function CustomerOrdersPage() {
             total,
             status,
             payment_status,
+            shipping_status,
+            shipping_provider,
             tracking_token,
             tracking_number,
-            shipping_status,
+            tracking_url,
             created_at,
             order_items(
               id,
@@ -145,6 +182,7 @@ export default function CustomerOrdersPage() {
             {orders.map((order: any) => {
               const statusBadge = getStatusBadge(order.status)
               const paymentBadge = getPaymentBadge(order.payment_status)
+              const shippingBadge = getShippingBadge(order.shipping_status)
               
               // Get first product image for preview
               const firstItem = order.order_items?.[0]
@@ -162,15 +200,16 @@ export default function CustomerOrdersPage() {
                       {/* Header */}
                       <div className="flex items-start justify-between mb-3">
                         <div>
-                          <div className="flex items-center gap-3 mb-1">
+                          <div className="flex items-center gap-2 mb-2 flex-wrap">
                             <span className="font-mono text-sm text-gray-600">
                               #{order.id.slice(0, 8)}
                             </span>
-                            <span className={`text-xs px-2 py-1 rounded border ${statusBadge.style}`}>
-                              {statusBadge.label}
-                            </span>
                             <span className={`text-xs px-2 py-1 rounded border ${paymentBadge.style}`}>
                               {paymentBadge.label}
+                            </span>
+                            <span className={`text-xs px-2 py-1 rounded border ${shippingBadge.style} flex items-center gap-1`}>
+                              <span>{shippingBadge.icon}</span>
+                              <span>{shippingBadge.label}</span>
                             </span>
                           </div>
                           <p className="text-sm text-gray-600">
@@ -211,12 +250,35 @@ export default function CustomerOrdersPage() {
                         )}
                       </div>
                       
-                      {/* Tracking Info */}
-                      {order.tracking_number && (
+                      {/* Shipping & Tracking Info */}
+                      {(order.shipping_provider || order.tracking_number || order.tracking_token || order.tracking_url) && (
                         <div className="mt-3 pt-3 border-t border-gray-100">
-                          <div className="flex items-center gap-2 text-sm">
-                            <span className="text-gray-600">Rastreo:</span>
-                            <span className="font-mono text-gray-900">{order.tracking_number}</span>
+                          <div className="space-y-1.5">
+                            {order.shipping_provider && (
+                              <div className="flex items-center gap-2 text-sm">
+                                <span className="text-gray-600">Paquetería:</span>
+                                <span className="font-medium text-gray-900">
+                                  {order.shipping_provider === 'dhl' ? 'DHL Express' :
+                                   order.shipping_provider === 'fedex' ? 'FedEx' :
+                                   order.shipping_provider}
+                                </span>
+                              </div>
+                            )}
+                            
+                            {order.tracking_number && (
+                              <div className="flex items-center gap-2 text-sm">
+                                <span className="text-gray-600">Rastreo:</span>
+                                <span className="font-mono text-gray-900">{order.tracking_number}</span>
+                              </div>
+                            )}
+                            
+                            {(order.tracking_token || order.tracking_url) && (
+                              <div className="mt-2">
+                                <button className="text-xs bg-pink-50 text-pink-600 px-3 py-1.5 rounded hover:bg-pink-100 transition-colors">
+                                  Ver seguimiento →
+                                </button>
+                              </div>
+                            )}
                           </div>
                         </div>
                       )}

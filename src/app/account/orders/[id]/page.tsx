@@ -41,7 +41,57 @@ async function getOrder(orderId: string) {
   }
 }
 
-function getStatusInfo(status: string, shipping_status?: string) {
+function getShippingStatusInfo(shippingStatus: string | null | undefined) {
+  if (!shippingStatus) {
+    return {
+      emoji: '📦',
+      title: 'Pendiente de envío',
+      description: 'Bagclue recibió tu pedido y está preparando el proceso de envío.',
+      color: 'text-gray-700',
+      bgColor: 'bg-gray-50',
+      borderColor: 'border-gray-200'
+    }
+  }
+
+  const statuses: Record<string, any> = {
+    pending: {
+      emoji: '📦',
+      title: 'Pendiente de envío',
+      description: 'Bagclue recibió tu pedido y está preparando el proceso.',
+      color: 'text-gray-700',
+      bgColor: 'bg-gray-50',
+      borderColor: 'border-gray-200'
+    },
+    preparing: {
+      emoji: '📦',
+      title: 'Preparando pieza',
+      description: 'Estamos preparando tu pieza para envío con mucho cuidado.',
+      color: 'text-blue-700',
+      bgColor: 'bg-blue-50',
+      borderColor: 'border-blue-200'
+    },
+    shipped: {
+      emoji: '🚚',
+      title: 'Enviado',
+      description: 'Tu pedido ya fue enviado y está en camino.',
+      color: 'text-purple-700',
+      bgColor: 'bg-purple-50',
+      borderColor: 'border-purple-200'
+    },
+    delivered: {
+      emoji: '✅',
+      title: 'Entregado',
+      description: 'Tu pedido fue entregado exitosamente.',
+      color: 'text-emerald-700',
+      bgColor: 'bg-emerald-50',
+      borderColor: 'border-emerald-200'
+    }
+  }
+
+  return statuses[shippingStatus] || statuses.pending
+}
+
+function getStatusInfo(status: string) {
   if (status === 'cancelled') {
     return {
       emoji: '❌',
@@ -51,29 +101,29 @@ function getStatusInfo(status: string, shipping_status?: string) {
     }
   }
   
-  if (status === 'delivered' || shipping_status === 'delivered') {
+  if (status === 'delivered') {
     return {
       emoji: '✅',
-      title: 'Pedido entregado',
-      description: 'Tu pedido ya fue entregado. ¡Disfruta tu nueva pieza!',
+      title: 'Pedido completado',
+      description: '¡Disfruta tu nueva pieza de lujo!',
       color: 'text-emerald-600'
     }
   }
   
-  if (shipping_status === 'shipped' || status === 'shipped') {
+  if (status === 'shipped') {
     return {
       emoji: '🚚',
-      title: 'Pedido en camino',
-      description: 'Tu pedido está en tránsito. Revisa el rastreo para seguirlo.',
+      title: 'Pedido en tránsito',
+      description: 'Revisa el estado de envío abajo.',
       color: 'text-blue-600'
     }
   }
   
-  if (shipping_status === 'preparing' || status === 'preparing') {
+  if (status === 'preparing') {
     return {
       emoji: '📦',
-      title: 'Preparando tu pedido',
-      description: 'Estamos preparando tu pedido con mucho cuidado.',
+      title: 'Preparando pedido',
+      description: 'Estamos preparando tu pedido.',
       color: 'text-purple-600'
     }
   }
@@ -81,8 +131,8 @@ function getStatusInfo(status: string, shipping_status?: string) {
   if (status === 'confirmed') {
     return {
       emoji: '✓',
-      title: 'Pago confirmado',
-      description: 'Tu pago fue confirmado. Prepararemos tu pedido pronto.',
+      title: 'Pedido confirmado',
+      description: 'Tu pedido ha sido confirmado.',
       color: 'text-emerald-600'
     }
   }
@@ -90,7 +140,7 @@ function getStatusInfo(status: string, shipping_status?: string) {
   return {
     emoji: '⏳',
     title: 'Procesando pedido',
-    description: 'Estamos procesando tu pedido. Te notificaremos cuando esté listo.',
+    description: 'Estamos procesando tu pedido.',
     color: 'text-gray-600'
   }
 }
@@ -113,7 +163,8 @@ export default async function OrderDetailPage({
     notFound()
   }
   
-  const statusInfo = getStatusInfo(order.status, order.shipping_status)
+  const statusInfo = getStatusInfo(order.status)
+  const shippingStatusInfo = getShippingStatusInfo(order.shipping_status)
 
   return (
     <AccountLayout>
@@ -157,6 +208,97 @@ export default async function OrderDetailPage({
                 {statusInfo.description}
               </p>
             </div>
+          </div>
+        </div>
+
+        {/* Payment Status */}
+        <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6">
+          <h3 className="text-lg font-medium text-gray-900 mb-4">Estado del pago</h3>
+          
+          <div className="flex items-center gap-3">
+            <span className={`text-sm px-3 py-1.5 rounded border ${
+              order.payment_status === 'paid' 
+                ? 'bg-emerald-100 text-emerald-700 border-emerald-200' 
+                : 'bg-yellow-100 text-yellow-700 border-yellow-200'
+            }`}>
+              {order.payment_status === 'paid' ? '✓ Pagado' : '⏳ Pendiente'}
+            </span>
+            
+            {order.payment_status === 'paid' && (
+              <p className="text-sm text-gray-600">
+                Pago procesado correctamente
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* Shipping Status */}
+        <div className={`border rounded-lg p-6 mb-6 ${shippingStatusInfo.bgColor} ${shippingStatusInfo.borderColor}`}>
+          <h3 className="text-lg font-medium text-gray-900 mb-4">Estado de envío</h3>
+          
+          <div className="flex items-start gap-4 mb-4">
+            <span className="text-3xl">{shippingStatusInfo.emoji}</span>
+            <div className="flex-1">
+              <h4 className={`font-medium mb-1 ${shippingStatusInfo.color}`}>
+                {shippingStatusInfo.title}
+              </h4>
+              <p className="text-sm text-gray-700">
+                {shippingStatusInfo.description}
+              </p>
+            </div>
+          </div>
+
+          {/* Shipping Details */}
+          <div className="space-y-3 mt-4 pt-4 border-t border-gray-200">
+            {order.shipping_provider ? (
+              <div>
+                <p className="text-sm text-gray-600 mb-1">Paquetería</p>
+                <p className="text-gray-900 font-medium">
+                  {order.shipping_provider === 'dhl' ? 'DHL Express' :
+                   order.shipping_provider === 'fedex' ? 'FedEx' :
+                   order.shipping_provider}
+                </p>
+              </div>
+            ) : (
+              <div>
+                <p className="text-sm text-gray-600">Paquetería pendiente</p>
+              </div>
+            )}
+            
+            {order.tracking_number ? (
+              <div>
+                <p className="text-sm text-gray-600 mb-1">Número de rastreo</p>
+                <p className="font-mono text-gray-900">{order.tracking_number}</p>
+              </div>
+            ) : order.shipping_status === 'shipped' ? (
+              <div>
+                <p className="text-sm text-gray-600">Tracking pendiente</p>
+              </div>
+            ) : null}
+            
+            {(order.tracking_token || order.tracking_url) && (
+              <div className="flex gap-3 pt-2">
+                {order.tracking_token && (
+                  <Link
+                    href={`/track/${order.tracking_token}`}
+                    className="inline-block bg-[#FF69B4] text-white px-6 py-2 text-sm hover:bg-[#FF69B4]/90 transition-colors"
+                  >
+                    Ver seguimiento completo
+                  </Link>
+                )}
+                
+                {order.tracking_url && (
+                  <a
+                    href={order.tracking_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-block border border-gray-300 text-gray-700 px-6 py-2 text-sm hover:border-[#FF69B4] hover:text-[#FF69B4] transition-colors"
+                  >
+                    Rastrear en {order.shipping_provider === 'dhl' ? 'DHL' : order.shipping_provider === 'fedex' ? 'FedEx' : 'paquetería'} →
+                  </a>
+                )}
+              </div>
+            )}
           </div>
         </div>
         
@@ -224,80 +366,13 @@ export default async function OrderDetailPage({
           </div>
         </div>
         
-        {/* Shipping Info */}
-        {(order.shipping_address || order.tracking_number) && (
-          <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Información de envío</h3>
-            
-            {order.shipping_address && (
-              <div className="mb-4">
-                <p className="text-sm text-gray-600 mb-1">Dirección de envío</p>
-                <p className="text-gray-900 whitespace-pre-line">{order.shipping_address}</p>
-              </div>
-            )}
-            
-            {order.shipping_provider && (
-              <div className="mb-3">
-                <p className="text-sm text-gray-600 mb-1">Paquetería</p>
-                <p className="text-gray-900 font-medium">
-                  {order.shipping_provider === 'dhl' ? 'DHL Express' :
-                   order.shipping_provider === 'fedex' ? 'FedEx' :
-                   order.shipping_provider}
-                </p>
-              </div>
-            )}
-            
-            {order.tracking_number && (
-              <div>
-                <p className="text-sm text-gray-600 mb-2">Número de rastreo</p>
-                <p className="font-mono text-gray-900 mb-3">{order.tracking_number}</p>
-                
-                <div className="flex gap-3">
-                  {order.tracking_token && (
-                    <Link
-                      href={`/track/${order.tracking_token}`}
-                      className="inline-block bg-[#FF69B4] text-white px-6 py-2 text-sm hover:bg-[#FF69B4]/90 transition-colors"
-                    >
-                      Ver seguimiento completo
-                    </Link>
-                  )}
-                  
-                  {order.tracking_url && (
-                    <a
-                      href={order.tracking_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-block border border-gray-300 text-gray-700 px-6 py-2 text-sm hover:border-[#FF69B4] hover:text-[#FF69B4] transition-colors"
-                    >
-                      Rastrear en {order.shipping_provider === 'dhl' ? 'DHL' : order.shipping_provider === 'fedex' ? 'FedEx' : 'paquetería'} →
-                    </a>
-                  )}
-                </div>
-              </div>
-            )}
+        {/* Shipping Address */}
+        {order.shipping_address && (
+          <div className="bg-white border border-gray-200 rounded-lg p-6">
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Dirección de envío</h3>
+            <p className="text-gray-900 whitespace-pre-line">{order.shipping_address}</p>
           </div>
         )}
-        
-        {/* Payment Status */}
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Estado del pago</h3>
-          
-          <div className="flex items-center gap-3">
-            <span className={`text-sm px-3 py-1.5 rounded border ${
-              order.payment_status === 'paid' 
-                ? 'bg-emerald-100 text-emerald-700 border-emerald-200' 
-                : 'bg-yellow-100 text-yellow-700 border-yellow-200'
-            }`}>
-              {order.payment_status === 'paid' ? '✓ Pagado' : '⏳ Pendiente'}
-            </span>
-            
-            {order.payment_status === 'paid' && (
-              <p className="text-sm text-gray-600">
-                Pago procesado correctamente
-              </p>
-            )}
-          </div>
-        </div>
       </div>
     </AccountLayout>
   )
