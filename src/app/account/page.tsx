@@ -12,6 +12,8 @@ interface CustomerProfile {
   email: string
   name: string | null
   phone: string | null
+  phone_country_code: string | null
+  phone_country_iso: string | null
   created_at: string
   updated_at: string
 }
