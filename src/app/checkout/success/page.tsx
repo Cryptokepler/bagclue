@@ -221,17 +221,17 @@ function SuccessContent() {
         {/* Navigation buttons */}
         {isLoggedIn ? (
           <div className="space-y-4">
-            {verifyResult?.success && verifyResult.order && verifyResult.order_id ? (
+            {verifyResult?.success && verifyResult.order_id ? (
               /* Usuario logueado CON orden verificada */
               <div className="space-y-4">
                 {/* Primary CTA */}
                 <div className="flex justify-center">
-                  {!verifyResult.order.shipping_address ? (
+                  {!verifyResult.order?.shipping_address ? (
                     <Link
                       href={`/account/orders/${verifyResult.order_id}?action=confirm-shipping`}
                       className="bg-[#FF69B4] text-white px-8 py-4 hover:bg-[#FF69B4]/90 transition-colors inline-block font-medium text-center"
                     >
-                      📍 Confirmar dirección de envío
+                      📍 Indica tu dirección de envío
                     </Link>
                   ) : (
                     <Link
@@ -243,13 +243,24 @@ function SuccessContent() {
                   )}
                 </div>
                 {/* Secondary CTA - solo si NO tiene dirección */}
-                {!verifyResult.order.shipping_address && (
+                {!verifyResult.order?.shipping_address && (
                   <div className="flex justify-center">
                     <Link
                       href={`/account/orders/${verifyResult.order_id}`}
                       className="text-sm text-gray-600 hover:text-[#FF69B4] transition-colors underline"
                     >
                       Ver detalle del pedido
+                    </Link>
+                  </div>
+                )}
+                {/* Secondary CTA - Todos mis pedidos (solo si SÍ tiene dirección) */}
+                {verifyResult.order?.shipping_address && (
+                  <div className="flex justify-center">
+                    <Link
+                      href="/account/orders"
+                      className="text-sm text-gray-600 hover:text-[#FF69B4] transition-colors underline"
+                    >
+                      Todos mis pedidos
                     </Link>
                   </div>
                 )}
@@ -266,21 +277,13 @@ function SuccessContent() {
               </div>
             )}
             
-            {/* Secondary CTAs - siempre visibles */}
-            <div className="flex gap-4 justify-center">
-              <Link
-                href="/account/orders"
-                className="border border-[#FF69B4]/20 text-gray-900 px-8 py-3 hover:border-[#FF69B4] transition-colors inline-block"
-              >
-                Todos mis pedidos
-              </Link>
-            </div>
+            {/* Seguir comprando - siempre visible */}
             <div className="flex gap-4 justify-center">
               <Link
                 href="/catalogo"
                 className="text-sm text-gray-600 hover:text-[#FF69B4] transition-colors"
               >
-                Ver más productos →
+                Seguir comprando →
               </Link>
             </div>
             
