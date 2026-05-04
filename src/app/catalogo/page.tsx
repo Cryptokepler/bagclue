@@ -33,7 +33,8 @@ export default function CatalogoPage() {
 
         // Transform DB products to legacy format for compatibility
         const transformedProducts: LegacyProduct[] = (productsData || []).map((p: any) => ({
-          id: p.slug, // Use slug as id for compatibility
+          id: p.slug || p.id, // Use slug as id for compatibility, fallback to id
+          slug: p.slug || undefined,
           brand: p.brand as Brand,
           model: p.model || p.title,
           color: p.color || '',

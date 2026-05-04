@@ -6,6 +6,7 @@ export type ProductCategory = 'Bolsas' | 'Accesorios' | 'Colección París';
 
 export interface Product {
   id: string;
+  slug?: string;
   brand: Brand;
   model: string;
   color: string;

@@ -5,7 +5,7 @@ export default function ProductCard({ product }: { product: Product }) {
   const gradient = brandGradients[product.brand];
 
   return (
-    <Link href={`/catalogo/${product.id}`} className="group block">
+    <Link href={`/catalogo/${product.slug || product.id}`} className="group block">
       <div className="relative overflow-hidden bg-[#111] border border-[#FF69B4]/10 hover:border-[#FF69B4]/30 transition-all duration-500">
         {/* Image area */}
         <div
