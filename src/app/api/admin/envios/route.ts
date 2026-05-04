@@ -54,7 +54,6 @@ export async function GET(request: NextRequest) {
         customer_email,
         customer_phone,
         total,
-        currency,
         payment_status,
         status,
         shipping_status,
@@ -70,7 +69,6 @@ export async function GET(request: NextRequest) {
           product_id,
           quantity,
           unit_price,
-          subtotal,
           product_snapshot
         )
       `)
@@ -122,13 +120,8 @@ export async function GET(request: NextRequest) {
     if (search && search.trim().length > 0) {
       const searchTerm = search.trim()
       
-      // Search by customer_name, customer_email, tracking_number, or order id
-      query = query.or(`
-        customer_name.ilike.%${searchTerm}%,
-        customer_email.ilike.%${searchTerm}%,
-        tracking_number.eq.${searchTerm},
-        id.ilike.%${searchTerm}%
-      `)
+      // Search by customer_name, customer_email, or tracking_number
+      query = query.or(`customer_name.ilike.%${searchTerm}%,customer_email.ilike.%${searchTerm}%,tracking_number.eq.${searchTerm}`)
     }
 
     // ========================================
@@ -149,23 +142,40 @@ export async function GET(request: NextRequest) {
     // ========================================
     // 7. EXECUTE QUERY
     // ========================================
+    console.log('[GET /api/admin/envios] Executing query with filter:', filter, 'search:', search)
     const { data: orders, error, count } = await query
 
     if (error) {
-      console.error('[GET /api/admin/envios] Query error:', error)
+      console.error('[GET /api/admin/envios] Query error:', {
+        message: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint
+      })
       return NextResponse.json({ 
-        error: 'Failed to fetch orders' 
+        error: 'Failed to fetch orders',
+        details: error.message 
       }, { status: 500 })
     }
+    
+    console.log('[GET /api/admin/envios] Query success, orders count:', orders?.length || 0)
 
     // ========================================
     // 8. CALCULATE STATS
     // ========================================
     
     // Stats query (no pagination)
-    const { data: allOrders } = await supabaseAdmin
+    console.log('[GET /api/admin/envios] Fetching stats...')
+    const { data: allOrders, error: statsError } = await supabaseAdmin
       .from('orders')
       .select('id, payment_status, shipping_status, shipping_address')
+    
+    if (statsError) {
+      console.error('[GET /api/admin/envios] Stats query error:', {
+        message: statsError.message,
+        code: statsError.code
+      })
+    }
     
     const stats = {
       total: allOrders?.length || 0,
