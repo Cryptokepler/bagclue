@@ -1,46 +1,12 @@
-import { redirect, notFound } from 'next/navigation'
+'use client'
+
+import { useEffect, useState } from 'react'
+import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import AccountLayout from '@/components/customer/AccountLayout'
 import OrderTimeline from '@/components/OrderTimeline'
 import ShippingAddressSection from '@/components/customer/ShippingAddressSection'
 import { supabaseCustomer } from '@/lib/supabase-customer'
-
-async function getOrder(orderId: string) {
-  try {
-    const { data: { user }, error: userError } = await supabaseCustomer.auth.getUser()
-    
-    if (userError || !user) {
-      return null
-    }
-    
-    // Get order - RLS policy will ensure user can only see their own orders
-    const { data: order, error } = await supabaseCustomer
-      .from('orders')
-      .select(`
-        *,
-        order_items(
-          id,
-          quantity,
-          unit_price,
-          subtotal,
-          product_id,
-          product_snapshot
-        )
-      `)
-      .eq('id', orderId)
-      .single()
-    
-    if (error) {
-      console.error('[ORDER DETAIL] Error fetching order:', error)
-      return null
-    }
-    
-    return order
-  } catch (error) {
-    console.error('[ORDER DETAIL] Unexpected error:', error)
-    return null
-  }
-}
 
 function getShippingStatusInfo(shippingStatus: string | null | undefined) {
   if (!shippingStatus) {
@@ -146,29 +112,107 @@ function getStatusInfo(status: string) {
   }
 }
 
-export default async function OrderDetailPage({ 
-  params 
-}: { 
-  params: Promise<{ id: string }> 
-}) {
-  const { data: { user } } = await supabaseCustomer.auth.getUser()
+export default function OrderDetailPage() {
+  const router = useRouter()
+  const params = useParams()
+  const orderId = params.id as string
   
-  if (!user) {
-    redirect('/account/login')
+  const [loading, setLoading] = useState(true)
+  const [order, setOrder] = useState<any>(null)
+  const [userEmail, setUserEmail] = useState<string>('')
+  const [notFound, setNotFound] = useState(false)
+
+  useEffect(() => {
+    const loadOrder = async () => {
+      try {
+        // Check auth
+        const { data: { user }, error: userError } = await supabaseCustomer.auth.getUser()
+        
+        if (userError || !user) {
+          router.push('/account/login')
+          return
+        }
+        
+        setUserEmail(user.email || '')
+        
+        // Get order - RLS policy will ensure user can only see their own orders
+        const { data: orderData, error } = await supabaseCustomer
+          .from('orders')
+          .select(`
+            *,
+            order_items(
+              id,
+              quantity,
+              unit_price,
+              subtotal,
+              product_id,
+              product_snapshot
+            )
+          `)
+          .eq('id', orderId)
+          .single()
+        
+        if (error) {
+          console.error('[ORDER DETAIL] Error fetching order:', error)
+          setNotFound(true)
+          setLoading(false)
+          return
+        }
+        
+        if (!orderData) {
+          setNotFound(true)
+          setLoading(false)
+          return
+        }
+        
+        setOrder(orderData)
+        setLoading(false)
+      } catch (error) {
+        console.error('[ORDER DETAIL] Unexpected error:', error)
+        setNotFound(true)
+        setLoading(false)
+      }
+    }
+
+    loadOrder()
+  }, [orderId, router])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-600">Cargando pedido...</p>
+        </div>
+      </div>
+    )
   }
-  
-  const { id } = await params
-  const order = await getOrder(id)
-  
+
+  if (notFound) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">404</h1>
+          <p className="text-gray-600 mb-6">Pedido no encontrado</p>
+          <Link
+            href="/account/orders"
+            className="inline-block bg-[#FF69B4] text-white px-6 py-3 hover:bg-[#FF69B4]/90 transition-colors"
+          >
+            ← Volver a mis pedidos
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
   if (!order) {
-    notFound()
+    return null
   }
   
   const statusInfo = getStatusInfo(order.status)
   const shippingStatusInfo = getShippingStatusInfo(order.shipping_status)
 
   return (
-    <AccountLayout>
+    <AccountLayout userEmail={userEmail}>
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-6">
