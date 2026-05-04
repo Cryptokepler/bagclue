@@ -7,13 +7,14 @@ import ProductCard from '@/components/ProductCard';
 import InstagramCTA from '@/components/InstagramCTA';
 import AddToCartButton from '@/components/AddToCartButton';
 import LayawayButton from '@/components/LayawayButton';
+import { PRODUCT_PUBLIC_FIELDS } from '@/lib/products-public-fields';
 
 export const dynamic = 'force-dynamic'; // Disable static generation for now
 
 async function getProduct(slug: string) {
   const { data: product, error } = await supabase
     .from('products')
-    .select('*, product_images(*)')
+    .select(`${PRODUCT_PUBLIC_FIELDS}, product_images(*)`)
     .eq('slug', slug)
     .eq('is_published', true)
     .single();
@@ -25,7 +26,7 @@ async function getProduct(slug: string) {
 async function getRelatedProducts(brand: string, currentSlug: string) {
   const { data: products } = await supabase
     .from('products')
-    .select('*, product_images(*)')
+    .select(`${PRODUCT_PUBLIC_FIELDS}, product_images(*)`)
     .eq('brand', brand)
     .eq('is_published', true)
     .neq('slug', currentSlug)

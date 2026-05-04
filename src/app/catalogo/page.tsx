@@ -5,6 +5,7 @@ import ProductCard from '@/components/ProductCard';
 import { supabase } from '@/lib/supabase';
 import { Product, dbStatusToLegacy } from '@/types/database';
 import type { Brand, ProductStatus, Product as LegacyProduct } from '@/data/products';
+import { PRODUCT_PUBLIC_FIELDS } from '@/lib/products-public-fields';
 
 const brands: Brand[] = ['Chanel', 'Hermès', 'Goyard', 'Céline', 'Louis Vuitton', 'Balenciaga'];
 const statuses: ProductStatus[] = ['En inventario', 'Pre-venta', 'Apartada'];
@@ -22,10 +23,10 @@ export default function CatalogoPage() {
         setLoading(true);
         setError(null);
 
-        // Fetch products with images
+        // Fetch products with images (explicit fields for security)
         const { data: productsData, error: productsError } = await supabase
           .from('products')
-          .select('*, product_images(*)')
+          .select(`${PRODUCT_PUBLIC_FIELDS}, product_images(*)`)
           .eq('is_published', true)
           .order('created_at', { ascending: false });
 
