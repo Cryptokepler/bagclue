@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter, useParams } from 'next/navigation'
+import { useRouter, useParams, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import AccountLayout from '@/components/customer/AccountLayout'
 import OrderTimeline from '@/components/OrderTimeline'
@@ -115,7 +115,9 @@ function getStatusInfo(status: string) {
 export default function OrderDetailPage() {
   const router = useRouter()
   const params = useParams()
+  const searchParams = useSearchParams()
   const orderId = params.id as string
+  const action = searchParams.get('action')
   
   const [loading, setLoading] = useState(true)
   const [order, setOrder] = useState<any>(null)
@@ -412,7 +414,10 @@ export default function OrderDetailPage() {
         </div>
         
         {/* Shipping Address */}
-        <ShippingAddressSection order={order} />
+        <ShippingAddressSection 
+          order={order} 
+          autoExpand={action === 'confirm-shipping'}
+        />
       </div>
     </AccountLayout>
   )

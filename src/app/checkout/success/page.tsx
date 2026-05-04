@@ -16,6 +16,19 @@ function SuccessContent() {
     message?: string
     error?: string
     order_id?: string
+    order?: {
+      id: string
+      customer_name: string
+      total: number
+      currency: string | null
+      shipping_address: string | null
+      order_items: Array<{
+        product_snapshot: {
+          brand: string
+          title: string
+        }
+      }>
+    } | null
   } | null>(null)
   const [trackingUrl, setTrackingUrl] = useState<string | null>(null)
   const [copySuccess, setCopySuccess] = useState(false)
@@ -134,6 +147,57 @@ function SuccessContent() {
           )}
         </div>
 
+        {/* Detalles del pedido */}
+        {verifyResult?.success && verifyResult.order && (
+          <div className="bg-white border border-[#FF69B4]/20 p-6 mb-6">
+            <h2 className="text-lg font-medium text-gray-900 mb-4">📦 Detalles de tu pedido</h2>
+            
+            <div className="space-y-3 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Número de pedido:</span>
+                <span className="font-mono font-medium text-gray-900">
+                  #{verifyResult.order.id.slice(-8).toUpperCase()}
+                </span>
+              </div>
+              
+              {verifyResult.order.order_items?.[0] && (
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Producto:</span>
+                  <span className="font-medium text-gray-900 text-right">
+                    {verifyResult.order.order_items[0].product_snapshot.brand} {verifyResult.order.order_items[0].product_snapshot.title}
+                  </span>
+                </div>
+              )}
+              
+              <div className="flex justify-between">
+                <span className="text-gray-600">Total pagado:</span>
+                <span className="font-medium text-gray-900">
+                  ${verifyResult.order.total.toLocaleString('es-MX')} {verifyResult.order.currency || 'MXN'}
+                </span>
+              </div>
+              
+              <div className="flex justify-between">
+                <span className="text-gray-600">Estado:</span>
+                <span className="font-medium text-emerald-600">
+                  ✅ Pagado
+                </span>
+              </div>
+              
+              {!verifyResult.order.shipping_address && (
+                <div className="mt-4 pt-4 border-t border-gray-200">
+                  <div className="flex items-start gap-2">
+                    <span className="text-amber-600 font-medium">⚠️</span>
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">Siguiente paso:</p>
+                      <p className="text-sm text-gray-600">Confirma la dirección donde quieres recibir tu pieza.</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         <div className="bg-[#FF69B4]/5 border border-[#FF69B4]/20 p-8 mb-8">
           <h2 className="text-lg font-medium text-gray-900 mb-4">¿Qué sigue?</h2>
           <ul className="text-sm text-gray-900/60 space-y-2 text-left max-w-md mx-auto">
@@ -178,18 +242,34 @@ function SuccessContent() {
         {/* Navigation buttons */}
         {isLoggedIn ? (
           <div className="space-y-4">
+            {/* Primary CTA */}
+            {verifyResult?.success && verifyResult.order && (
+              <div className="flex justify-center">
+                {!verifyResult.order.shipping_address ? (
+                  <Link
+                    href={`/account/orders/${verifyResult.order_id}?action=confirm-shipping`}
+                    className="bg-[#FF69B4] text-white px-8 py-3 hover:bg-[#FF69B4]/90 transition-colors inline-block font-medium"
+                  >
+                    Confirmar dirección de envío →
+                  </Link>
+                ) : (
+                  <Link
+                    href={`/account/orders/${verifyResult.order_id}`}
+                    className="bg-[#FF69B4] text-white px-8 py-3 hover:bg-[#FF69B4]/90 transition-colors inline-block font-medium"
+                  >
+                    Ver detalle del pedido →
+                  </Link>
+                )}
+              </div>
+            )}
+            
+            {/* Secondary CTAs */}
             <div className="flex gap-4 justify-center">
               <Link
                 href="/account/orders"
-                className="bg-[#FF69B4] text-white px-8 py-3 hover:bg-[#FF69B4]/90 transition-colors inline-block"
-              >
-                Ver mis pedidos
-              </Link>
-              <Link
-                href="/account"
                 className="border border-[#FF69B4]/20 text-gray-900 px-8 py-3 hover:border-[#FF69B4] transition-colors inline-block"
               >
-                Ir a mi cuenta
+                Ver mis pedidos
               </Link>
             </div>
             <div className="flex gap-4 justify-center">
@@ -202,25 +282,30 @@ function SuccessContent() {
             </div>
           </div>
         ) : (
-          <div className="flex gap-4 justify-center">
-            <button
-              type="button"
-              onClick={() => {
-                window.location.href = '/catalogo'
-              }}
-              className="border border-[#FF69B4]/20 text-gray-900 px-8 py-3 hover:border-[#FF69B4] transition-colors cursor-pointer"
-            >
-              Ver más productos
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                window.location.href = '/'
-              }}
-              className="bg-[#FF69B4] text-white px-8 py-3 hover:bg-[#FF69B4]/90 transition-colors cursor-pointer"
-            >
-              Volver al inicio
-            </button>
+          <div className="space-y-4">
+            {/* Guest user - suggest login */}
+            <div className="bg-amber-50 border border-amber-200 p-4 mb-4">
+              <p className="text-sm text-amber-800">
+                Para confirmar tu dirección de envío, inicia sesión con el email que usaste en el checkout.
+              </p>
+            </div>
+            <div className="flex gap-4 justify-center">
+              <Link
+                href="/account/login"
+                className="bg-[#FF69B4] text-white px-8 py-3 hover:bg-[#FF69B4]/90 transition-colors inline-block"
+              >
+                Iniciar sesión
+              </Link>
+              <button
+                type="button"
+                onClick={() => {
+                  window.location.href = '/catalogo'
+                }}
+                className="border border-[#FF69B4]/20 text-gray-900 px-8 py-3 hover:border-[#FF69B4] transition-colors cursor-pointer"
+              >
+                Ver más productos
+              </button>
+            </div>
           </div>
         )}
       </div>

@@ -64,6 +64,22 @@ export async function GET(request: NextRequest) {
 
     // 5. IDEMPOTENCIA (fast path)
     if (existingOrder.payment_status === 'paid') {
+      // Fetch order details for success page
+      const { data: orderDetails } = await supabaseAdmin
+        .from('orders')
+        .select(`
+          id,
+          customer_name,
+          total,
+          currency,
+          shipping_address,
+          order_items (
+            product_snapshot
+          )
+        `)
+        .eq('id', order_id)
+        .single()
+
       const elapsed = Date.now() - startTime
       console.log(`[VERIFY] ✅ Already paid (${elapsed}ms)`)
       return NextResponse.json({ 
@@ -71,7 +87,8 @@ export async function GET(request: NextRequest) {
         message: 'Order already paid',
         order_id,
         payment_status: 'paid',
-        idempotent: true
+        idempotent: true,
+        order: orderDetails || null
       })
     }
 
@@ -129,6 +146,22 @@ export async function GET(request: NextRequest) {
       }
     }))
 
+    // 9. Fetch order details for success page
+    const { data: orderDetails } = await supabaseAdmin
+      .from('orders')
+      .select(`
+        id,
+        customer_name,
+        total,
+        currency,
+        shipping_address,
+        order_items (
+          product_snapshot
+        )
+      `)
+      .eq('id', order_id)
+      .single()
+
     const elapsed = Date.now() - startTime
     console.log(`[VERIFY] ✅ Success (${elapsed}ms) - order ${order_id.slice(0, 8)}`)
 
@@ -138,7 +171,8 @@ export async function GET(request: NextRequest) {
       order_id,
       payment_status: 'paid',
       status: 'confirmed',
-      products_updated: items.length
+      products_updated: items.length,
+      order: orderDetails || null
     })
 
   } catch (error: any) {

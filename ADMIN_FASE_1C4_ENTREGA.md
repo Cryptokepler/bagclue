@@ -2,8 +2,45 @@
 
 **Estado:** IMPLEMENTADO ✅ (awaiting QA)  
 **Fecha:** 2026-05-04  
-**Commit:** d7abc7b  
+**Commit inicial:** d7abc7b  
+**Fix UI:** 6358001 (text overflow en modal)  
 **URL:** https://bagclue.vercel.app/admin/envios
+
+---
+
+## ⚠️ Fix UI Aplicado (13:13 UTC)
+
+**Problema reportado:** Texto rojo de advertencia se salía del marco del modal (overflow horizontal).
+
+**Solución (commit 6358001):**
+1. Agregado `min-w-0 flex-1` al div contenedor del texto
+   - `min-w-0` permite que flex shrink funcione correctamente
+   - `flex-1` hace que el contenedor tome todo el espacio disponible
+2. Agregado `break-words` a ambos párrafos (header + mensaje)
+3. Agregado `whitespace-normal leading-relaxed` al párrafo principal
+
+**Cambios aplicados:**
+```tsx
+<div className="min-w-0 flex-1">
+  <p className="text-sm font-semibold text-red-900 mb-1 break-words">
+    Acción irreversible
+  </p>
+  <p className="text-sm text-red-800 break-words whitespace-normal leading-relaxed">
+    Esta acción marcará el pedido como <strong>entregado</strong> y no puede revertirse desde esta vista.
+  </p>
+</div>
+```
+
+**Resultado:**
+- ✅ Texto hace wrap dentro del contenedor rojo
+- ✅ No hay overflow horizontal
+- ✅ Modal se ve correctamente en pantallas pequeñas
+- ✅ Botones siguen visibles
+- ✅ Lógica/API sin cambios
+
+**Build:** ✅ PASS  
+**Deploy:** ✅ PASS (35s)  
+**Listo para re-validación visual.**
 
 ---
 

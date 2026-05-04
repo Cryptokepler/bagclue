@@ -21,11 +21,13 @@ interface Address {
 interface ShippingAddressSectionProps {
   order: any
   onAddressUpdated?: () => void
+  autoExpand?: boolean
 }
 
 export default function ShippingAddressSection({ 
   order, 
-  onAddressUpdated 
+  onAddressUpdated,
+  autoExpand = false
 }: ShippingAddressSectionProps) {
   const [addresses, setAddresses] = useState<Address[]>([])
   const [selectedAddressId, setSelectedAddressId] = useState<string>('')
@@ -48,6 +50,13 @@ export default function ShippingAddressSection({
   useEffect(() => {
     loadAddresses()
   }, [])
+
+  // Auto-expand if action=confirm-shipping and no address
+  useEffect(() => {
+    if (autoExpand && !currentShippingAddress && canEditAddress) {
+      setEditing(true)
+    }
+  }, [autoExpand, currentShippingAddress, canEditAddress])
 
   async function loadAddresses() {
     try {
