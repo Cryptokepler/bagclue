@@ -9,6 +9,7 @@ export default function AdminNav() {
 
   const navItems = [
     { href: '/admin', label: 'Productos' },
+    { href: '/admin/envios', label: 'Envíos' },
     { href: '/admin/orders', label: 'Órdenes' }
   ]
 
