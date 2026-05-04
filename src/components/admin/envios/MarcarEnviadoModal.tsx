@@ -15,13 +15,9 @@ interface MarcarEnviadoModalProps {
 }
 
 const SHIPPING_PROVIDERS = [
-  { value: 'DHL', label: 'DHL' },
-  { value: 'FedEx', label: 'FedEx' },
-  { value: 'UPS', label: 'UPS' },
-  { value: 'Estafeta', label: 'Estafeta' },
-  { value: 'Redpack', label: 'Redpack' },
-  { value: 'Paquete Express', label: 'Paquete Express' },
-  { value: 'Otro', label: 'Otro' },
+  { value: 'dhl', label: 'DHL' },
+  { value: 'fedex', label: 'FedEx' },
+  { value: 'manual', label: 'Otro' },
 ]
 
 export default function MarcarEnviadoModal({
@@ -31,7 +27,6 @@ export default function MarcarEnviadoModal({
   loading = false
 }: MarcarEnviadoModalProps) {
   const [selectedProvider, setSelectedProvider] = useState('')
-  const [customProvider, setCustomProvider] = useState('')
   const [trackingNumber, setTrackingNumber] = useState('')
   const [trackingUrl, setTrackingUrl] = useState('')
 
@@ -54,7 +49,6 @@ export default function MarcarEnviadoModal({
   // Validar form
   const isValid = () => {
     if (!selectedProvider) return false
-    if (selectedProvider === 'Otro' && !customProvider.trim()) return false
     if (!trackingNumber.trim()) return false
     return true
   }
@@ -62,12 +56,8 @@ export default function MarcarEnviadoModal({
   const handleSubmit = () => {
     if (!isValid()) return
 
-    const finalProvider = selectedProvider === 'Otro' 
-      ? customProvider.trim() || 'Otro'
-      : selectedProvider
-
     onConfirm({
-      shipping_provider: finalProvider,
+      shipping_provider: selectedProvider, // Ya viene normalizado: "dhl", "fedex", o "manual"
       tracking_number: trackingNumber.trim(),
       tracking_url: trackingUrl.trim() || undefined,
     })
@@ -132,23 +122,6 @@ export default function MarcarEnviadoModal({
               </select>
             </div>
 
-            {/* Custom provider (si se selecciona "Otro") */}
-            {selectedProvider === 'Otro' && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Nombre de paquetería
-                </label>
-                <input
-                  type="text"
-                  value={customProvider}
-                  onChange={(e) => setCustomProvider(e.target.value)}
-                  disabled={loading}
-                  placeholder="Ej: Correos de México"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
-                />
-              </div>
-            )}
-
             {/* Tracking number */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -170,15 +143,15 @@ export default function MarcarEnviadoModal({
                 URL de tracking (opcional)
               </label>
               <input
-                type="url"
+                type="text"
                 value={trackingUrl}
                 onChange={(e) => setTrackingUrl(e.target.value)}
                 disabled={loading}
-                placeholder="Ej: https://dhl.com/track/1234567890"
+                placeholder="https://... (opcional, se puede dejar vacío)"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed text-sm"
               />
               <p className="text-xs text-gray-500 mt-1">
-                Si se deja vacío, el sistema puede generar automáticamente la URL si está soportada.
+                Dejar vacío para que el sistema genere automáticamente la URL de DHL/FedEx.
               </p>
             </div>
           </div>
