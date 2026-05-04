@@ -79,6 +79,29 @@ function getShippingBadge(shippingStatus: string | null | undefined) {
   return badges[shippingStatus] || badges.pending
 }
 
+function getAddressBadge(paymentStatus: string, shippingAddress: string | null | undefined) {
+  // Solo mostrar si está pagado
+  if (paymentStatus !== 'paid') {
+    return null
+  }
+  
+  // Si está pagado pero no hay dirección confirmada
+  if (!shippingAddress || shippingAddress.trim() === '') {
+    return {
+      style: 'bg-orange-100 text-orange-700 border-orange-200',
+      label: 'Dirección pendiente',
+      icon: '⚠️'
+    }
+  }
+  
+  // Si está pagado y hay dirección confirmada
+  return {
+    style: 'bg-teal-100 text-teal-700 border-teal-200',
+    label: 'Dirección confirmada',
+    icon: '✅'
+  }
+}
+
 export default function CustomerOrdersPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
@@ -108,6 +131,7 @@ export default function CustomerOrdersPage() {
             status,
             payment_status,
             shipping_status,
+            shipping_address,
             shipping_provider,
             tracking_token,
             tracking_number,
@@ -183,6 +207,7 @@ export default function CustomerOrdersPage() {
               const statusBadge = getStatusBadge(order.status)
               const paymentBadge = getPaymentBadge(order.payment_status)
               const shippingBadge = getShippingBadge(order.shipping_status)
+              const addressBadge = getAddressBadge(order.payment_status, order.shipping_address)
               
               // Get first product image for preview
               const firstItem = order.order_items?.[0]
@@ -207,6 +232,12 @@ export default function CustomerOrdersPage() {
                             <span className={`text-xs px-2 py-1 rounded border ${paymentBadge.style}`}>
                               {paymentBadge.label}
                             </span>
+                            {addressBadge && (
+                              <span className={`text-xs px-2 py-1 rounded border ${addressBadge.style} flex items-center gap-1`}>
+                                <span>{addressBadge.icon}</span>
+                                <span>{addressBadge.label}</span>
+                              </span>
+                            )}
                             <span className={`text-xs px-2 py-1 rounded border ${shippingBadge.style} flex items-center gap-1`}>
                               <span>{shippingBadge.icon}</span>
                               <span>{shippingBadge.label}</span>
