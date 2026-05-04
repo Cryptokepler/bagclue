@@ -2,14 +2,16 @@
 
 import { EnviosOrder } from '@/types/admin-envios'
 import { useState } from 'react'
+import EnviosActions from './EnviosActions'
 
 interface EnviosTableProps {
   orders: EnviosOrder[]
   loading?: boolean
   onOrderClick: (orderId: string) => void
+  onActionComplete?: () => void
 }
 
-export default function EnviosTable({ orders, loading, onOrderClick }: EnviosTableProps) {
+export default function EnviosTable({ orders, loading, onOrderClick, onActionComplete }: EnviosTableProps) {
   const [copiedTracking, setCopiedTracking] = useState<string | null>(null)
 
   const formatDate = (isoString: string) => {
@@ -211,12 +213,7 @@ export default function EnviosTable({ orders, loading, onOrderClick }: EnviosTab
                   )}
                 </td>
                 <td className="px-4 py-4 whitespace-nowrap text-sm" onClick={e => e.stopPropagation()}>
-                  <button
-                    onClick={() => onOrderClick(order.id)}
-                    className="text-blue-600 hover:text-blue-800 font-medium"
-                  >
-                    Ver detalle
-                  </button>
+                  <EnviosActions order={order} onActionComplete={onActionComplete} />
                 </td>
               </tr>
             ))}

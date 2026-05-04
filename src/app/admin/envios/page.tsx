@@ -134,6 +134,7 @@ export default function AdminEnviosPage() {
           orders={orders}
           loading={loading}
           onOrderClick={handleOrderClick}
+          onActionComplete={fetchOrders}
         />
       </div>
       
