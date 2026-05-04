@@ -102,6 +102,60 @@ function getAddressBadge(paymentStatus: string, shippingAddress: string | null |
   }
 }
 
+function getNextStepBadge(order: any) {
+  // Pago pendiente
+  if (order.payment_status !== 'paid') {
+    return {
+      style: 'bg-gray-100 text-gray-700 border-gray-200',
+      label: 'Esperando pago',
+      icon: '⏳'
+    }
+  }
+  
+  // Entregado
+  if (order.shipping_status === 'delivered') {
+    return {
+      style: 'bg-green-100 text-green-700 border-green-200',
+      label: 'Entregado',
+      icon: '✅'
+    }
+  }
+  
+  // Enviado
+  if (order.shipping_status === 'shipped') {
+    return {
+      style: 'bg-purple-100 text-purple-700 border-purple-200',
+      label: 'En camino',
+      icon: '🚚'
+    }
+  }
+  
+  // Preparando
+  if (order.shipping_status === 'preparing') {
+    return {
+      style: 'bg-blue-100 text-blue-700 border-blue-200',
+      label: 'Preparando pieza',
+      icon: '📦'
+    }
+  }
+  
+  // Sin dirección
+  if (!order.shipping_address) {
+    return {
+      style: 'bg-orange-100 text-orange-700 border-orange-200',
+      label: 'Confirma dirección',
+      icon: '⚠️'
+    }
+  }
+  
+  // Dirección confirmada + pending
+  return {
+    style: 'bg-gray-100 text-gray-700 border-gray-200',
+    label: 'Preparación pendiente',
+    icon: '📦'
+  }
+}
+
 export default function CustomerOrdersPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
@@ -208,6 +262,7 @@ export default function CustomerOrdersPage() {
               const paymentBadge = getPaymentBadge(order.payment_status)
               const shippingBadge = getShippingBadge(order.shipping_status)
               const addressBadge = getAddressBadge(order.payment_status, order.shipping_address)
+              const nextStepBadge = getNextStepBadge(order)
               
               // Get first product image for preview
               const firstItem = order.order_items?.[0]
@@ -241,6 +296,13 @@ export default function CustomerOrdersPage() {
                             <span className={`text-xs px-2 py-1 rounded border ${shippingBadge.style} flex items-center gap-1`}>
                               <span>{shippingBadge.icon}</span>
                               <span>{shippingBadge.label}</span>
+                            </span>
+                          </div>
+                          {/* Próximo paso badge */}
+                          <div className="flex items-center gap-2 mt-2">
+                            <span className={`text-xs px-2.5 py-1 rounded border font-medium ${nextStepBadge.style} flex items-center gap-1.5`}>
+                              <span>{nextStepBadge.icon}</span>
+                              <span>{nextStepBadge.label}</span>
                             </span>
                           </div>
                           <p className="text-sm text-gray-600">

@@ -8,107 +8,142 @@ import OrderTimeline from '@/components/OrderTimeline'
 import ShippingAddressSection from '@/components/customer/ShippingAddressSection'
 import { supabaseCustomer } from '@/lib/supabase-customer'
 
-function getShippingStatusInfo(shippingStatus: string | null | undefined) {
-  if (!shippingStatus) {
+function getOrderPipelineState(order: any): {
+  state: 'payment_pending' | 'no_address' | 'address_confirmed' | 'preparing' | 'shipped' | 'delivered'
+  title: string
+  emoji: string
+  message: string
+  color: string
+  bgColor: string
+  borderColor: string
+  primaryCTA: { label: string; action: 'confirm-address' | 'track' | 'catalog' } | null
+  secondaryCTA: { label: string; action: 'view-address' | 'catalog' } | null
+  showTrackingInfo: boolean
+} {
+  // Estado F: Entregado
+  if (order.shipping_status === 'delivered') {
     return {
-      emoji: '📦',
-      title: 'Pendiente de envío',
-      description: 'Bagclue recibió tu pedido y está preparando el proceso de envío.',
-      color: 'text-gray-700',
-      bgColor: 'bg-gray-50',
-      borderColor: 'border-gray-200'
-    }
-  }
-
-  const statuses: Record<string, any> = {
-    pending: {
-      emoji: '📦',
-      title: 'Pendiente de envío',
-      description: 'Bagclue recibió tu pedido y está preparando el proceso.',
-      color: 'text-gray-700',
-      bgColor: 'bg-gray-50',
-      borderColor: 'border-gray-200'
-    },
-    preparing: {
-      emoji: '📦',
-      title: 'Preparando pieza',
-      description: 'Estamos preparando tu pieza para envío con mucho cuidado.',
-      color: 'text-blue-700',
-      bgColor: 'bg-blue-50',
-      borderColor: 'border-blue-200'
-    },
-    shipped: {
-      emoji: '🚚',
-      title: 'Enviado',
-      description: 'Tu pedido ya fue enviado y está en camino.',
-      color: 'text-purple-700',
-      bgColor: 'bg-purple-50',
-      borderColor: 'border-purple-200'
-    },
-    delivered: {
+      state: 'delivered',
+      title: 'Pedido entregado',
       emoji: '✅',
-      title: 'Entregado',
-      description: 'Tu pedido fue entregado exitosamente.',
+      message: 'Tu pieza fue entregada correctamente. ¡Esperamos que la disfrutes!',
       color: 'text-emerald-700',
       bgColor: 'bg-emerald-50',
-      borderColor: 'border-emerald-200'
-    }
-  }
-
-  return statuses[shippingStatus] || statuses.pending
-}
-
-function getStatusInfo(status: string) {
-  if (status === 'cancelled') {
-    return {
-      emoji: '❌',
-      title: 'Pedido cancelado',
-      description: 'Este pedido fue cancelado. Si tienes dudas, contáctanos.',
-      color: 'text-red-600'
+      borderColor: 'border-emerald-200',
+      primaryCTA: null,
+      secondaryCTA: {
+        label: 'Ver más piezas de lujo',
+        action: 'catalog'
+      },
+      showTrackingInfo: true
     }
   }
   
-  if (status === 'delivered') {
+  // Estado E: Enviado
+  if (order.shipping_status === 'shipped') {
+    const hasTracking = order.tracking_number || order.tracking_url || order.tracking_token
+    
     return {
-      emoji: '✅',
-      title: 'Pedido completado',
-      description: '¡Disfruta tu nueva pieza de lujo!',
-      color: 'text-emerald-600'
-    }
-  }
-  
-  if (status === 'shipped') {
-    return {
+      state: 'shipped',
+      title: 'Tu pedido va en camino',
       emoji: '🚚',
-      title: 'Pedido en tránsito',
-      description: 'Revisa el estado de envío abajo.',
-      color: 'text-blue-600'
+      message: hasTracking 
+        ? 'Tu pieza fue enviada y está en tránsito. Puedes rastrear tu paquete en tiempo real.'
+        : 'Tu pedido fue enviado. El número de rastreo estará disponible pronto.',
+      color: 'text-purple-700',
+      bgColor: 'bg-purple-50',
+      borderColor: 'border-purple-200',
+      primaryCTA: hasTracking ? {
+        label: '🚚 Rastrear mi paquete',
+        action: 'track'
+      } : null,
+      secondaryCTA: null,
+      showTrackingInfo: true
     }
   }
   
-  if (status === 'preparing') {
+  // Estado D: Preparando
+  if (order.shipping_status === 'preparing') {
     return {
+      state: 'preparing',
+      title: 'Preparando tu pieza',
       emoji: '📦',
-      title: 'Preparando pedido',
-      description: 'Estamos preparando tu pedido.',
-      color: 'text-purple-600'
+      message: 'Estamos verificando y preparando tu pedido para enviarlo. Pronto recibirás información de rastreo.',
+      color: 'text-blue-700',
+      bgColor: 'bg-blue-50',
+      borderColor: 'border-blue-200',
+      primaryCTA: null,
+      secondaryCTA: null,
+      showTrackingInfo: false
     }
   }
   
-  if (status === 'confirmed') {
+  // Estado C: Dirección confirmada + pending
+  if (order.shipping_address && order.payment_status === 'paid' && (!order.shipping_status || order.shipping_status === 'pending')) {
     return {
-      emoji: '✓',
-      title: 'Pedido confirmado',
-      description: 'Tu pedido ha sido confirmado.',
-      color: 'text-emerald-600'
+      state: 'address_confirmed',
+      title: 'Dirección confirmada',
+      emoji: '✅',
+      message: 'Nuestro equipo preparará tu pieza para envío. Te notificaremos cuando esté lista.',
+      color: 'text-emerald-700',
+      bgColor: 'bg-emerald-50',
+      borderColor: 'border-emerald-200',
+      primaryCTA: null,
+      secondaryCTA: {
+        label: 'Ver mi dirección de envío',
+        action: 'view-address'
+      },
+      showTrackingInfo: false
     }
   }
   
+  // Estado B: Pagado sin dirección
+  if (!order.shipping_address && order.payment_status === 'paid') {
+    return {
+      state: 'no_address',
+      title: 'Tu compra está confirmada',
+      emoji: '✅',
+      message: 'Confirma tu dirección de envío para que podamos preparar tu paquete.',
+      color: 'text-emerald-700',
+      bgColor: 'bg-emerald-50',
+      borderColor: 'border-emerald-200',
+      primaryCTA: {
+        label: '📍 Confirmar dirección de envío',
+        action: 'confirm-address'
+      },
+      secondaryCTA: null,
+      showTrackingInfo: false
+    }
+  }
+  
+  // Estado A: Pago pendiente
+  if (order.payment_status !== 'paid') {
+    return {
+      state: 'payment_pending',
+      title: 'Esperando pago',
+      emoji: '⏳',
+      message: 'Tu pedido se actualizará cuando el pago sea confirmado.',
+      color: 'text-gray-700',
+      bgColor: 'bg-gray-50',
+      borderColor: 'border-gray-200',
+      primaryCTA: null,
+      secondaryCTA: null,
+      showTrackingInfo: false
+    }
+  }
+  
+  // Fallback
   return {
-    emoji: '⏳',
+    state: 'payment_pending',
     title: 'Procesando pedido',
-    description: 'Estamos procesando tu pedido.',
-    color: 'text-gray-600'
+    emoji: '⏳',
+    message: 'Estamos procesando tu pedido.',
+    color: 'text-gray-700',
+    bgColor: 'bg-gray-50',
+    borderColor: 'border-gray-200',
+    primaryCTA: null,
+    secondaryCTA: null,
+    showTrackingInfo: false
   }
 }
 
@@ -210,8 +245,26 @@ export default function OrderDetailPage() {
     return null
   }
   
-  const statusInfo = getStatusInfo(order.status)
-  const shippingStatusInfo = getShippingStatusInfo(order.shipping_status)
+  const pipelineState = getOrderPipelineState(order)
+
+  const handleCTAClick = (action: 'confirm-address' | 'track' | 'catalog' | 'view-address') => {
+    if (action === 'confirm-address' || action === 'view-address') {
+      // Scroll to shipping address section
+      const section = document.getElementById('shipping-address-section')
+      if (section) {
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
+    } else if (action === 'track') {
+      // Navigate to tracking
+      if (order.tracking_token) {
+        router.push(`/track/${order.tracking_token}`)
+      } else if (order.tracking_url) {
+        window.open(order.tracking_url, '_blank')
+      }
+    } else if (action === 'catalog') {
+      router.push('/catalogo')
+    }
+  }
 
   return (
     <AccountLayout userEmail={userEmail}>
@@ -243,19 +296,42 @@ export default function OrderDetailPage() {
           </div>
         </div>
         
-        {/* Status Card */}
-        <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6">
-          <div className="flex items-center gap-4">
-            <span className="text-4xl">{statusInfo.emoji}</span>
+        {/* Estado de tu pedido - Pipeline Card */}
+        <div className={`border rounded-lg p-6 mb-6 ${pipelineState.bgColor} ${pipelineState.borderColor}`}>
+          <div className="flex items-start gap-4 mb-4">
+            <span className="text-4xl">{pipelineState.emoji}</span>
             <div className="flex-1">
-              <h2 className={`text-xl font-medium ${statusInfo.color} mb-1`}>
-                {statusInfo.title}
+              <h2 className={`text-xl font-medium ${pipelineState.color} mb-2`}>
+                {pipelineState.title}
               </h2>
-              <p className="text-gray-600">
-                {statusInfo.description}
+              <p className="text-gray-700">
+                {pipelineState.message}
               </p>
             </div>
           </div>
+
+          {/* CTAs */}
+          {(pipelineState.primaryCTA || pipelineState.secondaryCTA) && (
+            <div className="flex flex-wrap gap-3 mt-4">
+              {pipelineState.primaryCTA && (
+                <button
+                  onClick={() => handleCTAClick(pipelineState.primaryCTA!.action)}
+                  className="bg-[#FF69B4] text-white px-6 py-2.5 text-sm font-medium hover:bg-[#FF69B4]/90 transition-colors rounded"
+                >
+                  {pipelineState.primaryCTA.label}
+                </button>
+              )}
+              
+              {pipelineState.secondaryCTA && (
+                <button
+                  onClick={() => handleCTAClick(pipelineState.secondaryCTA!.action)}
+                  className="border border-gray-300 text-gray-700 px-6 py-2.5 text-sm font-medium hover:border-[#FF69B4] hover:text-[#FF69B4] transition-colors rounded"
+                >
+                  {pipelineState.secondaryCTA.label}
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Payment Status */}
@@ -279,75 +355,50 @@ export default function OrderDetailPage() {
           </div>
         </div>
 
-        {/* Shipping Status */}
-        <div className={`border rounded-lg p-6 mb-6 ${shippingStatusInfo.bgColor} ${shippingStatusInfo.borderColor}`}>
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Estado de envío</h3>
-          
-          <div className="flex items-start gap-4 mb-4">
-            <span className="text-3xl">{shippingStatusInfo.emoji}</span>
-            <div className="flex-1">
-              <h4 className={`font-medium mb-1 ${shippingStatusInfo.color}`}>
-                {shippingStatusInfo.title}
-              </h4>
-              <p className="text-sm text-gray-700">
-                {shippingStatusInfo.description}
-              </p>
-            </div>
-          </div>
-
-          {/* Shipping Details */}
-          <div className="space-y-3 mt-4 pt-4 border-t border-gray-200">
-            {order.shipping_provider ? (
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Paquetería</p>
-                <p className="text-gray-900 font-medium">
-                  {order.shipping_provider === 'dhl' ? 'DHL Express' :
-                   order.shipping_provider === 'fedex' ? 'FedEx' :
-                   order.shipping_provider}
-                </p>
-              </div>
-            ) : (
-              <div>
-                <p className="text-sm text-gray-600">Paquetería pendiente</p>
-              </div>
-            )}
+        {/* Shipping Info - Only show if relevant */}
+        {pipelineState.showTrackingInfo && (order.shipping_provider || order.tracking_number) && (
+          <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6">
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Información de envío</h3>
             
-            {order.tracking_number ? (
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Número de rastreo</p>
-                <p className="font-mono text-gray-900">{order.tracking_number}</p>
-              </div>
-            ) : order.shipping_status === 'shipped' ? (
-              <div>
-                <p className="text-sm text-gray-600">Tracking pendiente</p>
-              </div>
-            ) : null}
-            
-            {(order.tracking_token || order.tracking_url) && (
-              <div className="flex gap-3 pt-2">
-                {order.tracking_token && (
-                  <Link
-                    href={`/track/${order.tracking_token}`}
-                    className="inline-block bg-[#FF69B4] text-white px-6 py-2 text-sm hover:bg-[#FF69B4]/90 transition-colors"
-                  >
-                    Ver seguimiento completo
-                  </Link>
-                )}
-                
-                {order.tracking_url && (
+            <div className="space-y-3">
+              {order.shipping_provider && (
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">Paquetería</p>
+                  <p className="text-gray-900 font-medium">
+                    {order.shipping_provider === 'dhl' ? 'DHL Express' :
+                     order.shipping_provider === 'fedex' ? 'FedEx' :
+                     order.shipping_provider === 'manual' ? 'Otra paquetería' :
+                     order.shipping_provider}
+                  </p>
+                </div>
+              )}
+              
+              {order.tracking_number ? (
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">Número de rastreo</p>
+                  <p className="font-mono text-gray-900 text-sm">{order.tracking_number}</p>
+                </div>
+              ) : order.shipping_status === 'shipped' ? (
+                <div>
+                  <p className="text-sm text-gray-600">Tracking pendiente</p>
+                </div>
+              ) : null}
+              
+              {order.tracking_url && (
+                <div className="pt-2">
                   <a
                     href={order.tracking_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-block border border-gray-300 text-gray-700 px-6 py-2 text-sm hover:border-[#FF69B4] hover:text-[#FF69B4] transition-colors"
+                    className="inline-flex items-center gap-2 text-sm text-[#FF69B4] hover:text-[#FF69B4]/80 transition-colors"
                   >
                     Rastrear en {order.shipping_provider === 'dhl' ? 'DHL' : order.shipping_provider === 'fedex' ? 'FedEx' : 'paquetería'} →
                   </a>
-                )}
-              </div>
-            )}
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        )}
         
         {/* Timeline */}
         <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6">
@@ -414,10 +465,12 @@ export default function OrderDetailPage() {
         </div>
         
         {/* Shipping Address */}
-        <ShippingAddressSection 
-          order={order} 
-          autoExpand={action === 'confirm-shipping'}
-        />
+        <div id="shipping-address-section">
+          <ShippingAddressSection 
+            order={order} 
+            autoExpand={action === 'confirm-shipping'}
+          />
+        </div>
       </div>
     </AccountLayout>
   )
