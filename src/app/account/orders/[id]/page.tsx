@@ -2,6 +2,7 @@ import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import AccountLayout from '@/components/customer/AccountLayout'
 import OrderTimeline from '@/components/OrderTimeline'
+import ShippingAddressSection from '@/components/customer/ShippingAddressSection'
 import { supabaseCustomer } from '@/lib/supabase-customer'
 
 async function getOrder(orderId: string) {
@@ -367,12 +368,7 @@ export default async function OrderDetailPage({
         </div>
         
         {/* Shipping Address */}
-        {order.shipping_address && (
-          <div className="bg-white border border-gray-200 rounded-lg p-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Dirección de envío</h3>
-            <p className="text-gray-900 whitespace-pre-line">{order.shipping_address}</p>
-          </div>
-        )}
+        <ShippingAddressSection order={order} />
       </div>
     </AccountLayout>
   )
