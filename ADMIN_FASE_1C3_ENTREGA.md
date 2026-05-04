@@ -1,9 +1,36 @@
 # ADMIN FASE 1C.3 — Marcar enviado (funcional)
 
-**Estado:** IMPLEMENTADO ✅ (awaiting QA)  
+**Estado:** CERRADA ✅  
 **Fecha:** 2026-05-04  
-**Commit:** 902efce  
+**Commit inicial:** 902efce  
+**Fix:** d1aead7 (alineación valores backend)  
+**QA:** 5/5 tests PASS (validado por Jhonatan 12:57 UTC)  
 **URL:** https://bagclue.vercel.app/admin/envios
+
+---
+
+## ⚠️ Fix Aplicado (12:45 UTC)
+
+**Problema reportado:** Error 400 "Invalid shipping_provider" al confirmar envío.
+
+**Causa:** UI enviaba valores en mayúsculas (ej: "DHL") pero backend espera valores normalizados: "dhl", "fedex", "manual", null.
+
+**Solución (commit d1aead7):**
+1. Reducido dropdown a 3 opciones que coinciden con contrato backend:
+   - DHL → envía "dhl"
+   - FedEx → envía "fedex"
+   - Otro → envía "manual"
+2. Eliminadas opciones no soportadas por backend: UPS, Estafeta, Redpack, Paquete Express
+3. Eliminado campo de nombre personalizado (no necesario, "manual" es valor directo)
+4. Actualizada validación de form (ya no chequea custom provider)
+5. Cambiado input tracking_url de type="url" a type="text" para flexibilidad
+6. Actualizado placeholder/hint de tracking_url
+
+**Backend NO tocado** (como fue solicitado).
+
+**Build:** ✅ PASS  
+**Deploy:** ✅ PASS (35s)  
+**Listo para re-test.**
 
 ---
 
@@ -27,17 +54,10 @@ Activar acción funcional "Marcar enviado" para pedidos en estado `preparing`, p
 
 - **Form fields:**
   - **Paquetería / Proveedor** (required):
-    - Dropdown con 7 opciones:
-      - DHL
-      - FedEx
-      - UPS
-      - Estafeta
-      - Redpack
-      - Paquete Express
-      - Otro
-    - Si se selecciona "Otro":
-      - Input adicional para nombre de paquetería personalizado
-      - Si se deja vacío, guarda "Otro"
+    - Dropdown con 3 opciones (alineadas con backend):
+      - DHL (envía valor: "dhl")
+      - FedEx (envía valor: "fedex")
+      - Otro (envía valor: "manual")
   
   - **Número de tracking** (required):
     - Input tipo text
@@ -52,7 +72,6 @@ Activar acción funcional "Marcar enviado" para pedidos en estado `preparing`, p
 - **Validaciones UI:**
   - Botón "Confirmar envío" disabled si:
     - No se seleccionó paquetería
-    - Se seleccionó "Otro" pero no se ingresó nombre personalizado
     - No se ingresó número de tracking
   - Loading spinner durante API call
   - Disabled inputs durante loading
@@ -214,7 +233,7 @@ npx vercel --prod --token [REDACTED] --yes
 | 4 | Botón "Marcar enviado" visible | Solo si preparing + paid + address | ⏳ Pendiente |
 | 5 | Click abre modal | Modal muestra form | ⏳ Pendiente |
 | 6 | Modal muestra cliente/producto/dirección | Datos correctos | ⏳ Pendiente |
-| 7 | Provider select funciona | Dropdown con 7 opciones | ⏳ Pendiente |
+| 7 | Provider select funciona | Dropdown con 3 opciones (DHL/FedEx/Otro) | ⏳ Pendiente |
 | 8 | Tracking number requerido | Input funcional, validación correcta | ⏳ Pendiente |
 | 9 | Confirmar con provider + tracking llama API | PUT /api/orders/[id]/shipping | ⏳ Pendiente |
 | 10 | Pedido cambia a "Enviados" | Tab y badge actualizados | ⏳ Pendiente |
@@ -233,9 +252,9 @@ npx vercel --prod --token [REDACTED] --yes
 5. Verificar que botón "Marcar enviado" es visible
 6. Click en botón → validar que modal abre
 7. Revisar datos en modal (ID, cliente, producto, dirección)
-8. Seleccionar paquetería (ej: DHL)
-9. Ingresar tracking number (ej: TEST1234567890)
-10. Ingresar tracking URL opcional (ej: https://dhl.com/track/TEST1234567890)
+8. Seleccionar paquetería: **DHL** (muestra "DHL", envía "dhl" al backend)
+9. Ingresar tracking number: **TEST1234567890**
+10. Dejar tracking URL **vacío** (backend genera automáticamente)
 11. Click "Confirmar envío" → validar que modal cierra
 12. Validar que pedido desaparece de "Preparando"
 13. Click en tab "Enviados" → validar que pedido aparece ahí
@@ -245,10 +264,10 @@ npx vercel --prod --token [REDACTED] --yes
 17. Abrir detalle de pedido → validar paquetería + tracking
 18. Abrir tracking público → validar estado "Enviado" + tracking info
 
-**Tracking de prueba sugerido:**
-- Provider: DHL
-- Tracking: TEST1234567890
-- URL: https://dhl.com/track/TEST1234567890
+**Tracking de prueba sugerido (como solicitado por Jhonatan):**
+- Provider: **DHL** (envía "dhl")
+- Tracking: **TEST1234567890**
+- URL: **vacío** (dejar campo vacío para que backend genere)
 
 ---
 

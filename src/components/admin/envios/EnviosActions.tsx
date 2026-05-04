@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { EnviosOrder } from '@/types/admin-envios'
 import MarcarPreparandoModal from './MarcarPreparandoModal'
 import MarcarEnviadoModal from './MarcarEnviadoModal'
+import MarcarEntregadoModal from './MarcarEntregadoModal'
 
 interface EnviosActionsProps {
   order: EnviosOrder
@@ -15,6 +16,7 @@ export default function EnviosActions({ order, onActionComplete }: EnviosActions
   const router = useRouter()
   const [showMarcarPreparandoModal, setShowMarcarPreparandoModal] = useState(false)
   const [showMarcarEnviadoModal, setShowMarcarEnviadoModal] = useState(false)
+  const [showMarcarEntregadoModal, setShowMarcarEntregadoModal] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -110,10 +112,50 @@ export default function EnviosActions({ order, onActionComplete }: EnviosActions
     }
   }
 
+  // Handler para marcar como entregado
+  const handleMarcarEntregado = () => {
+    setShowMarcarEntregadoModal(true)
+    setError(null)
+  }
+
+  // Handler para confirmar marcar como entregado
+  const handleConfirmMarcarEntregado = async () => {
+    setLoading(true)
+    setError(null)
+
+    try {
+      const response = await fetch(`/api/orders/${order.id}/shipping`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          shipping_status: 'delivered',
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Error al actualizar estado' }))
+        throw new Error(errorData.error || `HTTP ${response.status}`)
+      }
+
+      // Éxito: cerrar modal y refrescar datos
+      setShowMarcarEntregadoModal(false)
+      if (onActionComplete) {
+        onActionComplete()
+      }
+    } catch (err) {
+      console.error('Error al marcar como entregado:', err)
+      setError(err instanceof Error ? err.message : 'Error desconocido')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   // Handler dummy para botones (no ejecuta cambios reales)
   const handleDummyAction = (action: string) => {
     console.log(`[DUMMY] Acción: ${action}, Orden: ${order.id}`)
-    // TODO: Implementar en SUBFASE 1C.4, 1C.5
+    // TODO: Implementar en SUBFASE 1C.5
   }
 
   // Determinar si la orden tiene dirección confirmada
@@ -170,7 +212,7 @@ export default function EnviosActions({ order, onActionComplete }: EnviosActions
         {/* MARCAR ENTREGADO - Solo si shipped */}
         {isShipped && (
           <button
-            onClick={() => handleDummyAction('marcar_entregado')}
+            onClick={handleMarcarEntregado}
             className="px-3 py-1 text-sm bg-green-100 text-green-700 rounded hover:bg-green-200 transition-colors"
           >
             Marcar entregado
@@ -201,6 +243,16 @@ export default function EnviosActions({ order, onActionComplete }: EnviosActions
           order={order}
           onConfirm={handleConfirmMarcarEnviado}
           onClose={() => setShowMarcarEnviadoModal(false)}
+          loading={loading}
+        />
+      )}
+
+      {/* Modal: Marcar entregado */}
+      {showMarcarEntregadoModal && (
+        <MarcarEntregadoModal
+          order={order}
+          onConfirm={handleConfirmMarcarEntregado}
+          onClose={() => setShowMarcarEntregadoModal(false)}
           loading={loading}
         />
       )}
