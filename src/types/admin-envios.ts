@@ -5,7 +5,7 @@ export interface EnviosOrder {
   customer_email: string
   customer_phone: string | null
   total: number
-  currency: string
+  currency: string | null
   payment_status: 'paid' | 'pending' | 'refunded'
   status: string
   shipping_status: 'pending' | 'preparing' | 'shipped' | 'delivered' | null

@@ -21,8 +21,9 @@ export default function EnviosTable({ orders, loading, onOrderClick }: EnviosTab
     return `${day}/${month} ${hours}:${minutes}`
   }
 
-  const formatTotal = (amount: number, currency: string) => {
-    return `$${amount.toLocaleString('es-MX')} ${currency}`
+  const formatTotal = (amount: number, currency: string | null) => {
+    const curr = currency || 'MXN'
+    return `$${amount.toLocaleString('es-MX')} ${curr}`
   }
 
   const formatProductSummary = (order: EnviosOrder) => {
