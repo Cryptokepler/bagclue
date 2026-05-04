@@ -21,11 +21,20 @@ export default function CartPage() {
   useEffect(() => {
     async function loadUserData() {
       try {
+        console.log('[CART] Loading user session...')
         const { data: { user }, error } = await supabaseCustomer.auth.getUser()
+        
+        console.log('[CART] Session check result:', {
+          userExists: !!user,
+          emailExists: !!user?.email,
+          hasError: !!error
+        })
         
         if (!error && user) {
           setUser(user)
           setCustomerEmail(user.email || '')
+          
+          console.log('[CART] Loading profile for user...')
           
           // Load profile data
           const { data: profile } = await supabaseCustomer
@@ -34,15 +43,24 @@ export default function CartPage() {
             .eq('user_id', user.id)
             .single()
           
+          console.log('[CART] Profile loaded:', {
+            profileExists: !!profile,
+            hasName: !!profile?.name,
+            hasPhone: !!profile?.phone
+          })
+          
           if (profile) {
             if (profile.name) setCustomerName(profile.name)
             if (profile.phone) setCustomerPhone(profile.phone)
           }
+        } else {
+          console.log('[CART] No user session found (guest checkout)')
         }
       } catch (e) {
         console.error('[CART] Error loading user data:', e)
       } finally {
         setLoadingUser(false)
+        console.log('[CART] Session check complete')
       }
     }
     
@@ -177,7 +195,17 @@ export default function CartPage() {
 
         {/* Checkout Form */}
         <form onSubmit={handleCheckout} className="space-y-6">
-          {user ? (
+          {loadingUser ? (
+            /* Cargando sesión */
+            <div className="bg-[#FF69B4]/5 border border-[#FF69B4]/20 p-6">
+              <div className="flex items-center justify-center py-12">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF69B4] mx-auto mb-4"></div>
+                  <p className="text-sm text-gray-900/60">Verificando sesión...</p>
+                </div>
+              </div>
+            </div>
+          ) : user ? (
             /* Usuario logueado: Resumen sin formulario */
             <div className="bg-[#FF69B4]/5 border border-[#FF69B4]/20 p-6">
               <div className="flex items-center justify-between mb-4">
