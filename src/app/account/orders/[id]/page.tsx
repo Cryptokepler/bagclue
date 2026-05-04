@@ -280,9 +280,14 @@ export default function OrderDetailPage() {
           
           <div className="flex items-start justify-between">
             <div>
-              <h1 className="font-[family-name:var(--font-playfair)] text-3xl text-gray-900 mb-2">
-                Pedido #{order.id.slice(0, 8)}
-              </h1>
+              <div className="flex items-center gap-3 mb-2">
+                <h1 className="font-[family-name:var(--font-playfair)] text-3xl text-gray-900">
+                  Pedido
+                </h1>
+                <span className="font-mono text-sm uppercase bg-gray-100 border border-gray-300 rounded-md px-2 py-1 text-gray-700">
+                  #{order.id.slice(0, 8).toUpperCase()}
+                </span>
+              </div>
               <p className="text-gray-600">
                 Realizado el {new Date(order.created_at).toLocaleDateString('es-MX', {
                   year: 'numeric',
