@@ -31,6 +31,10 @@ export async function PUT(
       notes
     } = body
 
+    // ========================================
+    // FASE 1A: VALIDACIONES REFORZADAS
+    // ========================================
+
     // Validar shipping_status
     const validStatuses = ['pending', 'preparing', 'shipped', 'delivered']
     if (shipping_status && !validStatuses.includes(shipping_status)) {
@@ -40,18 +44,86 @@ export async function PUT(
     }
 
     // Validar shipping_provider
-    const validProviders = ['dhl', 'fedex', null]
+    const validProviders = ['dhl', 'fedex', 'manual', null]
     if (shipping_provider !== undefined && !validProviders.includes(shipping_provider)) {
       return NextResponse.json({ 
-        error: 'Invalid shipping_provider. Must be: dhl, fedex, or null' 
+        error: 'Invalid shipping_provider. Must be: dhl, fedex, manual, or null' 
       }, { status: 400 })
     }
 
-    // Si status=shipped, requiere provider y tracking_number
-    if (shipping_status === 'shipped' && (!shipping_provider || !tracking_number)) {
-      return NextResponse.json({ 
-        error: 'shipped status requires shipping_provider and tracking_number' 
-      }, { status: 400 })
+    // Si se está cambiando shipping_status, necesitamos validar el estado actual de la orden
+    if (shipping_status) {
+      const { data: currentOrder, error: fetchError } = await supabaseAdmin
+        .from('orders')
+        .select('payment_status, shipping_address, shipping_status')
+        .eq('id', orderId)
+        .single()
+
+      if (fetchError || !currentOrder) {
+        console.error('[SHIPPING UPDATE] Order not found:', fetchError)
+        return NextResponse.json({ error: 'Order not found' }, { status: 404 })
+      }
+
+      // REGLA A: Para marcar shipping_status = preparing
+      if (shipping_status === 'preparing') {
+        // A1. payment_status debe ser paid
+        if (currentOrder.payment_status !== 'paid') {
+          return NextResponse.json({ 
+            error: 'No se puede marcar como preparando sin pago confirmado. Estado de pago actual: ' + currentOrder.payment_status 
+          }, { status: 400 })
+        }
+
+        // A2. shipping_address debe existir (preferencia de Jhonatan)
+        // Usamos shipping_address del request si se está actualizando, sino el actual
+        const finalShippingAddress = shipping_address !== undefined ? shipping_address : currentOrder.shipping_address
+        if (!finalShippingAddress) {
+          return NextResponse.json({ 
+            error: 'No se puede marcar como preparando sin dirección de envío confirmada' 
+          }, { status: 400 })
+        }
+      }
+
+      // REGLA B: Para marcar shipping_status = shipped
+      if (shipping_status === 'shipped') {
+        // B1. payment_status debe ser paid
+        if (currentOrder.payment_status !== 'paid') {
+          return NextResponse.json({ 
+            error: 'No se puede marcar como enviado sin pago confirmado. Estado de pago actual: ' + currentOrder.payment_status 
+          }, { status: 400 })
+        }
+
+        // B2. shipping_address debe existir
+        const finalShippingAddress = shipping_address !== undefined ? shipping_address : currentOrder.shipping_address
+        if (!finalShippingAddress) {
+          return NextResponse.json({ 
+            error: 'No se puede marcar como enviado sin dirección de envío confirmada' 
+          }, { status: 400 })
+        }
+
+        // B3. shipping_provider requerido
+        if (!shipping_provider) {
+          return NextResponse.json({ 
+            error: 'Paquetería (shipping_provider) es obligatoria para marcar como enviado' 
+          }, { status: 400 })
+        }
+
+        // B4. tracking_number requerido
+        if (!tracking_number) {
+          return NextResponse.json({ 
+            error: 'Número de rastreo (tracking_number) es obligatorio para marcar como enviado' 
+          }, { status: 400 })
+        }
+      }
+
+      // REGLA C: Para marcar shipping_status = delivered
+      if (shipping_status === 'delivered') {
+        // C1. shipping_status previo debe ser shipped
+        if (currentOrder.shipping_status !== 'shipped') {
+          return NextResponse.json({ 
+            error: 'No se puede marcar como entregado sin haber sido enviado primero. Estado actual: ' + currentOrder.shipping_status 
+          }, { status: 400 })
+        }
+      }
     }
 
     // Auto-generar tracking_url si no se proporciona
@@ -71,7 +143,7 @@ export async function PUT(
     if (tracking_url !== undefined) updates.tracking_url = tracking_url
     if (notes !== undefined) updates.notes = notes
 
-    // Timestamps automáticos
+    // Timestamps automáticos (REGLA B5, C2)
     if (shipping_status === 'shipped' && !updates.shipped_at) {
       updates.shipped_at = new Date().toISOString()
     }
