@@ -242,6 +242,39 @@ export default function EditProductForm({ product }: EditProductFormProps) {
         </div>
       )}
 
+      {/* Avisos de estado del producto */}
+      {!product.is_published && (
+        <div className="max-w-4xl mx-auto px-6 pt-6">
+          <div className="bg-yellow-500/10 border border-yellow-500/30 rounded px-6 py-4 flex items-start gap-4">
+            <div className="text-yellow-400 text-xl">⚠️</div>
+            <div className="flex-1">
+              <p className="text-yellow-400 font-medium mb-1">
+                Este producto está guardado como borrador
+              </p>
+              <p className="text-sm text-yellow-400/80">
+                No aparece en el catálogo público. Marca "Publicado" abajo para hacerlo visible a los clientes.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {images.length === 0 && (
+        <div className="max-w-4xl mx-auto px-6 pt-6">
+          <div className="bg-blue-500/10 border border-blue-500/30 rounded px-6 py-4 flex items-start gap-4">
+            <div className="text-blue-400 text-xl">📸</div>
+            <div className="flex-1">
+              <p className="text-blue-400 font-medium mb-1">
+                Este producto no tiene imágenes
+              </p>
+              <p className="text-sm text-blue-400/80">
+                Agrega al menos una imagen de alta calidad antes de publicarlo en el catálogo.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Main */}
       <main className="max-w-4xl mx-auto px-6 py-8">
         {/* Imágenes */}

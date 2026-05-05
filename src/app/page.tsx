@@ -1,11 +1,49 @@
 import Link from 'next/link';
 import ProductCard from '@/components/ProductCard';
 import InstagramCTA from '@/components/InstagramCTA';
-import { products } from '@/data/products';
+import { supabase } from '@/lib/supabase';
+import { PRODUCT_PUBLIC_FIELDS } from '@/lib/products-public-fields';
+import { dbStatusToLegacy } from '@/types/database';
+import type { Brand, ProductStatus, Product as LegacyProduct } from '@/data/products';
 
-const featured = products.filter(p => p.status === 'En inventario' || p.status === 'Pre-venta').slice(0, 6);
+export const dynamic = 'force-dynamic';
+export const revalidate = 60; // Revalidar cada 60 segundos
 
-export default function Home() {
+async function getFeaturedProducts() {
+  const { data: productsData, error } = await supabase
+    .from('products')
+    .select(`${PRODUCT_PUBLIC_FIELDS}, product_images(*)`)
+    .eq('is_published', true)
+    .in('status', ['available', 'preorder'])
+    .order('created_at', { ascending: false })
+    .limit(6);
+
+  if (error) {
+    console.error('Error fetching featured products:', error);
+    return [];
+  }
+
+  // Transform DB products to legacy format for ProductCard compatibility
+  const transformedProducts: LegacyProduct[] = (productsData || []).map((p: any) => ({
+    id: p.slug || p.id,
+    slug: p.slug || undefined,
+    brand: p.brand as Brand,
+    model: p.model || p.title,
+    color: p.color || '',
+    origin: p.origin || '',
+    status: dbStatusToLegacy(p.status),
+    price: p.price,
+    category: p.category as any,
+    image: p.product_images?.[0]?.url || '',
+    badge: p.badge || undefined,
+    description: p.description || undefined
+  }));
+
+  return transformedProducts;
+}
+
+export default async function Home() {
+  const featured = await getFeaturedProducts();
   return (
     <>
       {/* Hero — CTA visible arriba */}
@@ -75,14 +113,40 @@ export default function Home() {
           <h2 className="font-[family-name:var(--font-playfair)] text-3xl md:text-4xl text-gray-900 mt-3">Piezas Disponibles</h2>
           <div className="w-16 h-px bg-pink-300 mx-auto mt-6" />
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {featured.map(p => <ProductCard key={p.id} product={p} />)}
-        </div>
-        <div className="text-center mt-12">
-          <Link href="/catalogo" className="inline-flex items-center gap-2 bg-pink-400 text-white px-8 py-3 text-sm tracking-widest uppercase font-medium hover:bg-pink-500 transition-all duration-300 rounded-full">
-            Ver catálogo completo →
-          </Link>
-        </div>
+        
+        {featured.length > 0 ? (
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {featured.map(p => <ProductCard key={p.id} product={p} />)}
+            </div>
+            <div className="text-center mt-12">
+              <Link href="/catalogo" className="inline-flex items-center gap-2 bg-pink-400 text-white px-8 py-3 text-sm tracking-widest uppercase font-medium hover:bg-pink-500 transition-all duration-300 rounded-full">
+                Ver catálogo completo →
+              </Link>
+            </div>
+          </>
+        ) : (
+          <div className="text-center py-16">
+            <div className="max-w-md mx-auto">
+              <span className="text-5xl block mb-6">✨</span>
+              <h3 className="font-[family-name:var(--font-playfair)] text-2xl text-gray-900 mb-4">
+                No hay piezas disponibles por el momento
+              </h3>
+              <p className="text-gray-600 mb-8 leading-relaxed">
+                Nuestro inventario se actualiza constantemente. Visita nuestro catálogo o contáctanos para conocer próximos ingresos.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Link href="/catalogo" className="inline-flex items-center gap-2 bg-pink-400 text-white px-8 py-3 text-sm tracking-widest uppercase font-medium hover:bg-pink-500 transition-all duration-300 rounded-full">
+                  Ver catálogo
+                </Link>
+                <a href="https://ig.me/m/salebybagcluemx" target="_blank" rel="noopener noreferrer" 
+                   className="text-sm tracking-widest uppercase text-pink-400 border border-pink-300 px-8 py-3 hover:bg-pink-50 transition-all duration-300 rounded-full">
+                  Contáctanos
+                </a>
+              </div>
+            </div>
+          </div>
+        )}
       </section>
 
       {/* Testimonios / Social proof */}
