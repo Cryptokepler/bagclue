@@ -27,43 +27,43 @@ export default function EnviosPagination({ pagination, onPageChange }: EnviosPag
   }
 
   return (
-    <div className="flex items-center justify-between bg-white px-4 py-3 rounded-lg shadow">
+    <div className="flex items-center justify-between bg-white/5 border border-[#FF69B4]/20 px-4 py-3">
       <div className="flex flex-1 justify-between sm:hidden">
         <button
           onClick={handlePrevious}
           disabled={!hasPrevious}
-          className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="relative inline-flex items-center border border-[#FF69B4]/20 bg-white/5 px-4 py-2 text-sm font-medium text-gray-300 hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Anterior
         </button>
         <button
           onClick={handleNext}
           disabled={!hasMore}
-          className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="relative ml-3 inline-flex items-center border border-[#FF69B4]/20 bg-white/5 px-4 py-2 text-sm font-medium text-gray-300 hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Siguiente
         </button>
       </div>
       <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
         <div>
-          <p className="text-sm text-gray-700">
-            Mostrando <span className="font-medium">{currentStart}</span> - <span className="font-medium">{currentEnd}</span> de{' '}
-            <span className="font-medium">{total}</span> resultados
+          <p className="text-sm text-gray-400">
+            Mostrando <span className="font-medium text-white">{currentStart}</span> - <span className="font-medium text-white">{currentEnd}</span> de{' '}
+            <span className="font-medium text-white">{total}</span> resultados
           </p>
         </div>
         <div>
-          <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+          <nav className="isolate inline-flex -space-x-px" aria-label="Pagination">
             <button
               onClick={handlePrevious}
               disabled={!hasPrevious}
-              className="relative inline-flex items-center rounded-l-md px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="relative inline-flex items-center border-l border-y border-[#FF69B4]/20 px-4 py-2 text-sm font-medium text-gray-300 bg-white/5 hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Anterior
             </button>
             <button
               onClick={handleNext}
               disabled={!hasMore}
-              className="relative inline-flex items-center rounded-r-md px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="relative inline-flex items-center border border-[#FF69B4]/20 px-4 py-2 text-sm font-medium text-gray-300 bg-white/5 hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Siguiente
             </button>

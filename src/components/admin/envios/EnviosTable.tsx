@@ -42,9 +42,9 @@ export default function EnviosTable({ orders, loading, onOrderClick, onActionCom
 
   const getPaymentBadge = (status: string) => {
     const badges = {
-      paid: 'bg-green-100 text-green-800',
-      pending: 'bg-yellow-100 text-yellow-800',
-      refunded: 'bg-red-100 text-red-800'
+      paid: 'bg-emerald-500/20 text-emerald-400',
+      pending: 'bg-yellow-500/20 text-yellow-400',
+      refunded: 'bg-red-500/20 text-red-400'
     }
     const labels = {
       paid: 'Pagado',
@@ -52,7 +52,7 @@ export default function EnviosTable({ orders, loading, onOrderClick, onActionCom
       refunded: 'Reembolsado'
     }
     return (
-      <span className={`px-2 py-1 text-xs font-medium rounded-full ${badges[status as keyof typeof badges] || 'bg-gray-100 text-gray-800'}`}>
+      <span className={`px-2 py-1 text-xs font-medium rounded ${badges[status as keyof typeof badges] || 'bg-gray-500/20 text-gray-400'}`}>
         {labels[status as keyof typeof labels] || status}
       </span>
     )
@@ -60,12 +60,12 @@ export default function EnviosTable({ orders, loading, onOrderClick, onActionCom
 
   const getShippingBadge = (status: string | null) => {
     if (!status || status === 'pending') {
-      return <span className="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800">Pendiente</span>
+      return <span className="px-2 py-1 text-xs font-medium rounded bg-gray-500/20 text-gray-400">Pendiente</span>
     }
     const badges = {
-      preparing: 'bg-blue-100 text-blue-800',
-      shipped: 'bg-purple-100 text-purple-800',
-      delivered: 'bg-green-100 text-green-800'
+      preparing: 'bg-blue-500/20 text-blue-400',
+      shipped: 'bg-purple-500/20 text-purple-400',
+      delivered: 'bg-emerald-500/20 text-emerald-400'
     }
     const labels = {
       preparing: 'Preparando',
@@ -73,7 +73,7 @@ export default function EnviosTable({ orders, loading, onOrderClick, onActionCom
       delivered: 'Entregado'
     }
     return (
-      <span className={`px-2 py-1 text-xs font-medium rounded-full ${badges[status as keyof typeof badges] || 'bg-gray-100 text-gray-800'}`}>
+      <span className={`px-2 py-1 text-xs font-medium rounded ${badges[status as keyof typeof badges] || 'bg-gray-500/20 text-gray-400'}`}>
         {labels[status as keyof typeof labels] || status}
       </span>
     )
@@ -81,9 +81,9 @@ export default function EnviosTable({ orders, loading, onOrderClick, onActionCom
 
   const getAddressBadge = (address: string | null) => {
     if (address) {
-      return <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">✅ Confirmada</span>
+      return <span className="px-2 py-1 text-xs font-medium rounded bg-emerald-500/20 text-emerald-400">✅ Confirmada</span>
     }
-    return <span className="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">⚠️ Pendiente</span>
+    return <span className="px-2 py-1 text-xs font-medium rounded bg-yellow-500/20 text-yellow-400">⚠️ Pendiente</span>
   }
 
   const handleCopyTracking = async (trackingNumber: string, orderId: string) => {
@@ -102,11 +102,11 @@ export default function EnviosTable({ orders, loading, onOrderClick, onActionCom
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg shadow overflow-hidden">
+      <div className="bg-white/5 border border-[#FF69B4]/20 overflow-hidden">
         <div className="animate-pulse">
           {[1, 2, 3, 4, 5].map(i => (
-            <div key={i} className="p-4 border-b">
-              <div className="h-16 bg-gray-200 rounded"></div>
+            <div key={i} className="p-4 border-b border-[#FF69B4]/10">
+              <div className="h-16 bg-white/5 rounded"></div>
             </div>
           ))}
         </div>
@@ -116,56 +116,56 @@ export default function EnviosTable({ orders, loading, onOrderClick, onActionCom
 
   if (orders.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow p-12 text-center">
-        <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div className="bg-white/5 border border-[#FF69B4]/20 p-12 text-center">
+        <svg className="mx-auto h-12 w-12 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
         </svg>
-        <h3 className="mt-2 text-sm font-medium text-gray-900">No hay órdenes</h3>
-        <p className="mt-1 text-sm text-gray-500">No se encontraron órdenes con los filtros aplicados.</p>
+        <h3 className="mt-2 text-sm font-medium text-white">No hay órdenes</h3>
+        <p className="mt-1 text-sm text-gray-400">No se encontraron órdenes con los filtros aplicados.</p>
       </div>
     )
   }
 
   return (
-    <div className="bg-white rounded-lg shadow overflow-hidden">
+    <div className="bg-white/5 border border-[#FF69B4]/20 overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+        <table className="min-w-full">
+          <thead className="bg-white/5">
             <tr>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Producto</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pago</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dirección</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Envío</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tracking</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Fecha</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Cliente</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Producto</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Total</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Pago</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Dirección</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Envío</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Tracking</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Acciones</th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="divide-y divide-[#FF69B4]/10">
             {orders.map(order => (
               <tr
                 key={order.id}
-                className="hover:bg-gray-50 cursor-pointer transition-colors"
+                className="hover:bg-white/5 cursor-pointer transition-colors"
                 onClick={() => onOrderClick(order.id)}
               >
-                <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-300">
                   {formatDate(order.created_at)}
                 </td>
                 <td className="px-4 py-4 text-sm">
-                  <div className="text-gray-900 font-medium">{order.customer_name}</div>
-                  <div className="text-gray-500 text-xs">{order.customer_email}</div>
+                  <div className="text-white font-medium">{order.customer_name}</div>
+                  <div className="text-gray-400 text-xs">{order.customer_email}</div>
                   {order.customer_phone && (
-                    <div className="text-gray-500 text-xs">{order.customer_phone}</div>
+                    <div className="text-gray-400 text-xs">{order.customer_phone}</div>
                   )}
                 </td>
-                <td className="px-4 py-4 text-sm text-gray-900">
+                <td className="px-4 py-4 text-sm text-gray-300">
                   <div className="max-w-xs truncate" title={formatProductSummary(order)}>
                     {formatProductSummary(order)}
                   </div>
                 </td>
-                <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
+                <td className="px-4 py-4 whitespace-nowrap text-sm text-white font-medium">
                   {formatTotal(order.total, order.currency)}
                 </td>
                 <td className="px-4 py-4 whitespace-nowrap text-sm">
@@ -180,14 +180,14 @@ export default function EnviosTable({ orders, loading, onOrderClick, onActionCom
                 <td className="px-4 py-4 text-sm">
                   {order.tracking_number ? (
                     <div className="flex items-center space-x-2" onClick={e => e.stopPropagation()}>
-                      <span className="text-gray-900 font-mono text-xs">{order.tracking_number}</span>
+                      <span className="text-gray-300 font-mono text-xs">{order.tracking_number}</span>
                       <button
                         onClick={() => handleCopyTracking(order.tracking_number!, order.id)}
-                        className="text-gray-400 hover:text-gray-600"
+                        className="text-gray-400 hover:text-[#FF69B4]"
                         title="Copiar tracking"
                       >
                         {copiedTracking === order.id ? (
-                          <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                           </svg>
                         ) : (
@@ -199,7 +199,7 @@ export default function EnviosTable({ orders, loading, onOrderClick, onActionCom
                       {order.tracking_url && (
                         <button
                           onClick={() => handleOpenTracking(order.tracking_url!)}
-                          className="text-blue-600 hover:text-blue-800"
+                          className="text-[#FF69B4] hover:text-[#FF69B4]/80"
                           title="Abrir tracking"
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -209,7 +209,7 @@ export default function EnviosTable({ orders, loading, onOrderClick, onActionCom
                       )}
                     </div>
                   ) : (
-                    <span className="text-gray-400 text-xs">—</span>
+                    <span className="text-gray-500 text-xs">—</span>
                   )}
                 </td>
                 <td className="px-4 py-4 whitespace-nowrap text-sm" onClick={e => e.stopPropagation()}>

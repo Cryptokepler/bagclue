@@ -19,39 +19,37 @@ export default function EnviosTabs({ activeTab, onTabChange, stats }: EnviosTabs
   ]
 
   return (
-    <div className="bg-white border-b overflow-x-auto">
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="flex space-x-2 min-w-max">
-          {tabs.map(tab => {
-            const isActive = activeTab === tab.key
-            return (
-              <button
-                key={tab.key}
-                onClick={() => onTabChange(tab.key)}
+    <div className="mb-6 overflow-x-auto border-b border-[#FF69B4]/10">
+      <div className="flex space-x-2 min-w-max">
+        {tabs.map(tab => {
+          const isActive = activeTab === tab.key
+          return (
+            <button
+              key={tab.key}
+              onClick={() => onTabChange(tab.key)}
+              className={`
+                px-4 py-3 font-medium text-sm whitespace-nowrap border-b-2 transition-colors
+                ${isActive
+                  ? 'border-[#FF69B4] text-[#FF69B4]'
+                  : 'border-transparent text-gray-400 hover:text-white hover:border-[#FF69B4]/50'
+                }
+              `}
+            >
+              {tab.label}
+              <span
                 className={`
-                  px-4 py-3 font-medium text-sm whitespace-nowrap border-b-2 transition-colors
+                  ml-2 px-2 py-0.5 text-xs rounded-full
                   ${isActive
-                    ? 'border-blue-600 text-blue-600'
-                    : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300'
+                    ? 'bg-[#FF69B4]/20 text-[#FF69B4]'
+                    : 'bg-white/5 text-gray-400'
                   }
                 `}
               >
-                {tab.label}
-                <span
-                  className={`
-                    ml-2 px-2 py-0.5 text-xs rounded-full
-                    ${isActive
-                      ? 'bg-blue-100 text-blue-700'
-                      : 'bg-gray-100 text-gray-600'
-                    }
-                  `}
-                >
-                  {tab.count}
-                </span>
-              </button>
-            )
-          })}
-        </div>
+                {tab.count}
+              </span>
+            </button>
+          )
+        })}
       </div>
     </div>
   )

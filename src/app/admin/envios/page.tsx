@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import AdminNav from '@/components/admin/AdminNav'
 import EnviosStats from '@/components/admin/envios/EnviosStats'
 import EnviosTabs from '@/components/admin/envios/EnviosTabs'
 import EnviosSearchBar from '@/components/admin/envios/EnviosSearchBar'
@@ -92,61 +93,62 @@ export default function AdminEnviosPage() {
   // Don't render until auth check is done
   if (!authChecked && loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full"></div>
+      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-4 border-[#FF69B4] border-t-transparent rounded-full"></div>
       </div>
     )
   }
   
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <h1 className="text-2xl font-bold text-gray-900">Gestión de Envíos</h1>
+    <div className="min-h-screen bg-[#0a0a0a]">
+      <AdminNav />
+      
+      <main className="max-w-[1600px] mx-auto px-6 py-8">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-white mb-2">Gestión de Envíos</h1>
+          <p className="text-gray-400">Control de envíos, tracking y estados de entrega</p>
         </div>
-      </div>
-      
-      {/* Stats */}
-      {stats && <EnviosStats stats={stats} loading={loading && !authChecked} />}
-      
-      {/* Tabs */}
-      {stats && (
-        <EnviosTabs
-          activeTab={activeFilter}
-          onTabChange={handleTabChange}
-          stats={stats}
-        />
-      )}
-      
-      {/* Search + Actions */}
-      <div className="max-w-7xl mx-auto px-4 py-4">
-        <EnviosSearchBar
-          value={searchQuery}
-          onChange={handleSearchChange}
-          placeholder="Buscar por cliente, email o tracking..."
-        />
-      </div>
-      
-      {/* Table */}
-      <div className="max-w-7xl mx-auto px-4 pb-6">
-        <EnviosTable
-          orders={orders}
-          loading={loading}
-          onOrderClick={handleOrderClick}
-          onActionComplete={fetchOrders}
-        />
-      </div>
-      
-      {/* Pagination */}
-      {pagination && (
-        <div className="max-w-7xl mx-auto px-4 pb-12">
+        
+        {/* Stats */}
+        {stats && <EnviosStats stats={stats} loading={loading && !authChecked} />}
+        
+        {/* Tabs */}
+        {stats && (
+          <EnviosTabs
+            activeTab={activeFilter}
+            onTabChange={handleTabChange}
+            stats={stats}
+          />
+        )}
+        
+        {/* Search + Actions */}
+        <div className="mb-6">
+          <EnviosSearchBar
+            value={searchQuery}
+            onChange={handleSearchChange}
+            placeholder="Buscar por cliente, email o tracking..."
+          />
+        </div>
+        
+        {/* Table */}
+        <div className="mb-6">
+          <EnviosTable
+            orders={orders}
+            loading={loading}
+            onOrderClick={handleOrderClick}
+            onActionComplete={fetchOrders}
+          />
+        </div>
+        
+        {/* Pagination */}
+        {pagination && (
           <EnviosPagination
             pagination={pagination}
             onPageChange={handlePageChange}
           />
-        </div>
-      )}
+        )}
+      </main>
     </div>
   )
 }
