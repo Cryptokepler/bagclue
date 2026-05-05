@@ -40,17 +40,15 @@ export const PRODUCT_PUBLIC_FIELDS = `
   stock,
   allow_layaway,
   layaway_deposit_percent,
-  layaway_min_percent,
-  layaway_duration_days,
   created_at,
   updated_at
 `.trim()
 
 /**
- * Total de campos públicos: 26
+ * Total de campos públicos: 24
  * 
  * - 20 campos base del schema original
- * - 4 campos de layaway (stock, allow_layaway, layaway_deposit_percent, layaway_min_percent, layaway_duration_days)
+ * - 2 campos de layaway (allow_layaway, layaway_deposit_percent)
  * - 2 campos de timestamp (created_at, updated_at)
  * 
  * Uso:
