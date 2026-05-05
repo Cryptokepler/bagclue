@@ -43,27 +43,27 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
   
   if (!productData) notFound();
 
-  // Normalize product data defensively (type-safe access via rawProduct)
+  // Normalize product data defensively - ensure all rendered fields are primitives (never objects)
   const rawProduct = productData as any;
   const product = {
-    id: rawProduct.id,
+    id: rawProduct.id || '',
     slug: rawProduct.slug || slug,
-    title: rawProduct.title || '',
-    brand: rawProduct.brand || '',
-    model: rawProduct.model || null,
-    color: rawProduct.color || null,
-    origin: rawProduct.origin || null,
+    title: typeof rawProduct.title === 'string' ? rawProduct.title : '',
+    brand: typeof rawProduct.brand === 'string' ? rawProduct.brand : '',
+    model: typeof rawProduct.model === 'string' ? rawProduct.model : null,
+    color: typeof rawProduct.color === 'string' ? rawProduct.color : null,
+    origin: typeof rawProduct.origin === 'string' ? rawProduct.origin : null,
     status: rawProduct.status,
-    condition: rawProduct.condition || 'new',
-    price: rawProduct.price,
-    currency: rawProduct.currency || 'MXN',
-    badge: rawProduct.badge || null,
-    description: rawProduct.description || null,
-    is_published: rawProduct.is_published,
-    stock: rawProduct.stock ?? 0,
+    condition: typeof rawProduct.condition === 'string' ? rawProduct.condition : 'new',
+    price: typeof rawProduct.price === 'number' ? rawProduct.price : null,
+    currency: typeof rawProduct.currency === 'string' ? rawProduct.currency : 'MXN',
+    badge: typeof rawProduct.badge === 'string' ? rawProduct.badge : null,
+    description: typeof rawProduct.description === 'string' ? rawProduct.description : null,
+    is_published: typeof rawProduct.is_published === 'boolean' ? rawProduct.is_published : false,
+    stock: typeof rawProduct.stock === 'number' ? rawProduct.stock : 0,
     allow_layaway: typeof rawProduct.allow_layaway === 'boolean' ? rawProduct.allow_layaway : true,
     layaway_deposit_percent: typeof rawProduct.layaway_deposit_percent === 'number' ? rawProduct.layaway_deposit_percent : 20,
-    product_images: rawProduct.product_images || []
+    product_images: Array.isArray(rawProduct.product_images) ? rawProduct.product_images : []
   };
 
   const relatedData = await getRelatedProducts(product.brand, slug);
@@ -77,18 +77,19 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
   const layawayDepositPercent = product.layaway_deposit_percent;
 
   // Transform related products to legacy format for ProductCard
+  // Defensive: ensure all rendered fields are primitives (never objects)
   const related = relatedData.map((p: any) => ({
-    id: p.slug,
-    brand: p.brand,
-    model: p.model || p.title,
-    color: p.color || '',
-    origin: p.origin || '',
+    id: p.slug || p.id || '',
+    brand: typeof p.brand === 'string' ? p.brand : '',
+    model: typeof p.model === 'string' ? p.model : (typeof p.title === 'string' ? p.title : ''),
+    color: typeof p.color === 'string' ? p.color : '',
+    origin: typeof p.origin === 'string' ? p.origin : '',
     status: dbStatusToLegacy(p.status),
-    price: p.price,
-    category: p.category,
+    price: typeof p.price === 'number' ? p.price : null,
+    category: typeof p.category === 'string' ? p.category : '',
     image: p.product_images?.[0]?.url || '',
-    badge: p.badge || undefined,
-    description: p.description || undefined
+    badge: typeof p.badge === 'string' ? p.badge : undefined,
+    description: typeof p.description === 'string' ? p.description : undefined
   }));
 
   return (
