@@ -28,17 +28,34 @@ export default function EditProductForm({ product }: EditProductFormProps) {
     model: product.model || '',
     color: product.color || '',
     origin: product.origin || '',
+    material: product.material || '',
     status: product.status || 'available',
     condition: product.condition || 'excellent',
+    category: product.category || 'Bolsas',
+    condition_notes: product.condition_notes || '',
     price: product.price || '',
     currency: product.currency || 'MXN',
-    category: product.category || 'Bolsas',
     badge: product.badge || '',
     description: product.description || '',
     is_published: product.is_published || false,
+    // Autenticidad y accesorios
+    authenticity_verified: product.authenticity_verified || false,
+    certificate_notes: product.certificate_notes || '',
+    serial_number: product.serial_number || '',
+    included_accessories: product.included_accessories || '',
     includes_box: product.includes_box || false,
     includes_dust_bag: product.includes_dust_bag || false,
-    includes_papers: product.includes_papers || false
+    includes_papers: product.includes_papers || false,
+    // Información interna
+    cost_price: product.cost_price || '',
+    additional_costs_shipping: product.additional_costs?.shipping || '',
+    additional_costs_authentication: product.additional_costs?.authentication || '',
+    additional_costs_cleaning: product.additional_costs?.cleaning || '',
+    additional_costs_other: product.additional_costs?.other || '',
+    supplier_name: product.supplier_name || '',
+    acquisition_date: product.acquisition_date || '',
+    physical_location: product.physical_location || '',
+    internal_notes: product.internal_notes || ''
   })
 
   const [images, setImages] = useState(product.product_images || [])
@@ -57,10 +74,33 @@ export default function EditProductForm({ product }: EditProductFormProps) {
     setLoading(true)
 
     try {
+      // Construir additional_costs JSONB
+      const additional_costs = {
+        shipping: formData.additional_costs_shipping ? parseFloat(formData.additional_costs_shipping) : null,
+        authentication: formData.additional_costs_authentication ? parseFloat(formData.additional_costs_authentication) : null,
+        cleaning: formData.additional_costs_cleaning ? parseFloat(formData.additional_costs_cleaning) : null,
+        other: formData.additional_costs_other ? parseFloat(formData.additional_costs_other) : null
+      }
+
+      // Construir payload (NO incluir slug - no se puede editar)
+      const payload = {
+        ...formData,
+        price: formData.price ? parseFloat(formData.price) : null,
+        cost_price: formData.cost_price ? parseFloat(formData.cost_price) : null,
+        additional_costs,
+        acquisition_date: formData.acquisition_date || null,
+        slug: undefined, // Remover slug del payload
+        // Remover campos temporales de additional_costs
+        additional_costs_shipping: undefined,
+        additional_costs_authentication: undefined,
+        additional_costs_cleaning: undefined,
+        additional_costs_other: undefined
+      }
+
       const res = await fetch(`/api/products/${product.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(payload)
       })
 
       const data = await res.json()
@@ -252,6 +292,18 @@ export default function EditProductForm({ product }: EditProductFormProps) {
                   className="w-full bg-white/5 border border-[#FF69B4]/20 text-white px-4 py-2 focus:border-[#FF69B4] outline-none"
                 />
               </div>
+              <div>
+                <label className="block text-sm text-gray-300 mb-2">Material</label>
+                <input
+                  type="text"
+                  name="material"
+                  value={formData.material}
+                  onChange={handleChange}
+                  maxLength={2000}
+                  className="w-full bg-white/5 border border-[#FF69B4]/20 text-white px-4 py-2 focus:border-[#FF69B4] outline-none"
+                  placeholder="Piel caviar, lona, oro 18k, piel de becerro..."
+                />
+              </div>
             </div>
           </div>
 
@@ -295,6 +347,19 @@ export default function EditProductForm({ product }: EditProductFormProps) {
                   {categories.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
               </div>
+            </div>
+            <div className="mt-4">
+              <label className="block text-sm text-gray-300 mb-2">Notas de condición (recomendado)</label>
+              <textarea
+                name="condition_notes"
+                value={formData.condition_notes}
+                onChange={handleChange}
+                maxLength={2000}
+                rows={3}
+                className="w-full bg-white/5 border border-[#FF69B4]/20 text-white px-4 py-2 focus:border-[#FF69B4] outline-none"
+                placeholder="Ligero desgaste en esquinas, interior limpio, herrajes con micro rayas..."
+              />
+              <p className="text-xs text-gray-500 mt-1">{formData.condition_notes.length}/2000 caracteres</p>
             </div>
           </div>
 
