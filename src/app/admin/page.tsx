@@ -41,6 +41,12 @@ export default async function AdminDashboardPage() {
             + Crear Producto
           </a>
           <a
+            href="/admin/productos"
+            className="inline-block bg-[#C9A96E] text-[#0a0a0a] font-medium px-6 py-3 hover:bg-[#C9A96E]/90 transition-colors"
+          >
+            📊 Ver Inventario Completo
+          </a>
+          <a
             href="/admin/orders"
             className="inline-block border border-[#FF69B4]/20 text-gray-300 px-6 py-3 hover:border-[#FF69B4] transition-colors"
           >
