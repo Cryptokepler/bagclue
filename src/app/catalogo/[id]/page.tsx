@@ -9,7 +9,9 @@ import AddToCartButton from '@/components/AddToCartButton';
 import LayawayButton from '@/components/LayawayButton';
 import { PRODUCT_PUBLIC_FIELDS } from '@/lib/products-public-fields';
 
-export const dynamic = 'force-dynamic'; // Disable static generation for now
+export const dynamic = 'force-dynamic';
+export const revalidate = 0; // No cache
+export const dynamicParams = true; // Allow dynamic params not in generateStaticParams
 
 async function getProduct(slug: string) {
   const { data: product, error } = await supabase
