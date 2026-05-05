@@ -82,11 +82,6 @@ export default function NewProductPage() {
           <div className="bg-white/5 border border-[#FF69B4]/20 p-6">
             <h2 className="text-lg text-white font-medium mb-4">Información Básica</h2>
             
-            {/* Helper slug automático */}
-            <div className="mb-4 p-3 bg-blue-500/10 border border-blue-500/20 text-sm text-blue-300">
-              ℹ️ El enlace del producto (URL) se genera automáticamente basado en marca, modelo, título y color.
-            </div>
-            
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm text-gray-300 mb-2">Título *</label>
@@ -146,6 +141,11 @@ export default function NewProductPage() {
                 />
               </div>
             </div>
+            
+            {/* Helper slug automático - movido al final */}
+            <p className="mt-4 text-xs text-gray-400 italic">
+              ℹ️ El enlace público del producto se generará automáticamente al guardar.
+            </p>
           </div>
 
           {/* Status y condición */}
