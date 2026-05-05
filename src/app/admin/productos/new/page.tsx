@@ -102,8 +102,15 @@ export default function NewProductPage() {
         return
       }
 
-      // Redirigir a editar para subir imágenes
-      router.push(`/admin/productos/${data.product.id}`)
+      // Validar que el producto fue creado con ID
+      if (!data.product?.id) {
+        setError('Error: producto creado pero sin ID. Contacta soporte.')
+        setLoading(false)
+        return
+      }
+
+      // Redirigir a editar con flag de creación exitosa
+      router.push(`/admin/productos/${data.product.id}?created=true`)
     } catch (err) {
       setError('Error de conexión')
       setLoading(false)

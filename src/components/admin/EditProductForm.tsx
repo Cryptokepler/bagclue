@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, FormEvent, useRef } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, FormEvent, useRef, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import AdminNav from './AdminNav'
 
@@ -16,10 +16,13 @@ interface EditProductFormProps {
 
 export default function EditProductForm({ product }: EditProductFormProps) {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [loading, setLoading] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
+  const [successMessage, setSuccessMessage] = useState('')
+  const [showCreatedBanner, setShowCreatedBanner] = useState(false)
   
   const [formData, setFormData] = useState({
     slug: product.slug || '',
@@ -59,6 +62,18 @@ export default function EditProductForm({ product }: EditProductFormProps) {
   })
 
   const [images, setImages] = useState(product.product_images || [])
+
+  // Detectar si viene de crear producto
+  useEffect(() => {
+    const created = searchParams.get('created')
+    if (created === 'true') {
+      setShowCreatedBanner(true)
+      // Limpiar query param para evitar que persista en refresh
+      const url = new URL(window.location.href)
+      url.searchParams.delete('created')
+      window.history.replaceState({}, '', url.toString())
+    }
+  }, [searchParams])
 
   const handleChange = (e: any) => {
     const { name, value, type, checked } = e.target
@@ -111,10 +126,15 @@ export default function EditProductForm({ product }: EditProductFormProps) {
         return
       }
 
-      // Refresh
-      router.refresh()
-      alert('Producto actualizado exitosamente')
+      // Mostrar banner de éxito
+      setSuccessMessage('Producto actualizado exitosamente')
       setLoading(false)
+      
+      // Refresh después de mostrar mensaje
+      router.refresh()
+      
+      // Limpiar mensaje después de 5 segundos
+      setTimeout(() => setSuccessMessage(''), 5000)
     } catch (err) {
       setError('Error de conexión')
       setLoading(false)
@@ -176,6 +196,51 @@ export default function EditProductForm({ product }: EditProductFormProps) {
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
       <AdminNav />
+
+      {/* Banner: Producto creado */}
+      {showCreatedBanner && (
+        <div className="max-w-4xl mx-auto px-6 pt-6">
+          <div className="bg-emerald-500/10 border border-emerald-500/30 rounded px-6 py-4 flex items-start gap-4">
+            <div className="text-emerald-400 text-xl">✅</div>
+            <div className="flex-1">
+              <p className="text-emerald-400 font-medium mb-1">
+                Producto creado correctamente
+              </p>
+              <p className="text-sm text-emerald-400/80">
+                Ahora puedes completar imágenes y detalles adicionales.
+              </p>
+            </div>
+            <button
+              onClick={() => setShowCreatedBanner(false)}
+              className="text-emerald-400/60 hover:text-emerald-400 text-xl leading-none"
+              aria-label="Cerrar"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Banner: Producto actualizado */}
+      {successMessage && (
+        <div className="max-w-4xl mx-auto px-6 pt-6">
+          <div className="bg-[#FF69B4]/10 border border-[#FF69B4]/30 rounded px-6 py-4 flex items-start gap-4">
+            <div className="text-[#FF69B4] text-xl">✓</div>
+            <div className="flex-1">
+              <p className="text-[#FF69B4] font-medium">
+                {successMessage}
+              </p>
+            </div>
+            <button
+              onClick={() => setSuccessMessage('')}
+              className="text-[#FF69B4]/60 hover:text-[#FF69B4] text-xl leading-none"
+              aria-label="Cerrar"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Main */}
       <main className="max-w-4xl mx-auto px-6 py-8">
