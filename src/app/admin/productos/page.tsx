@@ -109,17 +109,25 @@ export default async function AdminProductosPage({ searchParams }: PageProps) {
     redirect('/admin/login')
   }
   
+  // Next.js 16: searchParams es una Promise, debe ser awaited
+  const params = await searchParams
+  
   const filters = {
-    search: typeof searchParams.search === 'string' ? searchParams.search : '',
-    status: typeof searchParams.status === 'string' ? searchParams.status : 'all',
-    published: typeof searchParams.published === 'string' ? searchParams.published : 'all',
-    category: typeof searchParams.category === 'string' ? searchParams.category : 'all',
-    images: typeof searchParams.images === 'string' ? searchParams.images : 'all',
-    cost: typeof searchParams.cost === 'string' ? searchParams.cost : 'all',
-    auth: typeof searchParams.auth === 'string' ? searchParams.auth : 'all'
+    search: typeof params.search === 'string' ? params.search : '',
+    status: typeof params.status === 'string' ? params.status : 'all',
+    published: typeof params.published === 'string' ? params.published : 'all',
+    category: typeof params.category === 'string' ? params.category : 'all',
+    images: typeof params.images === 'string' ? params.images : 'all',
+    cost: typeof params.cost === 'string' ? params.cost : 'all',
+    auth: typeof params.auth === 'string' ? params.auth : 'all'
   }
   
+  // Log temporal para debugging (sin secretos)
+  console.log('[AdminProductos] Filters applied:', filters)
+  
   const products = await getProducts(filters)
+  
+  console.log('[AdminProductos] Products returned:', products.length)
   
   // Calcular stats
   const stats = {

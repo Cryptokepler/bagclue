@@ -45,10 +45,12 @@ export default function ProductFilters() {
   return (
     <div className="mb-6 space-y-4">
       {/* Búsqueda */}
-      <ProductSearchBar
-        value={search}
-        onChange={(value) => updateFilter('search', value)}
-      />
+      <div className="w-full">
+        <ProductSearchBar
+          value={search}
+          onChange={(value) => updateFilter('search', value)}
+        />
+      </div>
       
       {/* Filtros */}
       <div className="flex flex-wrap gap-3">
