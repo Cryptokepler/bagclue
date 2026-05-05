@@ -1,7 +1,7 @@
 'use client'
 
 import { useCart } from '@/contexts/CartContext'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 interface AddToCartButtonProps {
   product: {
@@ -19,8 +19,14 @@ interface AddToCartButtonProps {
 export default function AddToCartButton({ product }: AddToCartButtonProps) {
   const { addToCart, items } = useCart()
   const [added, setAdded] = useState(false)
+  const [mounted, setMounted] = useState(false)
 
-  const isInCart = items.some(item => item.product_id === product.id)
+  // Fix hydration mismatch: wait for client mount before reading cart from localStorage
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  const isInCart = mounted && items.some(item => item.product_id === product.id)
   const canPurchase = product.status === 'available' && product.price !== null
 
   const handleAdd = () => {
