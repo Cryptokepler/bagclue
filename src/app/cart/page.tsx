@@ -125,7 +125,7 @@ export default function CartPage() {
             <p className="text-gray-900/40 mb-8">Tu carrito está vacío</p>
             <Link
               href="/catalogo"
-              className="inline-block border border-[#FF69B4]/20 text-gray-900 px-8 py-3 hover:border-[#FF69B4] transition-colors"
+              className="inline-block border border-[#E85A9A]/20 text-gray-900 px-8 py-3 hover:border-[#E85A9A] transition-colors"
             >
               Ver Catálogo
             </Link>
@@ -155,7 +155,7 @@ export default function CartPage() {
           {items.map(item => (
             <div
               key={item.product_id}
-              className="flex items-center gap-4 border border-[#FF69B4]/10 p-4"
+              className="flex items-center gap-4 border border-[#E85A9A]/10 p-4"
             >
               {item.image && (
                 <img
@@ -184,10 +184,10 @@ export default function CartPage() {
         </div>
 
         {/* Total */}
-        <div className="border-t border-[#FF69B4]/10 pt-4 mb-8">
+        <div className="border-t border-[#E85A9A]/10 pt-4 mb-8">
           <div className="flex justify-between items-center">
             <span className="text-lg font-medium text-gray-900">Total</span>
-            <span className="text-2xl font-[family-name:var(--font-playfair)] text-[#FF69B4]">
+            <span className="text-2xl font-[family-name:var(--font-playfair)] text-[#E85A9A]">
               ${cartTotal.toLocaleString()} MXN
             </span>
           </div>
@@ -197,31 +197,31 @@ export default function CartPage() {
         <form onSubmit={handleCheckout} className="space-y-6">
           {loadingUser ? (
             /* Cargando sesión */
-            <div className="bg-[#FF69B4]/5 border border-[#FF69B4]/20 p-6">
+            <div className="bg-[#E85A9A]/5 border border-[#E85A9A]/20 p-6">
               <div className="flex items-center justify-center py-12">
                 <div className="text-center">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF69B4] mx-auto mb-4"></div>
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#E85A9A] mx-auto mb-4"></div>
                   <p className="text-sm text-gray-900/60">Verificando sesión...</p>
                 </div>
               </div>
             </div>
           ) : user ? (
             /* Usuario logueado: Resumen sin formulario */
-            <div className="bg-[#FF69B4]/5 border border-[#FF69B4]/20 p-6">
+            <div className="bg-[#E85A9A]/5 border border-[#E85A9A]/20 p-6">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-medium text-gray-900">
                   Comprar como
                 </h2>
                 <Link
                   href="/account/profile"
-                  className="text-sm text-[#FF69B4] hover:underline"
+                  className="text-sm text-[#E85A9A] hover:underline"
                 >
                   Editar perfil
                 </Link>
               </div>
               <div className="space-y-3">
                 <div className="flex items-start gap-3">
-                  <svg className="w-5 h-5 text-[#FF69B4] flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-5 h-5 text-[#E85A9A] flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
                   <div className="min-w-0 flex-1">
@@ -230,7 +230,7 @@ export default function CartPage() {
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <svg className="w-5 h-5 text-[#FF69B4] flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-5 h-5 text-[#E85A9A] flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
                   <div className="min-w-0 flex-1">
@@ -242,7 +242,7 @@ export default function CartPage() {
                 </div>
                 {customerPhone && (
                   <div className="flex items-start gap-3">
-                    <svg className="w-5 h-5 text-[#FF69B4] flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="w-5 h-5 text-[#E85A9A] flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                     </svg>
                     <div className="min-w-0 flex-1">
@@ -253,16 +253,16 @@ export default function CartPage() {
                 )}
               </div>
               {!customerName && (
-                <div className="mt-4 pt-4 border-t border-[#FF69B4]/10">
+                <div className="mt-4 pt-4 border-t border-[#E85A9A]/10">
                   <p className="text-xs text-gray-900/60">
-                    ⚠️ Falta tu nombre en el perfil. <Link href="/account/profile" className="text-[#FF69B4] hover:underline">Completar ahora</Link>
+                    ⚠️ Falta tu nombre en el perfil. <Link href="/account/profile" className="text-[#E85A9A] hover:underline">Completar ahora</Link>
                   </p>
                 </div>
               )}
             </div>
           ) : (
             /* Usuario guest: Formulario completo */
-            <div className="bg-[#FF69B4]/5 border border-[#FF69B4]/20 p-6">
+            <div className="bg-[#E85A9A]/5 border border-[#E85A9A]/20 p-6">
               <h2 className="text-lg font-medium text-gray-900 mb-4">
                 Datos de contacto
               </h2>
@@ -274,7 +274,7 @@ export default function CartPage() {
                     value={customerEmail}
                     onChange={e => setCustomerEmail(e.target.value)}
                     required
-                    className="w-full border border-[#FF69B4]/20 text-gray-900 px-4 py-2 focus:border-[#FF69B4] outline-none"
+                    className="w-full border border-[#E85A9A]/20 text-gray-900 px-4 py-2 focus:border-[#E85A9A] outline-none"
                     placeholder="tu@email.com"
                   />
                 </div>
@@ -285,7 +285,7 @@ export default function CartPage() {
                     value={customerName}
                     onChange={e => setCustomerName(e.target.value)}
                     required
-                    className="w-full border border-[#FF69B4]/20 text-gray-900 px-4 py-2 focus:border-[#FF69B4] outline-none"
+                    className="w-full border border-[#E85A9A]/20 text-gray-900 px-4 py-2 focus:border-[#E85A9A] outline-none"
                     placeholder="Tu nombre"
                   />
                 </div>
@@ -295,7 +295,7 @@ export default function CartPage() {
                     type="tel"
                     value={customerPhone}
                     onChange={e => setCustomerPhone(e.target.value)}
-                    className="w-full border border-[#FF69B4]/20 text-gray-900 px-4 py-2 focus:border-[#FF69B4] outline-none"
+                    className="w-full border border-[#E85A9A]/20 text-gray-900 px-4 py-2 focus:border-[#E85A9A] outline-none"
                     placeholder="+52 55 1234 5678"
                   />
                 </div>
@@ -312,7 +312,7 @@ export default function CartPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[#FF69B4] text-white font-medium py-4 hover:bg-[#FF69B4]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-[#E85A9A] text-white font-medium py-4 hover:bg-[#E85A9A]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? 'Procesando...' : 'Pagar Ahora'}
           </button>

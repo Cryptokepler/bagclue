@@ -97,9 +97,9 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
       <div className="max-w-6xl mx-auto px-6">
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-xs text-gray-900/30 mb-8">
-          <Link href="/" className="hover:text-[#FF69B4]">Inicio</Link>
+          <Link href="/" className="hover:text-[#E85A9A]">Inicio</Link>
           <span>/</span>
-          <Link href="/catalogo" className="hover:text-[#FF69B4]">Catálogo</Link>
+          <Link href="/catalogo" className="hover:text-[#E85A9A]">Catálogo</Link>
           <span>/</span>
           <span className="text-gray-900/50">{slug}</span>
         </div>
@@ -107,7 +107,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Image */}
           <div
-            className="aspect-[3/4] relative overflow-hidden border border-[#FF69B4]/10"
+            className="aspect-[3/4] relative overflow-hidden border border-[#E85A9A]/10"
             style={{ background: `linear-gradient(135deg, ${gradient.from}, ${gradient.to})` }}
           >
             {mainImage ? (
@@ -127,7 +127,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
                 {getStatusLabel(legacyStatus)}
               </span>
               {product.badge && (
-                <span className="text-xs tracking-wider uppercase px-3 py-1.5 border bg-[#FF69B4]/20 text-[#FF69B4] border-[#FF69B4]/30">
+                <span className="text-xs tracking-wider uppercase px-3 py-1.5 border bg-[#E85A9A]/20 text-[#E85A9A] border-[#E85A9A]/30">
                   🔥 {product.badge}
                 </span>
               )}
@@ -141,7 +141,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
 
           {/* Details */}
           <div className="flex flex-col justify-center">
-            <span className="text-xs tracking-[0.5em] uppercase text-[#FF69B4]/60">{product.brand}</span>
+            <span className="text-xs tracking-[0.5em] uppercase text-[#E85A9A]/60">{product.brand}</span>
             <h1 className="font-[family-name:var(--font-playfair)] text-4xl md:text-5xl text-gray-900 mt-2 mb-4">{product.title}</h1>
 
             {product.description && (
@@ -149,46 +149,46 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
             )}
 
             <div className="space-y-4 mb-8">
-              <div className="flex justify-between border-b border-[#FF69B4]/10 pb-3">
+              <div className="flex justify-between border-b border-[#E85A9A]/10 pb-3">
                 <span className="text-sm text-gray-900/40">Código</span>
                 <span className="text-sm text-gray-900">{slug}</span>
               </div>
-              <div className="flex justify-between border-b border-[#FF69B4]/10 pb-3">
+              <div className="flex justify-between border-b border-[#E85A9A]/10 pb-3">
                 <span className="text-sm text-gray-900/40">Marca</span>
                 <span className="text-sm text-gray-900">{product.brand}</span>
               </div>
               {product.model && (
-                <div className="flex justify-between border-b border-[#FF69B4]/10 pb-3">
+                <div className="flex justify-between border-b border-[#E85A9A]/10 pb-3">
                   <span className="text-sm text-gray-900/40">Modelo</span>
                   <span className="text-sm text-gray-900">{product.model}</span>
                 </div>
               )}
               {product.color && (
-                <div className="flex justify-between border-b border-[#FF69B4]/10 pb-3">
+                <div className="flex justify-between border-b border-[#E85A9A]/10 pb-3">
                   <span className="text-sm text-gray-900/40">Color</span>
                   <span className="text-sm text-gray-900">{product.color}</span>
                 </div>
               )}
               {product.origin && (
-                <div className="flex justify-between border-b border-[#FF69B4]/10 pb-3">
+                <div className="flex justify-between border-b border-[#E85A9A]/10 pb-3">
                   <span className="text-sm text-gray-900/40">Origen</span>
                   <span className="text-sm text-gray-900">{product.origin}</span>
                 </div>
               )}
-              <div className="flex justify-between border-b border-[#FF69B4]/10 pb-3">
+              <div className="flex justify-between border-b border-[#E85A9A]/10 pb-3">
                 <span className="text-sm text-gray-900/40">Estado</span>
                 <span className={`text-xs tracking-wider uppercase px-2.5 py-1 border ${getStatusColor(legacyStatus)}`}>
                   {getStatusLabel(legacyStatus)}
                 </span>
               </div>
-              <div className="flex justify-between border-b border-[#FF69B4]/10 pb-3">
+              <div className="flex justify-between border-b border-[#E85A9A]/10 pb-3">
                 <span className="text-sm text-gray-900/40">Condición</span>
                 <span className="text-sm text-gray-900 capitalize">{product.condition.replace('_', ' ')}</span>
               </div>
             </div>
 
             <div className="mb-8">
-              <span className={`font-[family-name:var(--font-playfair)] text-3xl ${product.price ? 'text-[#FF69B4]' : 'text-gray-900/50'}`}>
+              <span className={`font-[family-name:var(--font-playfair)] text-3xl ${product.price ? 'text-[#E85A9A]' : 'text-gray-900/50'}`}>
                 {formatPrice(product.price)}
               </span>
               {!product.price && (
@@ -197,8 +197,8 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
             </div>
 
             {legacyStatus !== 'Apartada' && (
-              <div className="mb-6 p-4 border border-[#FF69B4]/10 bg-[#FF69B4]/5">
-                <p className="text-xs text-[#FF69B4]">💎 Apartado disponible — Llévate esta pieza con pagos semanales</p>
+              <div className="mb-6 p-4 border border-[#E85A9A]/10 bg-[#E85A9A]/5">
+                <p className="text-xs text-[#E85A9A]">💎 Apartado disponible — Llévate esta pieza con pagos semanales</p>
               </div>
             )}
 
@@ -251,7 +251,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
 
         {/* Related */}
         {related.length > 0 && (
-          <div className="mt-24 border-t border-[#FF69B4]/10 pt-16">
+          <div className="mt-24 border-t border-[#E85A9A]/10 pt-16">
             <h2 className="font-[family-name:var(--font-playfair)] text-2xl text-gray-900 mb-8 text-center">Piezas Relacionadas</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {related.map((p: any) => <ProductCard key={p.id} product={p} />)}

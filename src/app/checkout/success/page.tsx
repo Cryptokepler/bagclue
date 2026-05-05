@@ -149,7 +149,7 @@ function SuccessContent() {
 
         {/* Detalles del pedido */}
         {verifyResult?.success && verifyResult.order && (
-          <div className="bg-white border border-[#FF69B4]/20 p-6 mb-6">
+          <div className="bg-white border border-[#E85A9A]/20 p-6 mb-6">
             <h2 className="text-lg font-medium text-gray-900 mb-4">📦 Detalles de tu pedido</h2>
             
             <div className="space-y-3 text-sm">
@@ -185,7 +185,7 @@ function SuccessContent() {
               
               {!verifyResult.order.shipping_address && (
                 <div className="mt-4 pt-4 border-t border-gray-200">
-                  <div className="bg-[#FF69B4]/5 -mx-6 -mb-6 mt-4 p-4">
+                  <div className="bg-[#E85A9A]/5 -mx-6 -mb-6 mt-4 p-4">
                     <p className="text-sm font-medium text-gray-900 mb-2">📍 Siguiente paso: confirma tu dirección de envío</p>
                     <p className="text-xs text-gray-600">
                       Para preparar el envío, necesitamos que nos indiques a dónde quieres recibir tu compra.
@@ -197,19 +197,19 @@ function SuccessContent() {
           </div>
         )}
 
-        <div className="bg-[#FF69B4]/5 border border-[#FF69B4]/20 p-8 mb-8">
+        <div className="bg-[#E85A9A]/5 border border-[#E85A9A]/20 p-8 mb-8">
           <h2 className="text-lg font-medium text-gray-900 mb-4">¿Qué sigue?</h2>
           <ol className="text-sm text-gray-900/60 space-y-3 text-left max-w-md mx-auto">
             <li className="flex gap-3">
-              <span className="font-semibold text-[#FF69B4] flex-shrink-0">1.</span>
+              <span className="font-semibold text-[#E85A9A] flex-shrink-0">1.</span>
               <span>Confirma tu dirección de envío.</span>
             </li>
             <li className="flex gap-3">
-              <span className="font-semibold text-[#FF69B4] flex-shrink-0">2.</span>
+              <span className="font-semibold text-[#E85A9A] flex-shrink-0">2.</span>
               <span>Nuestro equipo preparará y verificará tu pieza.</span>
             </li>
             <li className="flex gap-3">
-              <span className="font-semibold text-[#FF69B4] flex-shrink-0">3.</span>
+              <span className="font-semibold text-[#E85A9A] flex-shrink-0">3.</span>
               <span>Cuando tu paquete sea enviado, podrás rastrearlo desde tu cuenta.</span>
             </li>
           </ol>
@@ -229,14 +229,14 @@ function SuccessContent() {
                   {!verifyResult.order?.shipping_address ? (
                     <Link
                       href={`/account/orders/${verifyResult.order_id}?action=confirm-shipping`}
-                      className="bg-[#FF69B4] text-white px-8 py-4 hover:bg-[#FF69B4]/90 transition-colors inline-block font-medium text-center"
+                      className="bg-[#E85A9A] text-white px-8 py-4 hover:bg-[#E85A9A]/90 transition-colors inline-block font-medium text-center"
                     >
                       📍 Indica tu dirección de envío
                     </Link>
                   ) : (
                     <Link
                       href={`/account/orders/${verifyResult.order_id}`}
-                      className="bg-[#FF69B4] text-white px-8 py-4 hover:bg-[#FF69B4]/90 transition-colors inline-block font-medium text-center"
+                      className="bg-[#E85A9A] text-white px-8 py-4 hover:bg-[#E85A9A]/90 transition-colors inline-block font-medium text-center"
                     >
                       Ver detalle del pedido
                     </Link>
@@ -247,7 +247,7 @@ function SuccessContent() {
                   <div className="flex justify-center">
                     <Link
                       href={`/account/orders/${verifyResult.order_id}`}
-                      className="text-sm text-gray-600 hover:text-[#FF69B4] transition-colors underline"
+                      className="text-sm text-gray-600 hover:text-[#E85A9A] transition-colors underline"
                     >
                       Ver detalle del pedido
                     </Link>
@@ -258,7 +258,7 @@ function SuccessContent() {
                   <div className="flex justify-center">
                     <Link
                       href="/account/orders"
-                      className="text-sm text-gray-600 hover:text-[#FF69B4] transition-colors underline"
+                      className="text-sm text-gray-600 hover:text-[#E85A9A] transition-colors underline"
                     >
                       Todos mis pedidos
                     </Link>
@@ -270,7 +270,7 @@ function SuccessContent() {
               <div className="flex justify-center">
                 <Link
                   href="/account/orders"
-                  className="bg-[#FF69B4] text-white px-8 py-4 hover:bg-[#FF69B4]/90 transition-colors inline-block font-medium"
+                  className="bg-[#E85A9A] text-white px-8 py-4 hover:bg-[#E85A9A]/90 transition-colors inline-block font-medium"
                 >
                   Ver mis pedidos
                 </Link>
@@ -281,7 +281,7 @@ function SuccessContent() {
             <div className="flex gap-4 justify-center">
               <Link
                 href="/catalogo"
-                className="text-sm text-gray-600 hover:text-[#FF69B4] transition-colors"
+                className="text-sm text-gray-600 hover:text-[#E85A9A] transition-colors"
               >
                 Seguir comprando →
               </Link>
@@ -303,7 +303,7 @@ function SuccessContent() {
                     />
                     <button
                       onClick={handleCopyLink}
-                      className="px-4 py-2 text-xs border border-[#FF69B4]/20 hover:border-[#FF69B4] transition-colors"
+                      className="px-4 py-2 text-xs border border-[#E85A9A]/20 hover:border-[#E85A9A] transition-colors"
                     >
                       {copySuccess ? '✓ Copiado' : 'Copiar'}
                     </button>
@@ -315,7 +315,7 @@ function SuccessContent() {
         ) : (
           <div className="space-y-4">
             {/* Guest user - suggest login */}
-            <div className="bg-[#FF69B4]/10 border border-[#FF69B4]/30 p-6 mb-4">
+            <div className="bg-[#E85A9A]/10 border border-[#E85A9A]/30 p-6 mb-4">
               <p className="text-sm font-medium text-gray-900 mb-2">
                 📍 Siguiente paso: confirma tu dirección de envío
               </p>
@@ -326,13 +326,13 @@ function SuccessContent() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
                 href="/account/login"
-                className="bg-[#FF69B4] text-white px-8 py-4 hover:bg-[#FF69B4]/90 transition-colors inline-block font-medium text-center"
+                className="bg-[#E85A9A] text-white px-8 py-4 hover:bg-[#E85A9A]/90 transition-colors inline-block font-medium text-center"
               >
                 Iniciar sesión
               </Link>
               <Link
                 href="/catalogo"
-                className="border border-[#FF69B4]/20 text-gray-900 px-8 py-3 hover:border-[#FF69B4] transition-colors inline-block text-center"
+                className="border border-[#E85A9A]/20 text-gray-900 px-8 py-3 hover:border-[#E85A9A] transition-colors inline-block text-center"
               >
                 Ver más productos
               </Link>

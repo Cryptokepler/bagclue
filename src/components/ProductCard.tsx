@@ -1,12 +1,13 @@
 import Link from 'next/link';
-import { Product, brandGradients, formatPrice, getStatusColor, getStatusLabel } from '@/data/products';
+import { Product, brandGradients, formatPrice, getStatusLabel } from '@/data/products';
+import Badge from './Badge';
 
 export default function ProductCard({ product }: { product: Product }) {
   const gradient = brandGradients[product.brand];
 
   return (
     <Link href={`/catalogo/${product.slug || product.id}`} className="group block">
-      <div className="relative overflow-hidden bg-[#111] border border-[#FF69B4]/10 hover:border-[#FF69B4]/30 transition-all duration-500">
+      <div className="relative overflow-hidden bg-[#0B0B0B] border border-[#E85A9A]/10 hover:border-[#E85A9A]/30 transition-all duration-500">
         {/* Image area */}
         <div
           className="aspect-[3/4] relative overflow-hidden"
@@ -33,39 +34,36 @@ export default function ProductCard({ product }: { product: Product }) {
 
           {/* Hover overlay */}
           <div className="absolute inset-0 bg-white/60 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
-            <span className="text-xs tracking-widest uppercase text-[#FF69B4] border border-[#FF69B4]/50 px-4 py-2 bg-white/80">Ver detalles</span>
+            <span className="text-xs tracking-widest uppercase text-[#E85A9A] border border-[#E85A9A]/50 px-4 py-2 bg-white/80">Ver detalles</span>
           </div>
 
           {/* Status badge */}
           <div className="absolute top-3 left-3 flex flex-col gap-1.5">
-            <span className={`text-[10px] tracking-wider uppercase px-2.5 py-1 border ${getStatusColor(product.status)}`}>
-              {getStatusLabel(product.status)}
-            </span>
+            <Badge 
+              type={product.status === 'En inventario' ? 'available' : product.status === 'Apartada' ? 'reserved' : 'available'} 
+              label={getStatusLabel(product.status)} 
+            />
             {product.badge && (
-              <span className="text-[10px] tracking-wider uppercase px-2.5 py-1 border bg-[#FF69B4]/20 text-[#FF69B4] border-[#FF69B4]/30 animate-pulse">
-                🔥 {product.badge}
-              </span>
+              <Badge type="special" label={`🔥 ${product.badge}`} />
             )}
           </div>
 
           {/* Entrupy badge */}
           <div className="absolute top-3 right-3">
-            <span className="text-[9px] tracking-wider bg-white/70 text-emerald-400 px-2 py-1 border border-emerald-500/20">
-              ✓ ENTRUPY
-            </span>
+            <Badge type="auth" label="✓ ENTRUPY" />
           </div>
         </div>
 
         {/* Info */}
         <div className="p-4">
-          <p className="text-[10px] tracking-widest uppercase text-[#FF69B4]/70">{product.brand}</p>
-          <h3 className="font-[family-name:var(--font-playfair)] text-lg text-gray-900 mt-1">{product.model}</h3>
-          <p className="text-xs text-gray-900/40 mt-1">{product.color} · {product.origin}</p>
+          <p className="text-[10px] tracking-widest uppercase text-[#E85A9A]/70">{product.brand}</p>
+          <h3 className="font-[family-name:var(--font-playfair)] text-lg text-white mt-1">{product.model}</h3>
+          <p className="text-xs text-gray-400 mt-1">{product.color} · {product.origin}</p>
           <div className="mt-3 flex items-center justify-between">
-            <span className={`text-sm ${product.price ? 'text-[#FF69B4]' : 'text-gray-900/50 italic'}`}>
+            <span className={`text-sm font-medium ${product.price ? 'text-[#E85A9A]' : 'text-gray-500 italic'}`}>
               {formatPrice(product.price)}
             </span>
-            <span className="text-[10px] text-gray-900/30">{product.id}</span>
+            <span className="text-[10px] text-gray-600">{product.id}</span>
           </div>
         </div>
       </div>

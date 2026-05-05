@@ -95,10 +95,10 @@ export default function CatalogoPage() {
       <div className="max-w-7xl mx-auto px-6">
         {/* Header */}
         <div className="text-center mb-16">
-          <span className="text-xs tracking-[0.5em] uppercase text-[#FF69B4]/60">Colección</span>
+          <span className="text-xs tracking-[0.5em] uppercase text-[#E85A9A]/60">Colección</span>
           <h1 className="font-[family-name:var(--font-playfair)] text-4xl md:text-5xl text-gray-900 mt-3">Catálogo</h1>
           <p className="text-sm text-gray-900/40 mt-4">Todas nuestras piezas con autenticidad verificada por Entrupy</p>
-          <div className="w-16 h-px bg-[#FF69B4]/30 mx-auto mt-6" />
+          <div className="w-16 h-px bg-[#E85A9A]/30 mx-auto mt-6" />
         </div>
 
         {/* Filters */}
@@ -106,7 +106,7 @@ export default function CatalogoPage() {
           <select
             value={brandFilter}
             onChange={e => setBrandFilter(e.target.value as Brand | '')}
-            className="bg-[#111] border border-[#FF69B4]/20 text-gray-900 text-sm px-4 py-2.5 focus:border-[#FF69B4] outline-none"
+            className="bg-white border-2 border-[#E85A9A]/30 text-[#0B0B0B] text-sm px-4 py-2.5 focus:border-[#E85A9A] outline-none rounded-lg"
           >
             <option value="">Todas las marcas</option>
             {brands.map(b => <option key={b} value={b}>{b}</option>)}
@@ -114,13 +114,13 @@ export default function CatalogoPage() {
           <select
             value={statusFilter}
             onChange={e => setStatusFilter(e.target.value as ProductStatus | '')}
-            className="bg-[#111] border border-[#FF69B4]/20 text-gray-900 text-sm px-4 py-2.5 focus:border-[#FF69B4] outline-none"
+            className="bg-white border-2 border-[#E85A9A]/30 text-[#0B0B0B] text-sm px-4 py-2.5 focus:border-[#E85A9A] outline-none rounded-lg"
           >
             <option value="">Todos los estados</option>
             {statuses.map(s => <option key={s} value={s}>{s === 'En inventario' ? 'Disponible' : s}</option>)}
           </select>
           {(brandFilter || statusFilter) && (
-            <button onClick={() => { setBrandFilter(''); setStatusFilter(''); }} className="text-xs tracking-widest uppercase text-[#FF69B4] border border-[#FF69B4]/20 px-4 py-2.5 hover:bg-[#FF69B4] hover:text-gray-900 transition-all">
+            <button onClick={() => { setBrandFilter(''); setStatusFilter(''); }} className="text-xs tracking-widest uppercase text-[#E85A9A] border-2 border-[#E85A9A]/30 px-4 py-2.5 hover:bg-[#E85A9A] hover:text-white transition-all rounded-lg">
               Limpiar filtros
             </button>
           )}
