@@ -24,6 +24,9 @@ export interface Product {
   includes_box: boolean
   includes_dust_bag: boolean
   includes_papers: boolean
+  stock?: number | null
+  allow_layaway?: boolean | null
+  layaway_deposit_percent?: number | null
   created_at: string
   updated_at: string
 }

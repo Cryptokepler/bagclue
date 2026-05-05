@@ -50,6 +50,10 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
   const legacyStatus = dbStatusToLegacy(product.status);
   const mainImage = product.product_images?.[0]?.url || '';
 
+  // Normalize layaway fields
+  const allowLayaway = typeof product.allow_layaway === 'boolean' ? product.allow_layaway : true;
+  const layawayDepositPercent = typeof product.layaway_deposit_percent === 'number' ? product.layaway_deposit_percent : 20;
+
   // Transform related products to legacy format for ProductCard
   const related = relatedData.map((p: any) => ({
     id: p.slug,
@@ -190,12 +194,12 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
                     image: mainImage
                   }}
                 />
-                {(product as any).allow_layaway !== false && (
+                {allowLayaway !== false && (
                   <LayawayButton 
                     product={{
                       id: product.id,
                       price: product.price,
-                      layaway_deposit_percent: (product as any).layaway_deposit_percent || 20,
+                      layaway_deposit_percent: layawayDepositPercent,
                       currency: product.currency || 'MXN'
                     }}
                   />
