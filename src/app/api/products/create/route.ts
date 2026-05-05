@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { isAuthenticated } from '@/lib/session'
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { generateUniqueSlug } from '@/lib/generate-slug'
 
 export async function POST(request: NextRequest) {
   try {
@@ -11,7 +12,7 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json()
     const {
-      slug,
+      // slug ya no se extrae - se genera automáticamente
       title,
       brand,
       model,
@@ -30,27 +31,24 @@ export async function POST(request: NextRequest) {
       includes_papers
     } = body
 
-    // Validaciones básicas
-    if (!slug || !title || !brand || !category || !status || !condition) {
+    // Validaciones básicas (slug removido)
+    if (!title || !brand || !category || !status || !condition) {
       return NextResponse.json({ error: 'Campos requeridos faltantes' }, { status: 400 })
     }
 
-    // Verificar slug único
-    const { data: existing } = await supabaseAdmin
-      .from('products')
-      .select('id')
-      .eq('slug', slug)
-      .single()
+    // Generar slug único automáticamente
+    const slug = await generateUniqueSlug({
+      brand,
+      title,
+      model: model || null,
+      color: color || null
+    })
 
-    if (existing) {
-      return NextResponse.json({ error: 'El slug ya existe' }, { status: 400 })
-    }
-
-    // Crear producto
+    // Crear producto con slug generado
     const { data: product, error } = await supabaseAdmin
       .from('products')
       .insert({
-        slug,
+        slug, // ← slug generado automáticamente
         title,
         brand,
         model: model || null,

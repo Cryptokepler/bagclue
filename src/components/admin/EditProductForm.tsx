@@ -188,15 +188,16 @@ export default function EditProductForm({ product }: EditProductFormProps) {
             <h2 className="text-lg text-white font-medium mb-4">Información Básica</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm text-gray-300 mb-2">Slug *</label>
+                <label className="block text-sm text-gray-300 mb-2">URL del producto</label>
                 <input
                   type="text"
-                  name="slug"
-                  value={formData.slug}
-                  onChange={handleChange}
-                  required
-                  className="w-full bg-white/5 border border-[#FF69B4]/20 text-white px-4 py-2 focus:border-[#FF69B4] outline-none"
+                  value={`/catalogo/${formData.slug}`}
+                  disabled
+                  className="w-full bg-white/10 border border-[#FF69B4]/10 text-gray-400 px-4 py-2 cursor-not-allowed"
                 />
+                <p className="text-xs text-gray-500 mt-1">
+                  El enlace del producto no se puede modificar para mantener URLs estables.
+                </p>
               </div>
               <div>
                 <label className="block text-sm text-gray-300 mb-2">Título *</label>

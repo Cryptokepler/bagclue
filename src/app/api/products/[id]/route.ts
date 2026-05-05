@@ -18,7 +18,8 @@ export async function PATCH(
     // Construir objeto de actualización solo con campos presentes
     const updates: any = {}
     
-    if (body.slug !== undefined) updates.slug = body.slug
+    // slug no es editable - se mantiene el original para URLs estables
+    // if (body.slug !== undefined) updates.slug = body.slug
     if (body.title !== undefined) updates.title = body.title
     if (body.brand !== undefined) updates.brand = body.brand
     if (body.model !== undefined) updates.model = body.model || null

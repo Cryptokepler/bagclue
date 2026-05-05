@@ -16,7 +16,7 @@ export default function NewProductPage() {
   const [error, setError] = useState('')
   
   const [formData, setFormData] = useState({
-    slug: '',
+    // slug removido - se genera automáticamente en backend
     title: '',
     brand: 'Chanel',
     model: '',
@@ -81,21 +81,13 @@ export default function NewProductPage() {
           {/* Información básica */}
           <div className="bg-white/5 border border-[#FF69B4]/20 p-6">
             <h2 className="text-lg text-white font-medium mb-4">Información Básica</h2>
+            
+            {/* Helper slug automático */}
+            <div className="mb-4 p-3 bg-blue-500/10 border border-blue-500/20 text-sm text-blue-300">
+              ℹ️ El enlace del producto (URL) se genera automáticamente basado en marca, modelo, título y color.
+            </div>
+            
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm text-gray-300 mb-2">
-                  Slug * <span className="text-xs text-gray-500">(URL única)</span>
-                </label>
-                <input
-                  type="text"
-                  name="slug"
-                  value={formData.slug}
-                  onChange={handleChange}
-                  required
-                  className="w-full bg-white/5 border border-[#FF69B4]/20 text-white px-4 py-2 focus:border-[#FF69B4] outline-none"
-                  placeholder="chanel-classic-flap-negro"
-                />
-              </div>
               <div>
                 <label className="block text-sm text-gray-300 mb-2">Título *</label>
                 <input
