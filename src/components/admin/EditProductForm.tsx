@@ -181,20 +181,28 @@ export default function EditProductForm({ product }: EditProductFormProps) {
       <main className="max-w-4xl mx-auto px-6 py-8">
         {/* Imágenes */}
         <div className="bg-white/5 border border-[#FF69B4]/20 p-6 mb-8">
-          <h2 className="text-lg text-white font-medium mb-4">Imágenes</h2>
+          <h2 className="text-lg text-white font-medium mb-4">📸 Fotos del Producto</h2>
           
           {/* Galería */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-            {images.map((img: any) => (
-              <div key={img.id} className="aspect-square relative border border-[#FF69B4]/20">
-                <img
-                  src={img.url}
-                  alt={img.alt || ''}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            ))}
-          </div>
+          {images.length > 0 ? (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+              {images.map((img: any) => (
+                <div key={img.id} className="aspect-square relative border border-[#FF69B4]/20">
+                  <img
+                    src={img.url}
+                    alt={img.alt || ''}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="bg-[#FF69B4]/5 border border-[#FF69B4]/20 rounded p-4 mb-4">
+              <p className="text-sm text-gray-400">
+                No hay imágenes subidas todavía. Agrega fotos de alta calidad de la pieza.
+              </p>
+            </div>
+          )}
 
           {/* Upload */}
           <div>
@@ -217,6 +225,9 @@ export default function EditProductForm({ product }: EditProductFormProps) {
             </label>
             <p className="text-xs text-gray-500 mt-2">
               Formatos: JPG, PNG, WEBP. Máximo 5MB por imagen.
+            </p>
+            <p className="text-xs text-[#FF69B4] mt-2">
+              💡 Recomendado: frente, interior, laterales, base, herrajes, detalles de uso, certificado y accesorios.
             </p>
           </div>
         </div>

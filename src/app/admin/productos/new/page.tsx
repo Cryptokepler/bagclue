@@ -199,7 +199,24 @@ export default function NewProductPage() {
             </p>
           </div>
 
-          {/* Status y condición */}
+          {/* Fotos del producto */}
+          <div className="bg-white/5 border border-[#FF69B4]/20 p-6">
+            <h2 className="text-lg text-white font-medium mb-4">📸 Fotos del Producto</h2>
+            
+            <div className="bg-[#FF69B4]/5 border border-[#FF69B4]/20 rounded p-4">
+              <p className="text-sm text-gray-300 mb-3">
+                Las imágenes se suben <strong>después de crear el producto</strong>.
+              </p>
+              <p className="text-xs text-gray-400 leading-relaxed">
+                Una vez que guardes este producto, serás redirigido a la página de edición donde podrás subir múltiples imágenes de alta calidad.
+              </p>
+              <p className="text-xs text-[#FF69B4] mt-3 font-medium">
+                💡 Recomendado: frente, interior, laterales, base, herrajes, detalles de uso, certificado y accesorios.
+              </p>
+            </div>
+          </div>
+
+          {/* Estado y condición */}
           <div className="bg-white/5 border border-[#FF69B4]/20 p-6">
             <h2 className="text-lg text-white font-medium mb-4">Estado y Condición</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
