@@ -24,6 +24,9 @@ export default function LayawayButton({ product }: LayawayButtonProps) {
   const depositAmount = Math.round(product.price * (depositPercent / 100))
   const balanceAmount = product.price - depositAmount
 
+  // Format numbers consistently for server/client (prevent hydration mismatch)
+  const formatCurrency = (amount: number) => amount.toLocaleString('es-MX')
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -61,7 +64,7 @@ export default function LayawayButton({ product }: LayawayButtonProps) {
         className="w-full border-2 border-[#FF69B4] text-[#FF69B4] py-3 hover:bg-[#FF69B4] hover:text-white transition-colors"
       >
         <span className="block font-medium">
-          Apartar con ${depositAmount.toLocaleString()} {product.currency}
+          Apartar con ${formatCurrency(depositAmount)} {product.currency}
         </span>
         <span className="text-xs block mt-1">
           Paga {depositPercent}% ahora, {100 - depositPercent}% en 15 días
@@ -85,15 +88,15 @@ export default function LayawayButton({ product }: LayawayButtonProps) {
             <div className="bg-[#FF69B4]/5 border border-[#FF69B4]/20 p-4 mb-6">
               <div className="flex justify-between mb-2">
                 <span className="text-sm text-gray-600">Depósito inicial ({depositPercent}%)</span>
-                <span className="font-medium text-gray-900">${depositAmount.toLocaleString()} {product.currency}</span>
+                <span className="font-medium text-gray-900">${formatCurrency(depositAmount)} {product.currency}</span>
               </div>
               <div className="flex justify-between mb-2">
                 <span className="text-sm text-gray-600">Saldo restante</span>
-                <span className="text-sm text-gray-700">${balanceAmount.toLocaleString()} {product.currency}</span>
+                <span className="text-sm text-gray-700">${formatCurrency(balanceAmount)} {product.currency}</span>
               </div>
               <div className="flex justify-between pt-2 border-t border-[#FF69B4]/20">
                 <span className="font-medium text-gray-900">Total</span>
-                <span className="font-medium text-[#FF69B4]">${product.price.toLocaleString()} {product.currency}</span>
+                <span className="font-medium text-[#FF69B4]">${formatCurrency(product.price)} {product.currency}</span>
               </div>
             </div>
 
@@ -150,7 +153,7 @@ export default function LayawayButton({ product }: LayawayButtonProps) {
                 disabled={loading}
                 className="w-full bg-[#FF69B4] text-white py-3 hover:bg-[#FF69B4]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? 'Procesando...' : `Continuar al pago de $${depositAmount.toLocaleString()}`}
+                {loading ? 'Procesando...' : `Continuar al pago de $${formatCurrency(depositAmount)}`}
               </button>
             </form>
           </div>

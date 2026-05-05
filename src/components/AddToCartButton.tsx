@@ -61,6 +61,18 @@ export default function AddToCartButton({ product }: AddToCartButtonProps) {
     )
   }
 
+  // Prevent hydration mismatch: render stable button until mounted
+  // Server always renders "Agregar al Carrito", client shows cart link only after mount
+  if (!mounted) {
+    return (
+      <button
+        className="w-full bg-[#FF69B4] text-white py-3 hover:bg-[#FF69B4]/90 transition-colors"
+      >
+        Agregar al Carrito
+      </button>
+    )
+  }
+
   if (isInCart) {
     return (
       <a
