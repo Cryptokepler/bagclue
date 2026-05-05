@@ -43,16 +43,38 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
   
   if (!productData) notFound();
 
-  const product = productData as any;
+  // Normalize product data defensively (type-safe access via rawProduct)
+  const rawProduct = productData as any;
+  const product = {
+    id: rawProduct.id,
+    slug: rawProduct.slug || slug,
+    title: rawProduct.title || '',
+    brand: rawProduct.brand || '',
+    model: rawProduct.model || null,
+    color: rawProduct.color || null,
+    origin: rawProduct.origin || null,
+    status: rawProduct.status,
+    condition: rawProduct.condition || 'new',
+    price: rawProduct.price,
+    currency: rawProduct.currency || 'MXN',
+    badge: rawProduct.badge || null,
+    description: rawProduct.description || null,
+    is_published: rawProduct.is_published,
+    stock: rawProduct.stock ?? 0,
+    allow_layaway: typeof rawProduct.allow_layaway === 'boolean' ? rawProduct.allow_layaway : true,
+    layaway_deposit_percent: typeof rawProduct.layaway_deposit_percent === 'number' ? rawProduct.layaway_deposit_percent : 20,
+    product_images: rawProduct.product_images || []
+  };
+
   const relatedData = await getRelatedProducts(product.brand, slug);
   
   const gradient = brandGradients[product.brand as Brand] || { from: '#1a1a1a', to: '#4A4A4A' };
   const legacyStatus = dbStatusToLegacy(product.status);
   const mainImage = product.product_images?.[0]?.url || '';
 
-  // Normalize layaway fields
-  const allowLayaway = typeof product.allow_layaway === 'boolean' ? product.allow_layaway : true;
-  const layawayDepositPercent = typeof product.layaway_deposit_percent === 'number' ? product.layaway_deposit_percent : 20;
+  // Layaway fields
+  const allowLayaway = product.allow_layaway;
+  const layawayDepositPercent = product.layaway_deposit_percent;
 
   // Transform related products to legacy format for ProductCard
   const related = relatedData.map((p: any) => ({
