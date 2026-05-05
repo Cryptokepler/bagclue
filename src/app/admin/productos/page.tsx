@@ -61,9 +61,9 @@ async function getProducts(filters: any) {
     query = query.eq('is_published', false)
   }
   
-  // Categoría
+  // Categoría (case-insensitive para manejar mayúsculas/acentos)
   if (filters.category && filters.category !== 'all') {
-    query = query.eq('category', filters.category)
+    query = query.ilike('category', filters.category)
   }
   
   // Costo (con/sin)
@@ -239,6 +239,17 @@ export default async function AdminProductosPage({ searchParams }: PageProps) {
         
         {/* Filtros */}
         <ProductFilters />
+        
+        {/* Contador de resultados */}
+        <div className="mb-4 text-sm text-gray-400">
+          {products.length === 0 ? (
+            <span className="text-yellow-400">⚠️ No hay productos que coincidan con los filtros</span>
+          ) : (
+            <span>
+              {products.length} producto{products.length !== 1 ? 's' : ''} encontrado{products.length !== 1 ? 's' : ''}
+            </span>
+          )}
+        </div>
         
         {/* Tabla Desktop */}
         <div className="hidden lg:block">

@@ -13,7 +13,8 @@ export default function ProductsTable({ products }: ProductsTableProps) {
   if (products.length === 0) {
     return (
       <div className="bg-white/5 border border-[#FF69B4]/20 p-12 text-center">
-        <p className="text-gray-400">No hay productos que coincidan con los filtros</p>
+        <p className="text-gray-400 mb-2">No hay productos que coincidan con los filtros</p>
+        <p className="text-gray-500 text-sm">Intenta ajustar los filtros o limpiarlos para ver más productos</p>
       </div>
     )
   }

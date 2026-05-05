@@ -32,14 +32,24 @@ export default function ProductSearchBar({
     setLocalValue(value)
   }, [value])
   
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      onChange(localValue)
+    }
+  }
+  
   return (
     <div className="relative flex-1 max-w-md">
+      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+        🔍
+      </div>
       <input
         type="text"
         value={localValue}
         onChange={(e) => setLocalValue(e.target.value)}
+        onKeyDown={handleKeyDown}
         placeholder={placeholder}
-        className="w-full bg-white/5 border border-[#FF69B4]/20 text-white placeholder-gray-500 px-4 py-2 focus:outline-none focus:border-[#FF69B4] transition-colors"
+        className="w-full bg-white/5 border border-[#FF69B4]/20 text-white placeholder-gray-500 pl-10 pr-10 py-2 focus:outline-none focus:border-[#FF69B4] transition-colors"
       />
       {localValue && (
         <button

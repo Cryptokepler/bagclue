@@ -83,10 +83,10 @@ export default function ProductFilters() {
           className="bg-white/5 border border-[#FF69B4]/20 text-white px-3 py-2 text-sm focus:outline-none focus:border-[#FF69B4] transition-colors"
         >
           <option value="all">Todas las categorías</option>
-          <option value="bolsa">Bolsa</option>
-          <option value="cinturón">Cinturón</option>
-          <option value="zapato">Zapato</option>
-          <option value="joyería">Joyería</option>
+          <option value="Bolsas">Bolsas</option>
+          <option value="Cinturones">Cinturones</option>
+          <option value="Zapatos">Zapatos</option>
+          <option value="Joyería">Joyería</option>
         </select>
         
         {/* Imágenes */}
