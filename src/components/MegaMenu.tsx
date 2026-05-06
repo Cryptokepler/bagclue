@@ -50,7 +50,7 @@ export default function MegaMenu({ isOpen, onClose, onMouseEnter, onMouseLeave }
           <ul>
             <li style={{ marginBottom: '12px' }}>
               <Link 
-                href="/catalogo" 
+                href="/catalogo?brand=Chanel" 
                 onClick={onClose}
                 className="block text-[#4B5563] hover:text-[#E85A9A] transition-colors whitespace-nowrap"
                 style={{ fontSize: '16px', lineHeight: '1.6' }}
@@ -60,7 +60,7 @@ export default function MegaMenu({ isOpen, onClose, onMouseEnter, onMouseLeave }
             </li>
             <li style={{ marginBottom: '12px' }}>
               <Link 
-                href="/catalogo" 
+                href="/catalogo?brand=Hermès" 
                 onClick={onClose}
                 className="block text-[#4B5563] hover:text-[#E85A9A] transition-colors whitespace-nowrap"
                 style={{ fontSize: '16px', lineHeight: '1.6' }}
@@ -70,7 +70,7 @@ export default function MegaMenu({ isOpen, onClose, onMouseEnter, onMouseLeave }
             </li>
             <li style={{ marginBottom: '12px' }}>
               <Link 
-                href="/catalogo" 
+                href="/catalogo?brand=Louis%20Vuitton" 
                 onClick={onClose}
                 className="block text-[#4B5563] hover:text-[#E85A9A] transition-colors whitespace-nowrap"
                 style={{ fontSize: '16px', lineHeight: '1.6' }}
@@ -80,7 +80,7 @@ export default function MegaMenu({ isOpen, onClose, onMouseEnter, onMouseLeave }
             </li>
             <li style={{ marginBottom: '12px' }}>
               <Link 
-                href="/catalogo" 
+                href="/catalogo?brand=Dior" 
                 onClick={onClose}
                 className="block text-[#4B5563] hover:text-[#E85A9A] transition-colors whitespace-nowrap"
                 style={{ fontSize: '16px', lineHeight: '1.6' }}
@@ -90,7 +90,7 @@ export default function MegaMenu({ isOpen, onClose, onMouseEnter, onMouseLeave }
             </li>
             <li style={{ marginBottom: '12px' }}>
               <Link 
-                href="/catalogo" 
+                href="/catalogo?brand=Goyard" 
                 onClick={onClose}
                 className="block text-[#4B5563] hover:text-[#E85A9A] transition-colors whitespace-nowrap"
                 style={{ fontSize: '16px', lineHeight: '1.6' }}
@@ -126,7 +126,7 @@ export default function MegaMenu({ isOpen, onClose, onMouseEnter, onMouseLeave }
           <ul>
             <li style={{ marginBottom: '12px' }}>
               <Link 
-                href="/catalogo" 
+                href="/catalogo?category=Bolsas" 
                 onClick={onClose}
                 className="block text-[#4B5563] hover:text-[#E85A9A] transition-colors whitespace-nowrap"
                 style={{ fontSize: '16px', lineHeight: '1.6' }}
@@ -136,7 +136,7 @@ export default function MegaMenu({ isOpen, onClose, onMouseEnter, onMouseLeave }
             </li>
             <li style={{ marginBottom: '12px' }}>
               <Link 
-                href="/catalogo" 
+                href="/catalogo?category=Zapatos" 
                 onClick={onClose}
                 className="block text-[#4B5563] hover:text-[#E85A9A] transition-colors whitespace-nowrap"
                 style={{ fontSize: '16px', lineHeight: '1.6' }}
@@ -146,7 +146,7 @@ export default function MegaMenu({ isOpen, onClose, onMouseEnter, onMouseLeave }
             </li>
             <li style={{ marginBottom: '12px' }}>
               <Link 
-                href="/catalogo" 
+                href="/catalogo?category=Joyería" 
                 onClick={onClose}
                 className="block text-[#4B5563] hover:text-[#E85A9A] transition-colors whitespace-nowrap"
                 style={{ fontSize: '16px', lineHeight: '1.6' }}
@@ -156,7 +156,7 @@ export default function MegaMenu({ isOpen, onClose, onMouseEnter, onMouseLeave }
             </li>
             <li style={{ marginBottom: '12px' }}>
               <Link 
-                href="/catalogo" 
+                href="/catalogo?category=Accesorios" 
                 onClick={onClose}
                 className="block text-[#4B5563] hover:text-[#E85A9A] transition-colors whitespace-nowrap"
                 style={{ fontSize: '16px', lineHeight: '1.6' }}
@@ -166,7 +166,7 @@ export default function MegaMenu({ isOpen, onClose, onMouseEnter, onMouseLeave }
             </li>
             <li>
               <Link 
-                href="/catalogo" 
+                href="/catalogo?sort=newest" 
                 onClick={onClose}
                 className="inline-flex items-center gap-2 text-[#4B5563] hover:text-[#E85A9A] transition-colors whitespace-nowrap"
                 style={{ fontSize: '16px', lineHeight: '1.6' }}
@@ -195,7 +195,7 @@ export default function MegaMenu({ isOpen, onClose, onMouseEnter, onMouseLeave }
           <ul>
             <li style={{ marginBottom: '12px' }}>
               <Link 
-                href="/catalogo" 
+                href="/catalogo?search=Classic%20Flap" 
                 onClick={onClose}
                 className="block text-[#4B5563] hover:text-[#E85A9A] transition-colors whitespace-nowrap"
                 style={{ fontSize: '16px', lineHeight: '1.6' }}
@@ -205,7 +205,7 @@ export default function MegaMenu({ isOpen, onClose, onMouseEnter, onMouseLeave }
             </li>
             <li style={{ marginBottom: '12px' }}>
               <Link 
-                href="/catalogo" 
+                href="/catalogo?search=Chanel%2025" 
                 onClick={onClose}
                 className="block text-[#4B5563] hover:text-[#E85A9A] transition-colors whitespace-nowrap"
                 style={{ fontSize: '16px', lineHeight: '1.6' }}
@@ -215,7 +215,7 @@ export default function MegaMenu({ isOpen, onClose, onMouseEnter, onMouseLeave }
             </li>
             <li style={{ marginBottom: '12px' }}>
               <Link 
-                href="/catalogo" 
+                href="/catalogo?search=Birkin" 
                 onClick={onClose}
                 className="block text-[#4B5563] hover:text-[#E85A9A] transition-colors whitespace-nowrap"
                 style={{ fontSize: '16px', lineHeight: '1.6' }}
@@ -225,7 +225,7 @@ export default function MegaMenu({ isOpen, onClose, onMouseEnter, onMouseLeave }
             </li>
             <li style={{ marginBottom: '12px' }}>
               <Link 
-                href="/catalogo" 
+                href="/catalogo?search=Kelly" 
                 onClick={onClose}
                 className="block text-[#4B5563] hover:text-[#E85A9A] transition-colors whitespace-nowrap"
                 style={{ fontSize: '16px', lineHeight: '1.6' }}
@@ -235,7 +235,7 @@ export default function MegaMenu({ isOpen, onClose, onMouseEnter, onMouseLeave }
             </li>
             <li>
               <Link 
-                href="/catalogo" 
+                href="/catalogo?search=Wallet%20on%20Chain" 
                 onClick={onClose}
                 className="block text-[#4B5563] hover:text-[#E85A9A] transition-colors whitespace-nowrap"
                 style={{ fontSize: '16px', lineHeight: '1.6' }}
@@ -259,23 +259,35 @@ export default function MegaMenu({ isOpen, onClose, onMouseEnter, onMouseLeave }
             BAGCLUE
           </h3>
           <ul>
-            <li 
-              className="text-[#4B5563] whitespace-nowrap"
-              style={{ fontSize: '16px', lineHeight: '1.6', marginBottom: '12px' }}
-            >
-              Piezas verificadas
+            <li style={{ marginBottom: '12px' }}>
+              <Link 
+                href="/catalogo?auth=verified" 
+                onClick={onClose}
+                className="block text-[#4B5563] hover:text-[#E85A9A] transition-colors whitespace-nowrap"
+                style={{ fontSize: '16px', lineHeight: '1.6' }}
+              >
+                Piezas verificadas
+              </Link>
             </li>
-            <li 
-              className="text-[#4B5563] whitespace-nowrap"
-              style={{ fontSize: '16px', lineHeight: '1.6', marginBottom: '12px' }}
-            >
-              Aparta con pagos semanales
+            <li style={{ marginBottom: '12px' }}>
+              <Link 
+                href="/catalogo?layaway=true" 
+                onClick={onClose}
+                className="block text-[#4B5563] hover:text-[#E85A9A] transition-colors whitespace-nowrap"
+                style={{ fontSize: '16px', lineHeight: '1.6' }}
+              >
+                Aparta con pagos semanales
+              </Link>
             </li>
-            <li 
-              className="text-[#4B5563] whitespace-nowrap"
-              style={{ fontSize: '16px', lineHeight: '1.6', marginBottom: '12px' }}
-            >
-              Envíos seguros
+            <li style={{ marginBottom: '12px' }}>
+              <Link 
+                href="/catalogo" 
+                onClick={onClose}
+                className="block text-[#4B5563] hover:text-[#E85A9A] transition-colors whitespace-nowrap"
+                style={{ fontSize: '16px', lineHeight: '1.6' }}
+              >
+                Envíos seguros
+              </Link>
             </li>
             <li>
               <a 
