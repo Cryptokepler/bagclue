@@ -73,30 +73,22 @@ export default async function Home() {
 
       {/* Hero Premium */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
-        {/* Background - usar gradient si no hay imagen, o primera imagen de productos */}
-        <div className="absolute inset-0">
-          {featured.length > 0 && featured[0].image ? (
-            <>
-              <img
-                src={featured[0].image}
-                alt="Bagclue Luxury"
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/40 to-black/60" />
-            </>
-          ) : (
-            <div className="w-full h-full bg-gradient-to-br from-[#E85A9A]/20 via-[#0B0B0B] to-[#0B0B0B]" />
-          )}
+        {/* Background limpio premium - degradado rosa suave + amarillo pastel */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#FFF9F5] via-[#FFFBF8] to-[#FFF4F9]">
+          {/* Detalles decorativos sutiles */}
+          <div className="absolute top-0 right-0 w-96 h-96 bg-[#E85A9A]/5 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 left-0 w-80 h-80 bg-[#FFF4A8]/10 rounded-full blur-3xl" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#E85A9A]/3 rounded-full blur-3xl" />
         </div>
 
         {/* Content */}
         <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
-          <h1 className="font-[family-name:var(--font-playfair)] text-5xl md:text-7xl lg:text-8xl text-white tracking-wide mb-6 leading-tight">
+          <h1 className="font-[family-name:var(--font-playfair)] text-5xl md:text-7xl lg:text-8xl text-[#0B0B0B] tracking-wide mb-6 leading-tight">
             LUJO AUTÉNTICO,
             <span className="block mt-2">CURADO PARA TI</span>
           </h1>
 
-          <p className="text-lg md:text-xl text-white/90 mb-10 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-lg md:text-xl text-[#0B0B0B]/80 mb-10 max-w-2xl mx-auto leading-relaxed">
             Piezas de diseñador seleccionadas, verificadas y listas para acompañarte en tu próxima historia.
           </p>
 
@@ -116,7 +108,7 @@ export default async function Home() {
               href="https://ig.me/m/salebybagcluemx"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-3 border-2 border-white/80 text-white px-10 py-4 text-sm md:text-base tracking-widest uppercase font-medium hover:bg-white/10 transition-all duration-300 rounded-full"
+              className="inline-flex items-center gap-3 border-2 border-[#E85A9A]/40 text-[#E85A9A] px-10 py-4 text-sm md:text-base tracking-widest uppercase font-medium hover:bg-[#E85A9A]/5 transition-all duration-300 rounded-full"
             >
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
@@ -126,8 +118,8 @@ export default async function Home() {
           </div>
 
           {/* Trust micro */}
-          <div className="mt-10 flex items-center justify-center gap-2 text-white/70 text-sm">
-            <svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="mt-10 flex items-center justify-center gap-2 text-[#0B0B0B]/60 text-sm">
+            <svg className="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <span>100% autenticado por Entrupy</span>
@@ -137,7 +129,7 @@ export default async function Home() {
         {/* Flecha scroll */}
         <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10">
           <div className="animate-bounce">
-            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-8 h-8 text-[#E85A9A]/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
             </svg>
           </div>
