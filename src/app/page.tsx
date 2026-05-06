@@ -58,8 +58,8 @@ export default async function Home() {
         {/* Content */}
         <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
           <h1 className="font-[family-name:var(--font-playfair)] text-5xl md:text-7xl lg:text-8xl text-[#0B0B0B] tracking-wide mb-6 leading-tight">
-            LUJO AUTÉNTICO,
-            <span className="block mt-2">CURADO PARA TI</span>
+            TU PRÓXIMA PIEZA DE LUJO
+            <span className="block mt-2">EMPIEZA AQUÍ</span>
           </h1>
 
           <p className="text-lg md:text-xl text-[#0B0B0B]/80 mb-10 max-w-2xl mx-auto leading-relaxed">
