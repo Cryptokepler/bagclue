@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import CartIcon from './CartIcon';
 import MegaMenu from './MegaMenu';
 
@@ -15,9 +15,43 @@ const navLinks = [
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [megaMenuOpen, setMegaMenuOpen] = useState(false);
+  const [isCatalogMenuOpen, setIsCatalogMenuOpen] = useState(false);
   const [disenadoresExpanded, setDisenadoresExpanded] = useState(false);
   const [categoriasExpanded, setCategoriasExpanded] = useState(false);
+  
+  const closeTimer = useRef<NodeJS.Timeout | null>(null);
+
+  const openMenu = () => {
+    if (closeTimer.current) {
+      clearTimeout(closeTimer.current);
+      closeTimer.current = null;
+    }
+    setIsCatalogMenuOpen(true);
+  };
+
+  const scheduleClose = () => {
+    closeTimer.current = setTimeout(() => {
+      setIsCatalogMenuOpen(false);
+    }, 180);
+  };
+
+  const closeMenu = () => {
+    setIsCatalogMenuOpen(false);
+  };
+
+  // Close on Escape key
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isCatalogMenuOpen) {
+        closeMenu();
+      }
+    };
+    
+    if (isCatalogMenuOpen) {
+      document.addEventListener('keydown', handleEscape);
+      return () => document.removeEventListener('keydown', handleEscape);
+    }
+  }, [isCatalogMenuOpen]);
 
   return (
     <nav className={`transition-all duration-300 bg-white border-b border-gray-100 relative`}>
@@ -28,24 +62,32 @@ export default function Navbar() {
 
         {/* Desktop */}
         <div className="hidden md:flex items-center gap-8">
-          {/* Catálogo con mega menú - wrapper envuelve botón + panel */}
+          {/* Catálogo con mega menú */}
           <div 
             className="relative"
-            onMouseEnter={() => setMegaMenuOpen(true)}
-            onMouseLeave={() => setMegaMenuOpen(false)}
+            onMouseEnter={openMenu}
+            onMouseLeave={scheduleClose}
           >
-            <Link
-              href="/catalogo"
+            <button
+              onClick={() => setIsCatalogMenuOpen(!isCatalogMenuOpen)}
+              onFocus={openMenu}
+              aria-expanded={isCatalogMenuOpen}
+              aria-haspopup="true"
               className="text-sm tracking-widest uppercase text-gray-600 hover:text-[#E85A9A] transition-colors flex items-center gap-1"
             >
               Catálogo
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
-            </Link>
+            </button>
             
-            {/* Mega menú dentro del mismo contenedor de hover */}
-            <MegaMenu isOpen={megaMenuOpen} onClose={() => setMegaMenuOpen(false)} />
+            {/* Mega menú con handlers propios */}
+            <MegaMenu 
+              isOpen={isCatalogMenuOpen} 
+              onClose={closeMenu}
+              onMouseEnter={openMenu}
+              onMouseLeave={scheduleClose}
+            />
           </div>
 
           {/* Resto de links */}
