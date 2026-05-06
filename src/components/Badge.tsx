@@ -20,8 +20,8 @@ export default function Badge({ type, label, className = '' }: BadgeProps) {
     reserved: `bg-[${BAGCLUE_COLORS.yellow.primary}]/30 text-[${BAGCLUE_COLORS.black}] border-[${BAGCLUE_COLORS.yellow.secondary}]/40`,
     // Badge especial - rosa con pulse
     special: `bg-[${BAGCLUE_COLORS.pink.primary}]/20 text-[${BAGCLUE_COLORS.pink.primary}] border-[${BAGCLUE_COLORS.pink.primary}]/30 animate-pulse`,
-    // Autenticidad - verde con fondo blanco
-    auth: 'bg-white/70 text-emerald-400 border-emerald-500/20',
+    // Autenticidad - charcoal premium discreto
+    auth: 'bg-[#1a1a1a]/80 text-white/80 border-white/10',
   };
 
   return (
