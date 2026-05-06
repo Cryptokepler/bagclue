@@ -13,8 +13,10 @@ export interface Product {
   model: string | null
   color: string | null
   origin: string | null
+  material: string | null
   status: ProductStatus
   condition: ProductCondition
+  condition_notes: string | null
   price: number | null
   currency: string
   category: string
@@ -24,6 +26,8 @@ export interface Product {
   includes_box: boolean
   includes_dust_bag: boolean
   includes_papers: boolean
+  included_accessories: string | null
+  authenticity_verified: boolean
   stock?: number | null
   allow_layaway?: boolean | null
   layaway_deposit_percent?: number | null
