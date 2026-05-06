@@ -45,25 +45,17 @@ export default async function Home() {
   
   return (
     <>
-      {/* 1. Hero Premium */}
-      <section className="relative h-screen flex items-center justify-center overflow-hidden">
-        {/* Background limpio premium - degradado rosa suave + amarillo pastel */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#FFF9F5] via-[#FFFBF8] to-[#FFF4F9]">
-          {/* Detalles decorativos sutiles */}
-          <div className="absolute top-0 right-0 w-96 h-96 bg-[#E85A9A]/5 rounded-full blur-3xl" />
-          <div className="absolute bottom-0 left-0 w-80 h-80 bg-[#FFF4A8]/10 rounded-full blur-3xl" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#E85A9A]/3 rounded-full blur-3xl" />
-        </div>
-
+      {/* 1. Hero Editorial */}
+      <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden bg-[#FFFBF8]">
         {/* Content */}
-        <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
-          <h1 className="font-[family-name:var(--font-playfair)] text-5xl md:text-6xl lg:text-7xl text-[#0B0B0B] tracking-tight mb-6 leading-tight">
-            TU PRÓXIMA PIEZA DE LUJO
-            <span className="block mt-2">EMPIEZA AQUÍ</span>
+        <div className="relative z-10 text-center px-6 max-w-4xl mx-auto py-20">
+          <h1 className="font-[family-name:var(--font-playfair)] text-[42px] leading-[1.1] md:text-7xl lg:text-8xl text-[#0B0B0B] tracking-tight mb-6">
+            Bolsas de lujo,
+            <span className="block mt-2">seleccionadas con intención.</span>
           </h1>
 
-          <p className="font-[family-name:var(--font-inter)] text-lg md:text-xl text-[#0B0B0B]/80 mb-10 max-w-2xl mx-auto leading-relaxed">
-            Piezas de diseñador seleccionadas, verificadas y listas para acompañarte en tu próxima historia.
+          <p className="font-[family-name:var(--font-inter)] text-lg md:text-xl text-[#0B0B0B]/70 mb-10 max-w-2xl mx-auto leading-relaxed">
+            Una curaduría de piezas auténticas y deseadas para quienes entienden el lujo desde la elegancia y la intención.
           </p>
 
           {/* CTAs */}
@@ -72,7 +64,7 @@ export default async function Home() {
               href="/catalogo"
               className="font-[family-name:var(--font-inter)] inline-flex items-center gap-2 bg-[#E85A9A] text-white px-10 py-4 text-sm md:text-base tracking-wide uppercase font-semibold hover:bg-[#EC5C9F] transition-all duration-300 rounded-full shadow-lg shadow-[#E85A9A]/30"
             >
-              Ver Catálogo
+              Explorar colección
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
@@ -82,12 +74,12 @@ export default async function Home() {
               href="https://ig.me/m/salebybagcluemx"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-3 border-2 border-[#E85A9A]/40 text-[#E85A9A] px-10 py-4 text-sm md:text-base tracking-widest uppercase font-medium hover:bg-[#E85A9A]/5 transition-all duration-300 rounded-full"
+              className="font-[family-name:var(--font-inter)] inline-flex items-center gap-3 border-2 border-[#E85A9A]/40 text-[#E85A9A] px-10 py-4 text-sm md:text-base tracking-wide uppercase font-medium hover:bg-[#E85A9A]/5 transition-all duration-300 rounded-full"
             >
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
               </svg>
-              Hablar con Bagclue
+              Asesoría privada
             </a>
           </div>
 
@@ -113,8 +105,8 @@ export default async function Home() {
       {/* 2. Recién Llegadas / Featured Products */}
       <section className="py-20 md:py-32 bg-white">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="font-[family-name:var(--font-playfair)] text-4xl md:text-5xl text-[#0B0B0B] mb-4">
+          <div className="text-center mb-12 md:mb-16">
+            <h2 className="font-[family-name:var(--font-playfair)] text-4xl md:text-5xl text-[#0B0B0B] mb-4 tracking-tight leading-tight">
               Recién llegadas a Bagclue
             </h2>
             <p className="text-base md:text-lg text-gray-600 max-w-2xl mx-auto mb-6">
@@ -152,12 +144,12 @@ export default async function Home() {
       </section>
 
       {/* 3. Comprar por Marca / Categoría */}
-      <section className="py-20 md:py-32 bg-[#F7F7F7]">
+      <section className="py-20 md:py-32 lg:py-40 bg-[#F5F1ED]">
         <div className="max-w-7xl mx-auto px-6">
           {/* Comprar por Marca */}
           <div className="mb-20">
-            <div className="text-center mb-12">
-              <h2 className="font-[family-name:var(--font-playfair)] text-3xl md:text-4xl text-[#0B0B0B] mb-4">
+            <div className="text-center mb-12 md:mb-16">
+              <h2 className="font-[family-name:var(--font-playfair)] text-3xl md:text-4xl text-[#0B0B0B] mb-4 tracking-tight leading-tight">
                 Comprar por Marca
               </h2>
               <div className="w-20 h-1 bg-[#E85A9A] mx-auto" />
@@ -183,8 +175,8 @@ export default async function Home() {
 
           {/* Comprar por Categoría */}
           <div>
-            <div className="text-center mb-12">
-              <h2 className="font-[family-name:var(--font-playfair)] text-3xl md:text-4xl text-[#0B0B0B] mb-4">
+            <div className="text-center mb-12 md:mb-16">
+              <h2 className="font-[family-name:var(--font-playfair)] text-3xl md:text-4xl text-[#0B0B0B] mb-4 tracking-tight leading-tight">
                 Comprar por Categoría
               </h2>
               <div className="w-20 h-1 bg-[#E85A9A] mx-auto" />
@@ -216,10 +208,10 @@ export default async function Home() {
       </section>
 
       {/* 4. Confianza / Por qué Bagclue */}
-      <section id="autenticidad" className="py-20 md:py-32 bg-white">
+      <section id="autenticidad" className="py-20 md:py-32 lg:py-40 bg-white">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="font-[family-name:var(--font-playfair)] text-4xl md:text-5xl text-[#0B0B0B] mb-4">
+          <div className="text-center mb-12 md:mb-16">
+            <h2 className="font-[family-name:var(--font-playfair)] text-4xl md:text-5xl text-[#0B0B0B] mb-4 tracking-tight leading-tight">
               ¿Por qué Bagclue?
             </h2>
             <div className="w-20 h-1 bg-[#E85A9A] mx-auto mt-6" />
@@ -227,7 +219,7 @@ export default async function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10">
             {/* Autenticidad */}
-            <div className="text-center bg-[#F7F7F7] p-8 rounded-2xl">
+            <div className="text-center bg-[#FFFBF8] p-8 rounded-2xl">
               <div className="w-16 h-16 bg-[#E85A9A]/10 rounded-full flex items-center justify-center mx-auto mb-6">
                 <svg className="w-8 h-8 text-[#E85A9A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
@@ -242,7 +234,7 @@ export default async function Home() {
             </div>
 
             {/* Piezas Seleccionadas */}
-            <div className="text-center bg-[#F7F7F7] p-8 rounded-2xl">
+            <div className="text-center bg-[#FFFBF8] p-8 rounded-2xl">
               <div className="w-16 h-16 bg-[#FFF4A8]/30 rounded-full flex items-center justify-center mx-auto mb-6">
                 <svg className="w-8 h-8 text-[#0B0B0B]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
@@ -257,7 +249,7 @@ export default async function Home() {
             </div>
 
             {/* Envíos */}
-            <div className="text-center bg-[#F7F7F7] p-8 rounded-2xl">
+            <div className="text-center bg-[#FFFBF8] p-8 rounded-2xl">
               <div className="w-16 h-16 bg-[#E85A9A]/10 rounded-full flex items-center justify-center mx-auto mb-6">
                 <svg className="w-8 h-8 text-[#E85A9A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
@@ -272,7 +264,7 @@ export default async function Home() {
             </div>
 
             {/* Atención */}
-            <div className="text-center bg-[#F7F7F7] p-8 rounded-2xl">
+            <div className="text-center bg-[#FFFBF8] p-8 rounded-2xl">
               <div className="w-16 h-16 bg-[#E85A9A]/10 rounded-full flex items-center justify-center mx-auto mb-6">
                 <svg className="w-8 h-8 text-[#E85A9A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
@@ -290,7 +282,7 @@ export default async function Home() {
       </section>
 
       {/* 5. Apartado Section */}
-      <section className="py-20 md:py-32 bg-gradient-to-b from-[#E85A9A]/5 to-transparent">
+      <section className="py-20 md:py-32 lg:py-40 bg-[#FAF8F5]">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             {/* Imagen - usar primera imagen de productos si existe */}
@@ -310,7 +302,7 @@ export default async function Home() {
 
             {/* Contenido */}
             <div className="order-1 lg:order-2">
-              <h2 className="font-[family-name:var(--font-playfair)] text-4xl md:text-5xl text-[#0B0B0B] mb-6">
+              <h2 className="font-[family-name:var(--font-playfair)] text-4xl md:text-5xl text-[#0B0B0B] mb-6 tracking-tight leading-tight">
                 Aparta tu pieza Bagclue
               </h2>
               <p className="text-lg text-gray-600 mb-10 leading-relaxed">
@@ -377,9 +369,9 @@ export default async function Home() {
       </section>
 
       {/* 6. Asesoría / Instagram CTA */}
-      <section className="py-20 md:py-32 bg-[#0B0B0B] text-white">
+      <section className="py-20 md:py-32 lg:py-40 bg-[#0B0B0B] text-white">
         <div className="max-w-4xl mx-auto px-6 text-center">
-          <h2 className="font-[family-name:var(--font-playfair)] text-4xl md:text-5xl mb-6">
+          <h2 className="font-[family-name:var(--font-playfair)] text-4xl md:text-5xl mb-6 tracking-tight leading-tight">
             ¿Necesitas ayuda para elegir tu pieza?
           </h2>
           <p className="text-lg md:text-xl text-white/80 mb-10 leading-relaxed">

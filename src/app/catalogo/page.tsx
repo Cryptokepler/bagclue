@@ -166,10 +166,10 @@ function CatalogoContent() {
   }
 
   return (
-    <div className="pt-28 pb-24">
+    <div className="py-20 md:py-32">
       <div className="max-w-7xl mx-auto px-6">
         {/* Header */}
-        <div className="text-center mb-16">
+        <div className="text-center mb-12 md:mb-16">
           <span className="font-[family-name:var(--font-inter)] text-xs tracking-[0.5em] uppercase text-[#E85A9A]/60">Colección</span>
           <h1 className="font-[family-name:var(--font-playfair)] text-4xl md:text-5xl text-gray-900 mt-3 leading-tight tracking-tight">Catálogo</h1>
           <p className="font-[family-name:var(--font-inter)] text-sm text-gray-900/40 mt-4">Todas nuestras piezas con autenticidad verificada por Entrupy</p>
@@ -271,7 +271,7 @@ function CatalogoContent() {
         <p className="text-xs text-gray-900/30 text-center mb-8">{filtered.length} pieza{filtered.length !== 1 ? 's' : ''}</p>
 
         {/* Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 md:gap-10">
           {filtered.map(p => <ProductCard key={p.id} product={p} />)}
         </div>
 

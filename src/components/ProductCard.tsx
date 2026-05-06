@@ -17,7 +17,7 @@ export default function ProductCard({ product }: { product: Product }) {
             <img
               src={product.image}
               alt={`${product.brand} ${product.model} ${product.color}`}
-              className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-103"
               loading="lazy"
             />
           ) : (
@@ -37,25 +37,24 @@ export default function ProductCard({ product }: { product: Product }) {
             <span className="text-xs tracking-widest uppercase text-[#E85A9A] border border-[#E85A9A]/50 px-4 py-2 bg-white/80">Ver detalles</span>
           </div>
 
-          {/* Status badge */}
-          <div className="absolute top-3 left-3 flex flex-col gap-1.5">
-            <Badge 
-              type={product.status === 'En inventario' ? 'available' : product.status === 'Apartada' ? 'reserved' : 'available'} 
-              label={getStatusLabel(product.status)} 
-            />
-            {product.badge && (
-              <Badge type="special" label={`🔥 ${product.badge}`} />
-            )}
-          </div>
+          {/* Status badge - solo si NO es "En inventario" */}
+          {product.status !== 'En inventario' && (
+            <div className="absolute top-3 left-3">
+              <Badge 
+                type={product.status === 'Apartada' ? 'reserved' : 'available'} 
+                label={getStatusLabel(product.status)} 
+              />
+            </div>
+          )}
 
-          {/* Entrupy badge */}
+          {/* Entrupy badge - más discreto */}
           <div className="absolute top-3 right-3">
-            <Badge type="auth" label="✓ ENTRUPY" />
+            <Badge type="auth" label="✓" />
           </div>
         </div>
 
         {/* Info */}
-        <div className="p-4">
+        <div className="p-5">
           <p className="font-[family-name:var(--font-inter)] text-xs uppercase tracking-[0.20em] font-medium text-[#E85A9A]/70">{product.brand}</p>
           <h3 className="font-[family-name:var(--font-inter)] text-base font-semibold text-white mt-1 leading-snug">{product.model}</h3>
           <p className="font-[family-name:var(--font-inter)] text-xs text-gray-400 mt-1">{product.color} · {product.origin}</p>

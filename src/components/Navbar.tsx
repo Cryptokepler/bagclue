@@ -55,13 +55,13 @@ export default function Navbar() {
 
   return (
     <nav className={`transition-all duration-300 bg-white border-b border-gray-100 relative`}>
-      <div className="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
-        <Link href="/" className="font-[family-name:var(--font-playfair)] text-2xl tracking-[0.3em] text-[#0B0B0B] hover:text-[#E85A9A] transition-colors">
+      <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+        <Link href="/" className="font-[family-name:var(--font-playfair)] text-xl tracking-[0.3em] text-[#0B0B0B] hover:text-[#E85A9A] transition-colors">
           BAGCLUE
         </Link>
 
         {/* Desktop */}
-        <div className="hidden md:flex items-center gap-8">
+        <div className="hidden md:flex items-center gap-10">
           {/* Catálogo con mega menú */}
           <div 
             className="relative"
