@@ -170,9 +170,9 @@ function CatalogoContent() {
       <div className="max-w-7xl mx-auto px-6">
         {/* Header */}
         <div className="text-center mb-16">
-          <span className="text-xs tracking-[0.5em] uppercase text-[#E85A9A]/60">Colección</span>
-          <h1 className="font-[family-name:var(--font-playfair)] text-4xl md:text-5xl text-gray-900 mt-3">Catálogo</h1>
-          <p className="text-sm text-gray-900/40 mt-4">Todas nuestras piezas con autenticidad verificada por Entrupy</p>
+          <span className="font-[family-name:var(--font-inter)] text-xs tracking-[0.5em] uppercase text-[#E85A9A]/60">Colección</span>
+          <h1 className="font-[family-name:var(--font-playfair)] text-4xl md:text-5xl text-gray-900 mt-3 leading-tight tracking-tight">Catálogo</h1>
+          <p className="font-[family-name:var(--font-inter)] text-sm text-gray-900/40 mt-4">Todas nuestras piezas con autenticidad verificada por Entrupy</p>
           <div className="w-16 h-px bg-[#E85A9A]/30 mx-auto mt-6" />
         </div>
 
@@ -184,14 +184,14 @@ function CatalogoContent() {
             placeholder="Buscar..."
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            className="bg-white border-2 border-[#E85A9A]/30 text-[#0B0B0B] text-sm px-4 py-2.5 focus:border-[#E85A9A] outline-none rounded-lg min-w-[200px]"
+            className="font-[family-name:var(--font-inter)] bg-white border-2 border-[#E85A9A]/30 text-[#0B0B0B] text-sm px-4 py-2.5 focus:border-[#E85A9A] outline-none rounded-lg min-w-[200px]"
           />
           
           {/* Brand */}
           <select
             value={brandFilter}
             onChange={e => setBrandFilter(e.target.value)}
-            className="bg-white border-2 border-[#E85A9A]/30 text-[#0B0B0B] text-sm px-4 py-2.5 focus:border-[#E85A9A] outline-none rounded-lg"
+            className="font-[family-name:var(--font-inter)] bg-white border-2 border-[#E85A9A]/30 text-[#0B0B0B] text-sm px-4 py-2.5 focus:border-[#E85A9A] outline-none rounded-lg"
           >
             <option value="">Todas las marcas</option>
             {brands.map(b => <option key={b} value={b}>{b}</option>)}
@@ -201,7 +201,7 @@ function CatalogoContent() {
           <select
             value={categoryFilter}
             onChange={e => setCategoryFilter(e.target.value)}
-            className="bg-white border-2 border-[#E85A9A]/30 text-[#0B0B0B] text-sm px-4 py-2.5 focus:border-[#E85A9A] outline-none rounded-lg"
+            className="font-[family-name:var(--font-inter)] bg-white border-2 border-[#E85A9A]/30 text-[#0B0B0B] text-sm px-4 py-2.5 focus:border-[#E85A9A] outline-none rounded-lg"
           >
             <option value="">Todas las categorías</option>
             {categories.map(c => <option key={c} value={c}>{c}</option>)}
@@ -211,7 +211,7 @@ function CatalogoContent() {
           <select
             value={statusFilter}
             onChange={e => setStatusFilter(e.target.value as ProductStatus | '')}
-            className="bg-white border-2 border-[#E85A9A]/30 text-[#0B0B0B] text-sm px-4 py-2.5 focus:border-[#E85A9A] outline-none rounded-lg"
+            className="font-[family-name:var(--font-inter)] bg-white border-2 border-[#E85A9A]/30 text-[#0B0B0B] text-sm px-4 py-2.5 focus:border-[#E85A9A] outline-none rounded-lg"
           >
             <option value="">Todos los estados</option>
             {statuses.map(s => <option key={s} value={s}>{s === 'En inventario' ? 'Disponible' : s}</option>)}
@@ -221,7 +221,7 @@ function CatalogoContent() {
           <select
             value={sortBy}
             onChange={e => setSortBy(e.target.value)}
-            className="bg-white border-2 border-[#E85A9A]/30 text-[#0B0B0B] text-sm px-4 py-2.5 focus:border-[#E85A9A] outline-none rounded-lg"
+            className="font-[family-name:var(--font-inter)] bg-white border-2 border-[#E85A9A]/30 text-[#0B0B0B] text-sm px-4 py-2.5 focus:border-[#E85A9A] outline-none rounded-lg"
           >
             <option value="">Ordenar por</option>
             <option value="newest">Más recientes</option>
@@ -237,7 +237,7 @@ function CatalogoContent() {
               onChange={e => setAuthFilter(e.target.checked)}
               className="w-4 h-4 text-[#E85A9A] border-[#E85A9A]/30 rounded focus:ring-[#E85A9A]"
             />
-            <span className="text-sm text-gray-600">Solo verificadas</span>
+            <span className="font-[family-name:var(--font-inter)] text-sm text-gray-600">Solo verificadas</span>
           </label>
           
           <label className="inline-flex items-center gap-2 cursor-pointer">
@@ -247,7 +247,7 @@ function CatalogoContent() {
               onChange={e => setLayawayFilter(e.target.checked)}
               className="w-4 h-4 text-[#E85A9A] border-[#E85A9A]/30 rounded focus:ring-[#E85A9A]"
             />
-            <span className="text-sm text-gray-600">Apartado disponible</span>
+            <span className="font-[family-name:var(--font-inter)] text-sm text-gray-600">Apartado disponible</span>
           </label>
           
           {(brandFilter || statusFilter || categoryFilter || searchQuery || sortBy || authFilter || layawayFilter) && (

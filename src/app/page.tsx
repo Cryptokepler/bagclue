@@ -57,12 +57,12 @@ export default async function Home() {
 
         {/* Content */}
         <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
-          <h1 className="font-[family-name:var(--font-playfair)] text-5xl md:text-7xl lg:text-8xl text-[#0B0B0B] tracking-wide mb-6 leading-tight">
+          <h1 className="font-[family-name:var(--font-playfair)] text-5xl md:text-6xl lg:text-7xl text-[#0B0B0B] tracking-tight mb-6 leading-tight">
             TU PRÓXIMA PIEZA DE LUJO
             <span className="block mt-2">EMPIEZA AQUÍ</span>
           </h1>
 
-          <p className="text-lg md:text-xl text-[#0B0B0B]/80 mb-10 max-w-2xl mx-auto leading-relaxed">
+          <p className="font-[family-name:var(--font-inter)] text-lg md:text-xl text-[#0B0B0B]/80 mb-10 max-w-2xl mx-auto leading-relaxed">
             Piezas de diseñador seleccionadas, verificadas y listas para acompañarte en tu próxima historia.
           </p>
 
@@ -70,7 +70,7 @@ export default async function Home() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
               href="/catalogo"
-              className="inline-flex items-center gap-2 bg-[#E85A9A] text-white px-10 py-4 text-sm md:text-base tracking-widest uppercase font-medium hover:bg-[#EC5C9F] transition-all duration-300 rounded-full shadow-lg shadow-[#E85A9A]/30"
+              className="font-[family-name:var(--font-inter)] inline-flex items-center gap-2 bg-[#E85A9A] text-white px-10 py-4 text-sm md:text-base tracking-wide uppercase font-semibold hover:bg-[#EC5C9F] transition-all duration-300 rounded-full shadow-lg shadow-[#E85A9A]/30"
             >
               Ver Catálogo
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

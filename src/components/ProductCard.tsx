@@ -56,14 +56,14 @@ export default function ProductCard({ product }: { product: Product }) {
 
         {/* Info */}
         <div className="p-4">
-          <p className="text-[10px] tracking-widest uppercase text-[#E85A9A]/70">{product.brand}</p>
-          <h3 className="font-[family-name:var(--font-playfair)] text-lg text-white mt-1">{product.model}</h3>
-          <p className="text-xs text-gray-400 mt-1">{product.color} · {product.origin}</p>
+          <p className="font-[family-name:var(--font-inter)] text-xs uppercase tracking-[0.20em] font-medium text-[#E85A9A]/70">{product.brand}</p>
+          <h3 className="font-[family-name:var(--font-inter)] text-base font-semibold text-white mt-1 leading-snug">{product.model}</h3>
+          <p className="font-[family-name:var(--font-inter)] text-xs text-gray-400 mt-1">{product.color} · {product.origin}</p>
           <div className="mt-3 flex items-center justify-between">
-            <span className={`text-sm font-medium ${product.price ? 'text-[#E85A9A]' : 'text-gray-500 italic'}`}>
+            <span className={`font-[family-name:var(--font-inter)] text-lg font-bold tracking-tight ${product.price ? 'text-[#E85A9A]' : 'text-gray-500 italic'}`}>
               {formatPrice(product.price)}
             </span>
-            <span className="text-[10px] text-gray-600">{product.id}</span>
+            <span className="font-[family-name:var(--font-inter)] text-[10px] text-gray-600">{product.id}</span>
           </div>
         </div>
       </div>
