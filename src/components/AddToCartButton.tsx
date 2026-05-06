@@ -66,7 +66,7 @@ export default function AddToCartButton({ product }: AddToCartButtonProps) {
   if (!mounted) {
     return (
       <button
-        className="w-full bg-[#FF69B4] text-white py-3 hover:bg-[#FF69B4]/90 transition-colors"
+        className="w-full bg-[#E85A9A] text-white py-3 hover:bg-[#EC5C9F] transition-colors rounded-lg"
       >
         Agregar al Carrito
       </button>
@@ -77,7 +77,7 @@ export default function AddToCartButton({ product }: AddToCartButtonProps) {
     return (
       <a
         href="/cart"
-        className="block w-full border border-[#FF69B4] text-[#FF69B4] py-3 text-center hover:bg-[#FF69B4] hover:text-white transition-colors"
+        className="block w-full border-2 border-[#E85A9A] text-[#E85A9A] py-3 text-center hover:bg-[#E85A9A] hover:text-white transition-colors rounded-lg"
       >
         Ver en Carrito →
       </a>
@@ -87,7 +87,7 @@ export default function AddToCartButton({ product }: AddToCartButtonProps) {
   return (
     <button
       onClick={handleAdd}
-      className="w-full bg-[#FF69B4] text-white py-3 hover:bg-[#FF69B4]/90 transition-colors"
+      className="w-full bg-[#E85A9A] text-white py-3 hover:bg-[#EC5C9F] transition-colors rounded-lg"
     >
       {added ? '✓ Agregado al carrito' : 'Agregar al Carrito'}
     </button>

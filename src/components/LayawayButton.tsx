@@ -61,7 +61,7 @@ export default function LayawayButton({ product }: LayawayButtonProps) {
     <>
       <button
         onClick={() => setShowModal(true)}
-        className="w-full border-2 border-[#FF69B4] text-[#FF69B4] py-3 hover:bg-[#FF69B4] hover:text-white transition-colors"
+        className="w-full border-2 border-[#E85A9A] text-[#E85A9A] py-3 hover:bg-[#E85A9A] hover:text-white transition-colors rounded-lg"
       >
         <span className="block font-medium">
           Apartar con ${formatCurrency(depositAmount)} {product.currency}
@@ -85,7 +85,7 @@ export default function LayawayButton({ product }: LayawayButtonProps) {
               Apartar pieza
             </h2>
 
-            <div className="bg-[#FF69B4]/5 border border-[#FF69B4]/20 p-4 mb-6">
+            <div className="bg-[#E85A9A]/5 border border-[#E85A9A]/20 p-4 mb-6 rounded-lg">
               <div className="flex justify-between mb-2">
                 <span className="text-sm text-gray-600">Depósito inicial ({depositPercent}%)</span>
                 <span className="font-medium text-gray-900">${formatCurrency(depositAmount)} {product.currency}</span>
@@ -94,9 +94,9 @@ export default function LayawayButton({ product }: LayawayButtonProps) {
                 <span className="text-sm text-gray-600">Saldo restante</span>
                 <span className="text-sm text-gray-700">${formatCurrency(balanceAmount)} {product.currency}</span>
               </div>
-              <div className="flex justify-between pt-2 border-t border-[#FF69B4]/20">
+              <div className="flex justify-between pt-2 border-t border-[#E85A9A]/20">
                 <span className="font-medium text-gray-900">Total</span>
-                <span className="font-medium text-[#FF69B4]">${formatCurrency(product.price)} {product.currency}</span>
+                <span className="font-medium text-[#E85A9A]">${formatCurrency(product.price)} {product.currency}</span>
               </div>
             </div>
 
@@ -116,7 +116,7 @@ export default function LayawayButton({ product }: LayawayButtonProps) {
                   required
                   value={formData.customer_name}
                   onChange={(e) => setFormData({ ...formData, customer_name: e.target.value })}
-                  className="w-full border border-gray-300 px-3 py-2 rounded focus:border-[#FF69B4] focus:outline-none"
+                  className="w-full border border-gray-300 px-3 py-2 rounded focus:border-[#E85A9A] focus:outline-none"
                   placeholder="María García"
                 />
               </div>
@@ -130,7 +130,7 @@ export default function LayawayButton({ product }: LayawayButtonProps) {
                   required
                   value={formData.customer_email}
                   onChange={(e) => setFormData({ ...formData, customer_email: e.target.value })}
-                  className="w-full border border-gray-300 px-3 py-2 rounded focus:border-[#FF69B4] focus:outline-none"
+                  className="w-full border border-gray-300 px-3 py-2 rounded focus:border-[#E85A9A] focus:outline-none"
                   placeholder="maria@ejemplo.com"
                 />
               </div>
@@ -143,7 +143,7 @@ export default function LayawayButton({ product }: LayawayButtonProps) {
                   type="tel"
                   value={formData.customer_phone}
                   onChange={(e) => setFormData({ ...formData, customer_phone: e.target.value })}
-                  className="w-full border border-gray-300 px-3 py-2 rounded focus:border-[#FF69B4] focus:outline-none"
+                  className="w-full border border-gray-300 px-3 py-2 rounded focus:border-[#E85A9A] focus:outline-none"
                   placeholder="+52 55 1234 5678"
                 />
               </div>
@@ -151,7 +151,7 @@ export default function LayawayButton({ product }: LayawayButtonProps) {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-[#FF69B4] text-white py-3 hover:bg-[#FF69B4]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-[#E85A9A] text-white py-3 hover:bg-[#EC5C9F] transition-colors disabled:opacity-50 disabled:cursor-not-allowed rounded-lg"
               >
                 {loading ? 'Procesando...' : `Continuar al pago de $${formatCurrency(depositAmount)}`}
               </button>
