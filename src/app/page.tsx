@@ -45,7 +45,7 @@ export default async function Home() {
   
   return (
     <>
-      {/* Hero Premium */}
+      {/* 1. Hero Premium */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
         {/* Background limpio premium - degradado rosa suave + amarillo pastel */}
         <div className="absolute inset-0 bg-gradient-to-br from-[#FFF9F5] via-[#FFFBF8] to-[#FFF4F9]">
@@ -110,96 +110,22 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Trust Section */}
-      <section className="py-20 md:py-32 bg-[#F7F7F7]">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="font-[family-name:var(--font-playfair)] text-4xl md:text-5xl text-[#0B0B0B] mb-4">
-              ¿Por qué Bagclue?
-            </h2>
-            <div className="w-20 h-1 bg-[#E85A9A] mx-auto mt-6" />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10">
-            {/* Autenticidad */}
-            <div className="text-center bg-white p-8 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
-              <div className="w-16 h-16 bg-[#E85A9A]/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                <svg className="w-8 h-8 text-[#E85A9A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-[#0B0B0B] mb-3">
-                Autenticidad Verificada
-              </h3>
-              <p className="text-sm text-gray-600 leading-relaxed">
-                Cada pieza certificada por Entrupy, la tecnología líder mundial en autenticación de artículos de lujo.
-              </p>
-            </div>
-
-            {/* Piezas Seleccionadas */}
-            <div className="text-center bg-white p-8 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
-              <div className="w-16 h-16 bg-[#FFF4A8]/30 rounded-full flex items-center justify-center mx-auto mb-6">
-                <svg className="w-8 h-8 text-[#0B0B0B]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-[#0B0B0B] mb-3">
-                Piezas Seleccionadas
-              </h3>
-              <p className="text-sm text-gray-600 leading-relaxed">
-                Selección curada de bolsas Chanel, Hermès, Louis Vuitton y más. Cada pieza con historia única.
-              </p>
-            </div>
-
-            {/* Envíos */}
-            <div className="text-center bg-white p-8 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
-              <div className="w-16 h-16 bg-[#E85A9A]/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                <svg className="w-8 h-8 text-[#E85A9A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-[#0B0B0B] mb-3">
-                Envíos Seguros
-              </h3>
-              <p className="text-sm text-gray-600 leading-relaxed">
-                Envío asegurado a todo México. Tu pieza llega protegida y con tracking completo.
-              </p>
-            </div>
-
-            {/* Atención */}
-            <div className="text-center bg-white p-8 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
-              <div className="w-16 h-16 bg-[#E85A9A]/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                <svg className="w-8 h-8 text-[#E85A9A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-[#0B0B0B] mb-3">
-                Atención Personalizada
-              </h3>
-              <p className="text-sm text-gray-600 leading-relaxed">
-                Respuesta rápida por Instagram. Te asesoramos en cada paso de tu compra.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Products */}
+      {/* 2. Recién Llegadas / Featured Products */}
       <section className="py-20 md:py-32 bg-white">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
-            <span className="text-xs tracking-[0.5em] uppercase text-[#E85A9A]/60 mb-3 block">
-              Colección
-            </span>
             <h2 className="font-[family-name:var(--font-playfair)] text-4xl md:text-5xl text-[#0B0B0B] mb-4">
-              Piezas Destacadas
+              Recién llegadas a Bagclue
             </h2>
-            <div className="w-20 h-1 bg-[#E85A9A] mx-auto mt-6" />
+            <p className="text-base md:text-lg text-gray-600 max-w-2xl mx-auto mb-6">
+              Piezas seleccionadas, verificadas y listas para encontrar nueva dueña.
+            </p>
+            <div className="w-20 h-1 bg-[#E85A9A] mx-auto" />
           </div>
 
           {featured.length > 0 ? (
             <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 md:gap-10">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10">
                 {featured.slice(0, 4).map(p => (
                   <ProductCard key={p.id} product={p} />
                 ))}
@@ -225,7 +151,145 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Apartado Section */}
+      {/* 3. Comprar por Marca / Categoría */}
+      <section className="py-20 md:py-32 bg-[#F7F7F7]">
+        <div className="max-w-7xl mx-auto px-6">
+          {/* Comprar por Marca */}
+          <div className="mb-20">
+            <div className="text-center mb-12">
+              <h2 className="font-[family-name:var(--font-playfair)] text-3xl md:text-4xl text-[#0B0B0B] mb-4">
+                Comprar por Marca
+              </h2>
+              <div className="w-20 h-1 bg-[#E85A9A] mx-auto" />
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+              {['Chanel', 'Hermès', 'Louis Vuitton', 'Dior', 'Goyard'].map(brand => (
+                <Link
+                  key={brand}
+                  href="/catalogo"
+                  className="group bg-white p-8 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col items-center justify-center text-center min-h-[160px]"
+                >
+                  <h3 className="font-[family-name:var(--font-playfair)] text-xl md:text-2xl text-[#0B0B0B] group-hover:text-[#E85A9A] transition-colors">
+                    {brand}
+                  </h3>
+                  <svg className="w-5 h-5 text-[#E85A9A] mt-4 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* Comprar por Categoría */}
+          <div>
+            <div className="text-center mb-12">
+              <h2 className="font-[family-name:var(--font-playfair)] text-3xl md:text-4xl text-[#0B0B0B] mb-4">
+                Comprar por Categoría
+              </h2>
+              <div className="w-20 h-1 bg-[#E85A9A] mx-auto" />
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              {[
+                { name: 'Bolsas', icon: 'M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z' },
+                { name: 'Zapatos', icon: 'M3 10h10a8 8 0 018 8v2M3 10l6 12v-12' },
+                { name: 'Joyería', icon: 'M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z' },
+                { name: 'Accesorios', icon: 'M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343' }
+              ].map(cat => (
+                <Link
+                  key={cat.name}
+                  href="/catalogo"
+                  className="group bg-white p-8 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col items-center justify-center text-center"
+                >
+                  <svg className="w-12 h-12 text-[#E85A9A] mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={cat.icon} />
+                  </svg>
+                  <h3 className="text-lg font-semibold text-[#0B0B0B] group-hover:text-[#E85A9A] transition-colors">
+                    {cat.name}
+                  </h3>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 4. Confianza / Por qué Bagclue */}
+      <section className="py-20 md:py-32 bg-white">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="font-[family-name:var(--font-playfair)] text-4xl md:text-5xl text-[#0B0B0B] mb-4">
+              ¿Por qué Bagclue?
+            </h2>
+            <div className="w-20 h-1 bg-[#E85A9A] mx-auto mt-6" />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10">
+            {/* Autenticidad */}
+            <div className="text-center bg-[#F7F7F7] p-8 rounded-2xl">
+              <div className="w-16 h-16 bg-[#E85A9A]/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg className="w-8 h-8 text-[#E85A9A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-[#0B0B0B] mb-3">
+                Autenticidad Verificada
+              </h3>
+              <p className="text-sm text-gray-600 leading-relaxed">
+                Cada pieza certificada por Entrupy.
+              </p>
+            </div>
+
+            {/* Piezas Seleccionadas */}
+            <div className="text-center bg-[#F7F7F7] p-8 rounded-2xl">
+              <div className="w-16 h-16 bg-[#FFF4A8]/30 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg className="w-8 h-8 text-[#0B0B0B]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-[#0B0B0B] mb-3">
+                Piezas Seleccionadas
+              </h3>
+              <p className="text-sm text-gray-600 leading-relaxed">
+                Selección curada de las mejores marcas de lujo.
+              </p>
+            </div>
+
+            {/* Envíos */}
+            <div className="text-center bg-[#F7F7F7] p-8 rounded-2xl">
+              <div className="w-16 h-16 bg-[#E85A9A]/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg className="w-8 h-8 text-[#E85A9A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-[#0B0B0B] mb-3">
+                Envíos Seguros
+              </h3>
+              <p className="text-sm text-gray-600 leading-relaxed">
+                Envío asegurado a todo México con tracking.
+              </p>
+            </div>
+
+            {/* Atención */}
+            <div className="text-center bg-[#F7F7F7] p-8 rounded-2xl">
+              <div className="w-16 h-16 bg-[#E85A9A]/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg className="w-8 h-8 text-[#E85A9A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-[#0B0B0B] mb-3">
+                Atención Personalizada
+              </h3>
+              <p className="text-sm text-gray-600 leading-relaxed">
+                Respuesta rápida por Instagram.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 5. Apartado Section */}
       <section className="py-20 md:py-32 bg-gradient-to-b from-[#E85A9A]/5 to-transparent">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -246,9 +310,6 @@ export default async function Home() {
 
             {/* Contenido */}
             <div className="order-1 lg:order-2">
-              <span className="text-xs tracking-[0.5em] uppercase text-[#E85A9A]/60 mb-3 block">
-                Apartado
-              </span>
               <h2 className="font-[family-name:var(--font-playfair)] text-4xl md:text-5xl text-[#0B0B0B] mb-6">
                 Aparta tu pieza Bagclue
               </h2>
@@ -315,14 +376,14 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Instagram/Asesoría CTA */}
+      {/* 6. Asesoría / Instagram CTA */}
       <section className="py-20 md:py-32 bg-[#0B0B0B] text-white">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <h2 className="font-[family-name:var(--font-playfair)] text-4xl md:text-5xl mb-6">
-            ¿Necesitas Ayuda?
+            ¿Necesitas ayuda para elegir tu pieza?
           </h2>
           <p className="text-lg md:text-xl text-white/80 mb-10 leading-relaxed">
-            Nuestro equipo está listo para asesorarte en la elección de tu pieza perfecta. Contáctanos por Instagram.
+            Te acompañamos para resolver dudas sobre condición, autenticidad, apartado y envío.
           </p>
 
           <a
@@ -343,7 +404,7 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Footer */}
+      {/* 7. Footer */}
       <footer className="bg-[#F7F7F7] py-16">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
