@@ -2,7 +2,7 @@
 
 import { usePathname } from 'next/navigation'
 import { ReactNode } from 'react'
-import Navbar from './Navbar'
+import Header from './Header'
 import TrackingHeader from './TrackingHeader'
 import Footer from './Footer'
 
@@ -34,10 +34,10 @@ export default function ConditionalLayout({ children }: { children: ReactNode })
     )
   }
 
-  // Public routes: full navbar and footer
+  // Public routes: full header (announcement + navbar) and footer
   return (
     <>
-      <Navbar />
+      <Header />
       <main className="min-h-screen">{children}</main>
       <Footer />
     </>
