@@ -29,6 +29,17 @@ function CatalogoContent() {
   const [authFilter, setAuthFilter] = useState<boolean>(searchParams.get('auth') === 'verified');
   const [layawayFilter, setLayawayFilter] = useState<boolean>(searchParams.get('layaway') === 'true');
 
+  // Sync states from URL params when they change (critical for navigation)
+  useEffect(() => {
+    setBrandFilter(searchParams.get('brand') || '');
+    setStatusFilter(searchParams.get('status') as ProductStatus || '');
+    setCategoryFilter(searchParams.get('category') || '');
+    setSearchQuery(searchParams.get('search') || '');
+    setSortBy(searchParams.get('sort') || '');
+    setAuthFilter(searchParams.get('auth') === 'verified');
+    setLayawayFilter(searchParams.get('layaway') === 'true');
+  }, [searchParams]);
+
   // Sync filters with URL params
   useEffect(() => {
     const params = new URLSearchParams();
