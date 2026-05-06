@@ -216,7 +216,7 @@ export default async function Home() {
       </section>
 
       {/* 4. Confianza / Por qué Bagclue */}
-      <section className="py-20 md:py-32 bg-white">
+      <section id="autenticidad" className="py-20 md:py-32 bg-white">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
             <h2 className="font-[family-name:var(--font-playfair)] text-4xl md:text-5xl text-[#0B0B0B] mb-4">

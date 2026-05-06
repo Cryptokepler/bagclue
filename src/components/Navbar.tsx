@@ -5,10 +5,10 @@ import { useState } from 'react';
 import CartIcon from './CartIcon';
 
 const navLinks = [
-  { href: '/', label: 'Inicio' },
   { href: '/catalogo', label: 'Catálogo' },
+  { href: '/catalogo', label: 'Recién llegadas' },
   { href: '/apartado', label: 'Apartado' },
-  { href: '/paris', label: 'París 2U' },
+  { href: '/#autenticidad', label: 'Autenticidad' },
   { href: '/nosotros', label: 'Nosotros' },
   { href: '/contacto', label: 'Contacto' },
 ];
@@ -52,7 +52,7 @@ export default function Navbar() {
         <div className="md:hidden bg-white/98 backdrop-blur-md border-t border-gray-100 animate-fade-in">
           <div className="px-6 py-6 flex flex-col gap-4">
             {navLinks.map(l => (
-              <Link key={l.href} href={l.href} onClick={() => setMobileOpen(false)} className="text-sm tracking-widest uppercase text-gray-600 hover:text-[#E85A9A] transition-colors py-2">
+              <Link key={l.href + l.label} href={l.href} onClick={() => setMobileOpen(false)} className="text-sm tracking-widest uppercase text-gray-600 hover:text-[#E85A9A] transition-colors py-2">
                 {l.label}
               </Link>
             ))}
