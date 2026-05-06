@@ -240,6 +240,36 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   }
 
   console.log(`[WEBHOOK] SUCCESS: Order ${order_id} marked as paid and products marked as sold`)
+
+  // === ENVIAR EMAIL CONFIRMACIÓN COMPRA ===
+  try {
+    const { sendOrderConfirmationEmail } = await import('@/lib/email/mailer')
+    
+    // Obtener product name desde order_items
+    const { data: items } = await supabaseAdmin
+      .from('order_items')
+      .select('product_snapshot')
+      .eq('order_id', order_id)
+      .limit(1)
+    
+    const productName = items?.[0]?.product_snapshot?.title || 'Tu compra'
+    const orderUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://bagclue.vercel.app'}/account/orders/${order_id}`
+    
+    const emailSent = await sendOrderConfirmationEmail({
+      to: updatedOrder.customer_email,
+      customerName: updatedOrder.customer_name,
+      orderId: order_id,
+      productName,
+      totalAmount: updatedOrder.total,
+      currency: 'MXN',
+      orderUrl
+    })
+    
+    console.log(`[WEBHOOK] Email confirmation sent: ${emailSent}`)
+  } catch (emailError: any) {
+    console.error('[WEBHOOK] Email error (non-fatal):', emailError.message)
+    // NO lanzar error - continuar flujo normal
+  }
 }
 
 async function handleCheckoutExpired(session: Stripe.Checkout.Session) {
@@ -353,6 +383,45 @@ async function handleLayawayDeposit(session: Stripe.Checkout.Session) {
   })
 
   console.log(`[WEBHOOK] SUCCESS: Layaway ${layaway_id} activated and product reserved`)
+
+  // === ENVIAR EMAIL CONFIRMACIÓN APARTADO ===
+  try {
+    const { sendLayawayConfirmationEmail } = await import('@/lib/email/mailer')
+    
+    // Obtener layaway completo
+    const { data: fullLayaway } = await supabaseAdmin
+      .from('layaways')
+      .select('*')
+      .eq('id', layaway_id)
+      .single()
+    
+    if (fullLayaway) {
+      // Obtener product name
+      const { data: product } = await supabaseAdmin
+        .from('products')
+        .select('title')
+        .eq('id', fullLayaway.product_id)
+        .single()
+      
+      const accountUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://bagclue.vercel.app'}/account`
+      
+      const emailSent = await sendLayawayConfirmationEmail({
+        to: fullLayaway.customer_email,
+        customerName: fullLayaway.customer_name,
+        productName: product?.title || 'Tu producto',
+        totalPrice: fullLayaway.total_amount,
+        amountPaid: fullLayaway.amount_paid || fullLayaway.total_amount * 0.2,
+        remainingBalance: fullLayaway.amount_remaining || fullLayaway.total_amount * 0.8,
+        currency: 'MXN',
+        accountUrl
+      })
+      
+      console.log(`[WEBHOOK] Layaway email sent: ${emailSent}`)
+    }
+  } catch (emailError: any) {
+    console.error('[WEBHOOK] Layaway email error (non-fatal):', emailError.message)
+    // NO lanzar error - continuar flujo normal
+  }
 }
 
 async function handleLayawayBalance(session: Stripe.Checkout.Session) {

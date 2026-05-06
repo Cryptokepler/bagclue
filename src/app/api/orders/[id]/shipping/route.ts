@@ -170,6 +170,41 @@ export async function PUT(
       ? `${baseUrl}/track/${order.tracking_token}`
       : null
 
+    // === ENVIAR EMAIL TRACKING ENVIADO ===
+    if (shipping_status === 'shipped' && order.customer_email) {
+      try {
+        const { sendShippingTrackingEmail } = await import('@/lib/email/mailer')
+        
+        // Obtener product name desde order_items
+        const { data: items } = await supabaseAdmin
+          .from('order_items')
+          .select('product_snapshot')
+          .eq('order_id', orderId)
+          .limit(1)
+        
+        const productName = items?.[0]?.product_snapshot?.title || 'Tu compra'
+        const providerName = shipping_provider === 'dhl' ? 'DHL' :
+                           shipping_provider === 'fedex' ? 'FedEx' :
+                           shipping_provider || 'Paquetería'
+        
+        const emailSent = await sendShippingTrackingEmail({
+          to: order.customer_email,
+          customerName: order.customer_name,
+          orderId: orderId,
+          productName,
+          shippingProvider: shipping_provider || 'manual',
+          trackingNumber: tracking_number || 'N/A',
+          trackingUrl: tracking_url || undefined,
+          orderTrackingUrl: public_tracking_url || `${baseUrl}/account/orders/${orderId}`
+        })
+        
+        console.log(`[SHIPPING UPDATE] Tracking email sent: ${emailSent}`)
+      } catch (emailError: any) {
+        console.error('[SHIPPING UPDATE] Email error (non-fatal):', emailError.message)
+        // NO lanzar error - continuar flujo normal
+      }
+    }
+
     return NextResponse.json({
       success: true,
       order,
