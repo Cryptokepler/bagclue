@@ -145,8 +145,18 @@ export default function ProductsTable({ products }: ProductsTableProps) {
                 </td>
                 
                 {/* Stock */}
-                <td className="px-3 py-3 text-center text-gray-300">
-                  {product.stock !== null && product.stock !== undefined ? product.stock : '-'}
+                <td className="px-3 py-3 text-center">
+                  {product.stock !== null && product.stock !== undefined ? (
+                    <span className={`font-medium ${
+                      product.stock > 3 ? 'text-emerald-400' :
+                      product.stock > 0 ? 'text-yellow-400' :
+                      'text-red-400'
+                    }`}>
+                      {product.stock}
+                    </span>
+                  ) : (
+                    <span className="text-gray-500">-</span>
+                  )}
                 </td>
                 
                 {/* Ubicación */}

@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import ProductCard from '@/components/ProductCard';
+import SearchBar from '@/components/SearchBar';
 import { supabase } from '@/lib/supabase';
 import { PRODUCT_PUBLIC_FIELDS } from '@/lib/products-public-fields';
 import { dbStatusToLegacy } from '@/types/database';
@@ -99,6 +100,13 @@ export default async function Home() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
             </svg>
           </div>
+        </div>
+      </section>
+
+      {/* Search Bar */}
+      <section className="py-12 md:py-16 bg-[#FFFBF8]">
+        <div className="max-w-7xl mx-auto px-6">
+          <SearchBar />
         </div>
       </section>
 

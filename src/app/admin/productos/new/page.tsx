@@ -29,6 +29,7 @@ export default function NewProductPage() {
     condition_notes: '',
     price: '',
     currency: 'MXN',
+    stock: '1',
     badge: '',
     description: '',
     is_published: false,
@@ -78,6 +79,7 @@ export default function NewProductPage() {
       const payload = {
         ...formData,
         price: formData.price ? parseFloat(formData.price) : null,
+        stock: formData.stock ? parseInt(formData.stock) : 1,
         cost_price: formData.cost_price ? parseFloat(formData.cost_price) : null,
         additional_costs,
         acquisition_date: formData.acquisition_date || null,
@@ -282,7 +284,7 @@ export default function NewProductPage() {
           {/* Precio y Publicación */}
           <div className="bg-white/5 border border-[#FF69B4]/20 p-6">
             <h2 className="text-lg text-white font-medium mb-4">Precio y Publicación</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
               <div>
                 <label className="block text-sm text-gray-300 mb-2">
                   Precio * <span className="text-xs text-gray-500">(requerido)</span>
@@ -310,6 +312,24 @@ export default function NewProductPage() {
                   <option value="MXN">MXN</option>
                   <option value="USD">USD</option>
                 </select>
+              </div>
+              <div>
+                <label className="block text-sm text-gray-300 mb-2">
+                  Stock (unidades disponibles)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  step="1"
+                  name="stock"
+                  value={formData.stock}
+                  onChange={handleChange}
+                  className="w-full bg-white/5 border border-[#FF69B4]/20 text-white px-4 py-2 focus:border-[#FF69B4] outline-none"
+                  placeholder="1"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Para piezas únicas, usar 1
+                </p>
               </div>
             </div>
             <div className="space-y-4">
