@@ -176,17 +176,35 @@ function CatalogoContent() {
           <div className="w-16 h-px bg-[#E85A9A]/30 mx-auto mt-6" />
         </div>
 
+        {/* Main Search Bar */}
+        <div className="max-w-3xl mx-auto mb-10">
+          <form 
+            onSubmit={(e) => {
+              e.preventDefault();
+              // Search is already synced via state → URL
+              // This just prevents page reload on Enter
+            }}
+            className="flex flex-col sm:flex-row gap-3"
+          >
+            <input
+              type="text"
+              placeholder="Busca por marca, modelo o pieza…"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              className="flex-1 bg-white border border-[#E85A9A]/20 text-[#0B0B0B] px-6 py-4 text-base focus:border-[#E85A9A] focus:outline-none focus:ring-2 focus:ring-[#E85A9A]/20 transition-all rounded-full"
+              aria-label="Buscar productos"
+            />
+            <button
+              type="submit"
+              className="font-[family-name:var(--font-inter)] bg-[#E85A9A] text-white px-10 py-4 text-sm tracking-wide uppercase font-semibold hover:bg-[#EC5C9F] transition-all duration-300 rounded-full shadow-md hover:shadow-lg whitespace-nowrap"
+            >
+              Buscar
+            </button>
+          </form>
+        </div>
+
         {/* Filters */}
         <div className="flex flex-wrap gap-4 mb-8 justify-center">
-          {/* Search */}
-          <input
-            type="text"
-            placeholder="Buscar..."
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-            className="font-[family-name:var(--font-inter)] bg-white border-2 border-[#E85A9A]/30 text-[#0B0B0B] text-sm px-4 py-2.5 focus:border-[#E85A9A] outline-none rounded-lg min-w-[200px]"
-          />
-          
           {/* Brand */}
           <select
             value={brandFilter}
