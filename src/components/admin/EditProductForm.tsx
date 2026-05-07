@@ -121,17 +121,23 @@ export default function EditProductForm({ product }: EditProductFormProps) {
       const data = await res.json()
 
       if (!res.ok) {
-        setError(data.error || 'Error al actualizar producto')
+        setError(data.error || 'No se pudo guardar el producto. Intenta nuevamente.')
         setLoading(false)
+        // Scroll al top para ver el error
+        window.scrollTo({ top: 0, behavior: 'smooth' })
         return
       }
 
-      // Mostrar banner de éxito
-      setSuccessMessage('Producto actualizado exitosamente')
+      // Limpiar error previo y mostrar banner de éxito
+      setError('')
+      setSuccessMessage('Producto actualizado correctamente')
       setLoading(false)
       
       // Refresh después de mostrar mensaje
       router.refresh()
+      
+      // Scroll al top suavemente para ver el banner
+      window.scrollTo({ top: 0, behavior: 'smooth' })
       
       // Limpiar mensaje después de 5 segundos
       setTimeout(() => setSuccessMessage(''), 5000)
@@ -234,6 +240,27 @@ export default function EditProductForm({ product }: EditProductFormProps) {
             <button
               onClick={() => setSuccessMessage('')}
               className="text-[#FF69B4]/60 hover:text-[#FF69B4] text-xl leading-none"
+              aria-label="Cerrar"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Banner: Error al guardar */}
+      {error && (
+        <div className="max-w-4xl mx-auto px-6 pt-6">
+          <div className="bg-red-500/10 border border-red-500/30 rounded px-6 py-4 flex items-start gap-4">
+            <div className="text-red-400 text-xl">⚠</div>
+            <div className="flex-1">
+              <p className="text-red-400 font-medium">
+                {error}
+              </p>
+            </div>
+            <button
+              onClick={() => setError('')}
+              className="text-red-400/60 hover:text-red-400 text-xl leading-none"
               aria-label="Cerrar"
             >
               ×
@@ -828,13 +855,6 @@ export default function EditProductForm({ product }: EditProductFormProps) {
               )}
             </div>
           </div>
-
-          {/* Error */}
-          {error && (
-            <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 text-sm">
-              {error}
-            </div>
-          )}
 
           {/* Actions */}
           <div className="flex gap-4">
