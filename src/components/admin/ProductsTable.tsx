@@ -34,7 +34,7 @@ export default function ProductsTable({ products }: ProductsTableProps) {
             <th className="px-3 py-3 w-28 text-right">Utilidad</th>
             <th className="px-3 py-3 w-24 text-right">Margen %</th>
             <th className="px-3 py-3 w-28">Status</th>
-            <th className="px-3 py-3 w-28">Publicado</th>
+            <th className="px-3 py-3 w-28">Visibilidad</th>
             <th className="px-3 py-3 w-20 text-center">Stock</th>
             <th className="px-3 py-3 min-w-[100px]">Ubicación</th>
             <th className="px-3 py-3 min-w-[100px]">Proveedor</th>

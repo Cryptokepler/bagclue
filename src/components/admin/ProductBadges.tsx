@@ -20,14 +20,14 @@ export function StatusBadge({ status }: { status: string }) {
 
 export function PublishedBadge({ isPublished }: { isPublished: boolean }) {
   return isPublished ? (
-    <span className="inline-flex items-center gap-1 px-2 py-1 text-xs rounded bg-emerald-500/20 text-emerald-400">
-      <span>✓</span>
-      <span>Publicado</span>
+    <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold uppercase tracking-wider rounded bg-emerald-500/20 text-emerald-400">
+      <span>●</span>
+      <span>Activo</span>
     </span>
   ) : (
-    <span className="inline-flex items-center gap-1 px-2 py-1 text-xs rounded bg-yellow-500/20 text-yellow-400">
-      <span>📝</span>
-      <span>Borrador</span>
+    <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold uppercase tracking-wider rounded bg-gray-500/20 text-gray-400">
+      <span>●</span>
+      <span>Inactivo</span>
     </span>
   )
 }

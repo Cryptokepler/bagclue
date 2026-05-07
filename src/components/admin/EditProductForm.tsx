@@ -318,10 +318,10 @@ export default function EditProductForm({ product }: EditProductFormProps) {
             <div className="text-yellow-400 text-xl">⚠️</div>
             <div className="flex-1">
               <p className="text-yellow-400 font-medium mb-1">
-                Este producto está guardado como borrador
+                Este producto está inactivo
               </p>
               <p className="text-sm text-yellow-400/80">
-                No aparece en el catálogo público. Marca "Publicado" abajo para hacerlo visible a los clientes.
+                No aparece en el catálogo público. Activa el toggle "Visible en tienda" abajo para hacerlo visible a las clientas.
               </p>
             </div>
           </div>
