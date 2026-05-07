@@ -63,6 +63,7 @@ export default function EditProductForm({ product }: EditProductFormProps) {
   })
 
   const [images, setImages] = useState(product.product_images || [])
+  const [deletingImageId, setDeletingImageId] = useState<string | null>(null)
 
   // Detectar si viene de crear producto
   useEffect(() => {
@@ -146,6 +147,45 @@ export default function EditProductForm({ product }: EditProductFormProps) {
     } catch (err) {
       setError('Error de conexión')
       setLoading(false)
+    }
+  }
+
+  const handleDeleteImage = async (imageId: string) => {
+    if (!confirm('¿Eliminar esta imagen del producto?')) {
+      return
+    }
+
+    setDeletingImageId(imageId)
+    setError('')
+
+    try {
+      const res = await fetch(`/api/products/${product.id}/images/${imageId}`, {
+        method: 'DELETE'
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        setError(data.error || 'No se pudo eliminar la imagen. Intenta nuevamente.')
+        setDeletingImageId(null)
+        return
+      }
+
+      // Remover imagen de la lista local
+      setImages((prev: any) => prev.filter((img: any) => img.id !== imageId))
+      setDeletingImageId(null)
+
+      // Mostrar mensaje de éxito
+      if (data.warning) {
+        setSuccessMessage(`Imagen eliminada. ${data.warning}`)
+      } else {
+        setSuccessMessage('Imagen eliminada correctamente')
+      }
+      
+      setTimeout(() => setSuccessMessage(''), 5000)
+    } catch (err) {
+      setError('Error de conexión al eliminar imagen')
+      setDeletingImageId(null)
     }
   }
 
@@ -314,12 +354,22 @@ export default function EditProductForm({ product }: EditProductFormProps) {
           {images.length > 0 ? (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
               {images.map((img: any) => (
-                <div key={img.id} className="aspect-square relative border border-[#FF69B4]/20">
+                <div key={img.id} className="aspect-square relative border border-[#FF69B4]/20 group">
                   <img
                     src={img.url}
                     alt={img.alt || ''}
                     className="w-full h-full object-cover"
                   />
+                  {/* Botón eliminar */}
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteImage(img.id)}
+                    disabled={deletingImageId === img.id}
+                    className="absolute top-2 right-2 bg-red-500/90 hover:bg-red-600 text-white w-8 h-8 flex items-center justify-center text-lg opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+                    title="Eliminar imagen"
+                  >
+                    {deletingImageId === img.id ? '...' : '×'}
+                  </button>
                 </div>
               ))}
             </div>
@@ -576,16 +626,39 @@ export default function EditProductForm({ product }: EditProductFormProps) {
                 />
                 <p className="text-xs text-gray-500 mt-1">{formData.description.length}/2000 caracteres</p>
               </div>
-              <label className="flex items-center gap-3 text-gray-300 cursor-pointer">
-                <input
-                  type="checkbox"
-                  name="is_published"
-                  checked={formData.is_published}
-                  onChange={handleChange}
-                  className="w-4 h-4"
-                />
-                Publicar inmediatamente en el catálogo
-              </label>
+              {/* Toggle: Visible en tienda */}
+              <div className="border border-[#FF69B4]/20 bg-white/5 p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-sm font-medium text-white">
+                    Visible en tienda
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setFormData(prev => ({ ...prev, is_published: !prev.is_published }))}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                      formData.is_published ? 'bg-[#FF69B4]' : 'bg-gray-600'
+                    }`}
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                        formData.is_published ? 'translate-x-6' : 'translate-x-1'
+                      }`}
+                    />
+                  </button>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className={`text-xs font-semibold uppercase tracking-wider ${
+                    formData.is_published ? 'text-emerald-400' : 'text-gray-400'
+                  }`}>
+                    {formData.is_published ? 'Activo' : 'Inactivo'}
+                  </span>
+                  <span className="text-xs text-gray-500">
+                    {formData.is_published
+                      ? '— Este producto es visible para las clientas.'
+                      : '— Este producto no aparece en el catálogo público.'}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
 

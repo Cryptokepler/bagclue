@@ -357,16 +357,39 @@ export default function NewProductPage() {
                 />
                 <p className="text-xs text-gray-500 mt-1">{formData.description.length}/2000 caracteres</p>
               </div>
-              <label className="flex items-center gap-3 text-gray-300 cursor-pointer">
-                <input
-                  type="checkbox"
-                  name="is_published"
-                  checked={formData.is_published}
-                  onChange={handleChange}
-                  className="w-4 h-4"
-                />
-                Publicar inmediatamente en el catálogo
-              </label>
+              {/* Toggle: Visible en tienda */}
+              <div className="border border-[#FF69B4]/20 bg-white/5 p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-sm font-medium text-white">
+                    Visible en tienda
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setFormData(prev => ({ ...prev, is_published: !prev.is_published }))}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                      formData.is_published ? 'bg-[#FF69B4]' : 'bg-gray-600'
+                    }`}
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                        formData.is_published ? 'translate-x-6' : 'translate-x-1'
+                      }`}
+                    />
+                  </button>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className={`text-xs font-semibold uppercase tracking-wider ${
+                    formData.is_published ? 'text-emerald-400' : 'text-gray-400'
+                  }`}>
+                    {formData.is_published ? 'Activo' : 'Inactivo'}
+                  </span>
+                  <span className="text-xs text-gray-500">
+                    {formData.is_published
+                      ? '— Este producto será visible para las clientas al crearlo.'
+                      : '— Producto guardado como borrador. Podrás activarlo después de agregar fotos.'}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
 
