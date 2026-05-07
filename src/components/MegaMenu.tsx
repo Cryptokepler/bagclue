@@ -14,12 +14,11 @@ export default function MegaMenu({ isOpen, onClose, onMouseEnter, onMouseLeave }
 
   return (
     <div 
-      className="absolute left-1/2 -translate-x-1/2 bg-[#FFFBF8] border border-[#E85A9A]/[0.18] z-[80] hidden lg:block"
+      className="fixed left-1/2 -translate-x-1/2 bg-[#FFFBF8] border border-[#E85A9A]/[0.18] z-[80] hidden lg:block"
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       style={{
-        top: '100%',
-        marginTop: '8px',
+        top: '134px',
         width: 'min(1120px, calc(100vw - 64px))',
         maxWidth: '1120px',
         minHeight: '300px',

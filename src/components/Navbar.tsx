@@ -32,7 +32,7 @@ export default function Navbar() {
   const scheduleClose = () => {
     closeTimer.current = setTimeout(() => {
       setIsCatalogMenuOpen(false);
-    }, 300);
+    }, 180);
   };
 
   const closeMenu = () => {
