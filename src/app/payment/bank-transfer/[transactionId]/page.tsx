@@ -19,6 +19,7 @@ interface TransactionData {
   paymentReference: string
   amountMxn: number
   expiresAt: string
+  trackingToken: string | null
   bankConfig: BankConfig
 }
 
@@ -37,6 +38,7 @@ export default function BankTransferPaymentPage() {
   const [uploadError, setUploadError] = useState('')
   const [copiedClabe, setCopiedClabe] = useState(false)
   const [copiedReference, setCopiedReference] = useState(false)
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
 
   useEffect(() => {
     if (!transactionId) return
@@ -75,6 +77,7 @@ export default function BankTransferPaymentPage() {
           paymentReference: apiData.paymentReference,
           amountMxn: apiData.amountMxn,
           expiresAt: apiData.expiresAt,
+          trackingToken: apiData.trackingToken,
           bankConfig: apiData.bankConfig
         })
       } catch (err: any) {
@@ -103,29 +106,43 @@ export default function BankTransferPaymentPage() {
     }
   }
 
-  const handleProofUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (!file) return
+    if (!file) {
+      setSelectedFile(null)
+      setUploadError('')
+      return
+    }
 
     // Validate file type
     const validTypes = ['image/jpeg', 'image/png', 'application/pdf']
     if (!validTypes.includes(file.type)) {
       setUploadError('Solo se permiten archivos JPG, PNG o PDF')
+      setSelectedFile(null)
       return
     }
 
     // Validate file size (5MB max)
     if (file.size > 5 * 1024 * 1024) {
       setUploadError('El archivo debe ser menor a 5MB')
+      setSelectedFile(null)
       return
     }
+
+    // File is valid, save it
+    setSelectedFile(file)
+    setUploadError('')
+  }
+
+  const handleSubmitProof = async () => {
+    if (!selectedFile) return
 
     setUploadingProof(true)
     setUploadError('')
 
     try {
       const formData = new FormData()
-      formData.append('file', file)
+      formData.append('file', selectedFile)
       formData.append('transactionId', transactionId)
       
       // Include tracking_token for guest checkout ownership validation
@@ -144,6 +161,7 @@ export default function BankTransferPaymentPage() {
       }
 
       setUploadSuccess(true)
+      setSelectedFile(null)
     } catch (err: any) {
       console.error('[BankTransfer] Error uploading proof:', err)
       setUploadError(err.message || 'Error al subir comprobante')
@@ -213,7 +231,7 @@ export default function BankTransferPaymentPage() {
                   Comprobante recibido
                 </h3>
                 <p className="text-sm text-emerald-700">
-                  Nuestro equipo validará tu pago. Te notificaremos por email cuando tu compra sea confirmada.
+                  Nuestro equipo validará tu pago.
                 </p>
               </div>
             </div>
@@ -377,11 +395,11 @@ export default function BankTransferPaymentPage() {
               </div>
             )}
 
-            <label className="block">
+            <label className="block mb-4">
               <input
                 type="file"
                 accept="image/jpeg,image/png,application/pdf"
-                onChange={handleProofUpload}
+                onChange={handleFileSelect}
                 disabled={uploadingProof}
                 className="block w-full text-sm text-gray-900 file:mr-4 file:py-2 file:px-4 file:border file:border-[#E85A9A]/30 file:bg-[#E85A9A]/5 file:text-[#E85A9A] hover:file:bg-[#E85A9A]/10 file:transition-colors file:cursor-pointer cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               />
@@ -390,12 +408,43 @@ export default function BankTransferPaymentPage() {
               </p>
             </label>
 
-            {uploadingProof && (
-              <div className="mt-4 flex items-center gap-3">
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[#E85A9A]"></div>
-                <span className="text-sm text-gray-900/60">Subiendo comprobante...</span>
+            {/* Selected file info */}
+            {selectedFile && !uploadingProof && (
+              <div className="bg-blue-50 border border-blue-200 px-4 py-3 mb-4 rounded">
+                <div className="flex items-center gap-3">
+                  <svg className="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-gray-900">{selectedFile.name}</p>
+                    <p className="text-xs text-gray-600">
+                      {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                    </p>
+                  </div>
+                </div>
               </div>
             )}
+
+            {/* Submit button */}
+            <button
+              onClick={handleSubmitProof}
+              disabled={!selectedFile || uploadingProof}
+              className="w-full bg-[#E85A9A] text-white font-medium py-3 px-6 hover:bg-[#E85A9A]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[#E85A9A] flex items-center justify-center gap-2"
+            >
+              {uploadingProof ? (
+                <>
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  <span>Enviando...</span>
+                </>
+              ) : (
+                <>
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                  </svg>
+                  <span>Enviar comprobante</span>
+                </>
+              )}
+            </button>
           </div>
         )}
 
@@ -407,12 +456,14 @@ export default function BankTransferPaymentPage() {
           >
             Volver al Catálogo
           </Link>
-          <Link
-            href={`/track/${data.orderId}`}
-            className="flex-1 text-center bg-[#E85A9A] text-white px-6 py-3 hover:bg-[#E85A9A]/90 transition-colors"
-          >
-            Ver Estado del Pedido
-          </Link>
+          {data.trackingToken && (
+            <Link
+              href={`/track/${data.trackingToken}`}
+              className="flex-1 text-center bg-[#E85A9A] text-white px-6 py-3 hover:bg-[#E85A9A]/90 transition-colors"
+            >
+              Ver Estado del Pedido
+            </Link>
+          )}
         </div>
       </div>
     </div>

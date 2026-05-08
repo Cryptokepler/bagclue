@@ -160,6 +160,13 @@ export async function GET(req: NextRequest) {
       // DO NOT log CLABE or account numbers
     });
 
+    // Fetch order to get tracking_token (needed for /track link)
+    const { data: orderData } = await supabase
+      .from('orders')
+      .select('tracking_token')
+      .eq('id', transaction.order_id)
+      .single();
+
     const response = {
       transactionId: transaction.id,
       orderId: transaction.order_id,
@@ -167,6 +174,7 @@ export async function GET(req: NextRequest) {
       amountMxn: transaction.amount,
       expiresAt: transaction.expires_at,
       transactionStatus: transaction.status,
+      trackingToken: orderData?.tracking_token || null,
       bankConfig,
     };
 
