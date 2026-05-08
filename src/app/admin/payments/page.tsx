@@ -229,12 +229,12 @@ export default function AdminPaymentsPage() {
 
                   {/* Actions */}
                   <div className="md:col-span-5 flex flex-col gap-2">
-                    {payment.proofUrl && (
+                    {payment.proofUrl ? (
                       <a
                         href={payment.proofUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center justify-center gap-2 border border-gray-300 text-gray-700 px-4 py-2 hover:bg-gray-50 transition-colors text-sm font-medium"
+                        className="inline-flex items-center justify-center gap-2 border border-blue-500 text-blue-400 px-4 py-2 hover:bg-blue-900/30 transition-colors text-sm font-medium"
                       >
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -242,12 +242,24 @@ export default function AdminPaymentsPage() {
                         </svg>
                         Ver comprobante
                       </a>
+                    ) : (
+                      <button
+                        disabled
+                        className="inline-flex items-center justify-center gap-2 border border-gray-600 text-gray-500 px-4 py-2 cursor-not-allowed text-sm font-medium opacity-50"
+                      >
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                        Sin comprobante
+                      </button>
                     )}
 
                     <button
                       onClick={() => handleApprove(payment.transactionId, payment.amount)}
-                      disabled={!!processing}
+                      disabled={!!processing || !payment.proofUrl}
                       className="inline-flex items-center justify-center gap-2 bg-emerald-600 text-white px-4 py-2 hover:bg-emerald-700 transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                      title={!payment.proofUrl ? "No se puede aprobar sin comprobante" : ""}
                     >
                       {processing === payment.transactionId ? (
                         <>
