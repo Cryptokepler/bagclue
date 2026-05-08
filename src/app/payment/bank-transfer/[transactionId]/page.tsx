@@ -19,6 +19,7 @@ interface TransactionData {
   paymentReference: string
   amountMxn: number
   expiresAt: string
+  transactionStatus: string
   trackingToken: string | null
   bankConfig: BankConfig
 }
@@ -77,9 +78,15 @@ export default function BankTransferPaymentPage() {
           paymentReference: apiData.paymentReference,
           amountMxn: apiData.amountMxn,
           expiresAt: apiData.expiresAt,
+          transactionStatus: apiData.transactionStatus,
           trackingToken: apiData.trackingToken,
           bankConfig: apiData.bankConfig
         })
+        
+        // If proof already uploaded, mark as success
+        if (apiData.transactionStatus === 'proof_uploaded' || apiData.transactionStatus === 'awaiting_approval') {
+          setUploadSuccess(true)
+        }
       } catch (err: any) {
         console.error('[BankTransfer] Error loading data:', err)
         setError(err.message || 'Error al cargar datos de pago')
@@ -157,7 +164,21 @@ export default function BankTransferPaymentPage() {
 
       if (!res.ok) {
         const errorData = await res.json()
-        throw new Error(errorData.error || 'Error al subir comprobante')
+        
+        // Friendly error messages based on backend response
+        if (errorData.error === 'Invalid transaction status') {
+          if (data?.transactionStatus === 'proof_uploaded' || data?.transactionStatus === 'awaiting_approval') {
+            throw new Error('Ya recibimos un comprobante para esta transacción. Estamos validando tu pago.')
+          } else if (data?.transactionStatus === 'confirmed') {
+            throw new Error('Esta transacción ya fue confirmada.')
+          } else if (data?.transactionStatus === 'rejected') {
+            throw new Error('El comprobante anterior fue rechazado. Por favor, sube uno nuevo.')
+          } else {
+            throw new Error('No se puede subir comprobante para esta transacción.')
+          }
+        }
+        
+        throw new Error(errorData.message || errorData.error || 'Error al subir comprobante')
       }
 
       setUploadSuccess(true)
@@ -219,8 +240,8 @@ export default function BankTransferPaymentPage() {
           </p>
         </div>
 
-        {/* Success Upload Banner */}
-        {uploadSuccess && (
+        {/* Success Upload Banner - Proof Uploaded */}
+        {uploadSuccess && data.transactionStatus !== 'confirmed' && (
           <div className="bg-emerald-50 border border-emerald-200 p-6 mb-8">
             <div className="flex items-start gap-3">
               <svg className="w-6 h-6 text-emerald-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -231,7 +252,26 @@ export default function BankTransferPaymentPage() {
                   Comprobante recibido
                 </h3>
                 <p className="text-sm text-emerald-700">
-                  Nuestro equipo validará tu pago.
+                  Estamos validando tu pago. Te notificaremos cuando sea confirmado.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Payment Confirmed Banner */}
+        {data.transactionStatus === 'confirmed' && (
+          <div className="bg-green-50 border border-green-200 p-6 mb-8">
+            <div className="flex items-start gap-3">
+              <svg className="w-6 h-6 text-green-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div>
+                <h3 className="font-medium text-green-800 mb-1">
+                  Pago confirmado
+                </h3>
+                <p className="text-sm text-green-700">
+                  Tu compra fue confirmada. Prepararemos tu envío pronto.
                 </p>
               </div>
             </div>
@@ -379,14 +419,17 @@ export default function BankTransferPaymentPage() {
           )}
         </div>
 
-        {/* Upload Proof Section */}
-        {!uploadSuccess && !isExpired && (
+        {/* Upload Proof Section - Only show if status allows upload */}
+        {!uploadSuccess && !isExpired && (data.transactionStatus === 'pending' || data.transactionStatus === 'rejected') && (
           <div className="bg-white border-2 border-[#E85A9A]/20 p-6 md:p-8 mb-8">
             <h2 className="text-lg font-medium text-gray-900 mb-4">
-              Subir comprobante de pago
+              {data.transactionStatus === 'rejected' ? 'Subir nuevo comprobante' : 'Subir comprobante de pago'}
             </h2>
             <p className="text-sm text-gray-900/60 mb-6">
-              Una vez realizada tu transferencia, sube tu comprobante para que podamos validar tu pago.
+              {data.transactionStatus === 'rejected' 
+                ? 'El comprobante anterior fue rechazado. Por favor, sube un nuevo comprobante.'
+                : 'Una vez realizada tu transferencia, sube tu comprobante para que podamos validar tu pago.'
+              }
             </p>
 
             {uploadError && (
