@@ -85,14 +85,35 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const productId = order.product_id;
+    // Fetch order items to get product IDs (multi-item compatible)
+    const { data: orderItems, error: itemsError } = await supabase
+      .from('order_items')
+      .select('product_id, quantity')
+      .eq('order_id', orderId);
+
+    if (itemsError) {
+      console.error('[AdminVerify] Failed to fetch order items:', itemsError);
+      return NextResponse.json(
+        { error: 'Failed to fetch order items', message: itemsError.message },
+        { status: 500 }
+      );
+    }
+
+    if (!orderItems || orderItems.length === 0) {
+      return NextResponse.json(
+        { error: 'Order has no items' },
+        { status: 400 }
+      );
+    }
+
+    const productIds = orderItems.map(item => item.product_id);
 
     // 5. Handle APPROVE
     if (action === 'approve') {
       console.log('[AdminVerify] Approving payment:', {
         transactionId,
         orderId,
-        productId,
+        productIds,
       });
 
       // Update transaction: status = confirmed
@@ -132,20 +153,26 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      // Update product: status = sold
-      const statusUpdate = await updateProductStatus(productId, 'sold');
-      if (!statusUpdate.success) {
-        console.error('[AdminVerify] Failed to mark product as sold:', statusUpdate.error);
-        return NextResponse.json(
-          { error: 'Failed to mark product as sold', message: statusUpdate.error },
-          { status: 500 }
-        );
+      // Update products: status = sold (multi-item compatible)
+      for (const productId of productIds) {
+        const statusUpdate = await updateProductStatus(productId, 'sold');
+        if (!statusUpdate.success) {
+          console.error('[AdminVerify] Failed to mark product as sold:', {
+            productId,
+            error: statusUpdate.error,
+          });
+          return NextResponse.json(
+            { error: 'Failed to mark product as sold', message: statusUpdate.error },
+            { status: 500 }
+          );
+        }
       }
 
       console.log('[AdminVerify] Payment approved successfully:', {
         transactionId,
         orderId,
-        productId,
+        productIds,
+        productsCount: productIds.length,
         transactionStatus: 'confirmed',
         orderStatus: 'confirmed',
         productStatus: 'sold',
@@ -169,7 +196,7 @@ export async function POST(req: NextRequest) {
       console.log('[AdminVerify] Rejecting payment:', {
         transactionId,
         orderId,
-        productId,
+        productIds,
         reason: rejectionReason,
       });
 
@@ -193,20 +220,26 @@ export async function POST(req: NextRequest) {
       }
 
       // Order stays pending (no status change needed)
-      // Product: reserved → available
-      const statusUpdate = await updateProductStatus(productId, 'available');
-      if (!statusUpdate.success) {
-        console.error('[AdminVerify] Failed to unreserve product:', statusUpdate.error);
-        return NextResponse.json(
-          { error: 'Failed to unreserve product', message: statusUpdate.error },
-          { status: 500 }
-        );
+      // Products: reserved → available (multi-item compatible)
+      for (const productId of productIds) {
+        const statusUpdate = await updateProductStatus(productId, 'available');
+        if (!statusUpdate.success) {
+          console.error('[AdminVerify] Failed to unreserve product:', {
+            productId,
+            error: statusUpdate.error,
+          });
+          return NextResponse.json(
+            { error: 'Failed to unreserve product', message: statusUpdate.error },
+            { status: 500 }
+          );
+        }
       }
 
       console.log('[AdminVerify] Payment rejected successfully:', {
         transactionId,
         orderId,
-        productId,
+        productIds,
+        productsCount: productIds.length,
         transactionStatus: 'rejected',
         orderStatus: 'pending (unchanged)',
         productStatus: 'available',
