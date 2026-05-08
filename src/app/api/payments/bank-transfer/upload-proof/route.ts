@@ -4,7 +4,6 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { validateTransactionOwnership } from '@/lib/payment-ownership';
 import crypto from 'crypto';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -20,11 +19,14 @@ const ALLOWED_MIME_TYPES = [
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
 export async function POST(req: NextRequest) {
+  const supabase = createClient(supabaseUrl, supabaseServiceKey);
+  
   try {
     // 1. Parse form data
     const formData = await req.formData();
     const transactionId = formData.get('transactionId') as string;
     const file = formData.get('file') as File;
+    const trackingToken = formData.get('token') as string | null;
 
     if (!transactionId || !file) {
       return NextResponse.json(
@@ -64,7 +66,6 @@ export async function POST(req: NextRequest) {
 
     if (authHeader?.startsWith('Bearer ')) {
       const token = authHeader.substring(7);
-      const supabase = createClient(supabaseUrl, supabaseServiceKey);
       const { data: { user } } = await supabase.auth.getUser(token);
       userId = user?.id || null;
       customerEmail = user?.email || null;
@@ -75,16 +76,72 @@ export async function POST(req: NextRequest) {
       customerEmail = formData.get('customerEmail') as string | null;
     }
 
-    // 5. Validate ownership
-    const ownership = await validateTransactionOwnership(transactionId, userId, customerEmail);
-    if (!ownership.valid) {
+    // 5. Fetch transaction (needed for validation)
+    const { data: transaction, error: txError } = await supabase
+      .from('payment_transactions')
+      .select('id, order_id, status')
+      .eq('id', transactionId)
+      .single();
+
+    if (txError || !transaction) {
+      console.error('[UploadProof] Transaction not found:', transactionId);
       return NextResponse.json(
-        { error: ownership.error },
+        { error: 'No user identification provided' },
         { status: 403 }
       );
     }
 
-    const transaction = ownership.transaction!;
+    // 6. Validate ownership (3 methods: tracking_token, auth, customer_email)
+    let ownershipValid = false;
+
+    // Method 1: tracking_token (guest checkout - preferred)
+    if (trackingToken) {
+      const { data: order } = await supabase
+        .from('orders')
+        .select('tracking_token')
+        .eq('id', transaction.order_id)
+        .single();
+
+      if (order?.tracking_token === trackingToken) {
+        ownershipValid = true;
+        console.log('[UploadProof] Ownership validated via tracking_token');
+      }
+    }
+
+    // Method 2: Supabase auth (logged in user)
+    if (!ownershipValid && userId) {
+      const { data: order } = await supabase
+        .from('orders')
+        .select('user_id')
+        .eq('id', transaction.order_id)
+        .single();
+
+      if (order?.user_id === userId) {
+        ownershipValid = true;
+        console.log('[UploadProof] Ownership validated via user_id');
+      }
+    }
+
+    // Method 3: customer_email (fallback)
+    if (!ownershipValid && customerEmail) {
+      const { data: order } = await supabase
+        .from('orders')
+        .select('customer_email')
+        .eq('id', transaction.order_id)
+        .single();
+
+      if (order?.customer_email === customerEmail) {
+        ownershipValid = true;
+        console.log('[UploadProof] Ownership validated via customer_email');
+      }
+    }
+
+    if (!ownershipValid) {
+      return NextResponse.json(
+        { error: 'No user identification provided' },
+        { status: 403 }
+      );
+    }
 
     // 6. Validate transaction status (must be pending or rejected to allow upload)
     if (!['pending', 'rejected'].includes(transaction.status)) {
@@ -104,7 +161,6 @@ export async function POST(req: NextRequest) {
     const hash = crypto.createHash('sha256').update(buffer).digest('hex');
 
     // 8. Check for duplicate hash (best effort)
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
     const { data: existingProof } = await supabase
       .from('payment_transactions')
       .select('id, proof_hash')
@@ -184,7 +240,7 @@ export async function POST(req: NextRequest) {
       fileName,
       fileSize: file.size,
       fileType: file.type,
-      hash,
+      // Note: Do not log tracking_token, customer_email, or hash for security
     });
 
     // TODO: Email integration point - send "proof received" confirmation email

@@ -127,6 +127,11 @@ export default function BankTransferPaymentPage() {
       const formData = new FormData()
       formData.append('file', file)
       formData.append('transactionId', transactionId)
+      
+      // Include tracking_token for guest checkout ownership validation
+      if (trackingToken) {
+        formData.append('token', trackingToken)
+      }
 
       const res = await fetch('/api/payments/bank-transfer/upload-proof', {
         method: 'POST',
