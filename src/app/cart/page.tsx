@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabaseCustomer } from '@/lib/supabase-customer'
 
+type PaymentMethod = 'stripe' | 'bank_transfer'
+
 export default function CartPage() {
   const { items, removeFromCart, clearCart, cartTotal } = useCart()
   const router = useRouter()
@@ -16,6 +18,7 @@ export default function CartPage() {
   const [customerPhone, setCustomerPhone] = useState('')
   const [user, setUser] = useState<any>(null)
   const [loadingUser, setLoadingUser] = useState(true)
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('stripe')
 
   // Load user data if logged in
   useEffect(() => {
@@ -87,27 +90,62 @@ export default function CartPage() {
         finalName = customerEmail.split('@')[0]
       }
 
-      const res = await fetch('/api/checkout/create-session', {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({
-          items: items.map(item => ({ product_id: item.product_id })),
-          customer_name: finalName,
-          customer_email: customerEmail,
-          customer_phone: customerPhone || undefined
+      if (paymentMethod === 'bank_transfer') {
+        // Bank Transfer MXN flow (MVP.2B)
+        // Only works with 1 product
+        if (items.length !== 1) {
+          setError('La transferencia bancaria requiere exactamente 1 producto')
+          setLoading(false)
+          return
+        }
+
+        const product = items[0]
+
+        const res = await fetch('/api/payments/bank-transfer/order', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            productId: product.product_id,
+            customerName: finalName,
+            customerEmail: customerEmail,
+            customerPhone: customerPhone || undefined
+          })
         })
-      })
 
-      const data = await res.json()
+        const data = await res.json()
 
-      if (!res.ok) {
-        setError(data.error || 'Error al crear sesión de pago')
-        setLoading(false)
-        return
+        if (!res.ok) {
+          setError(data.error || 'Error al crear orden de transferencia')
+          setLoading(false)
+          return
+        }
+
+        // Redirect to bank transfer instructions page
+        router.push(`/payment/bank-transfer/${data.transactionId}`)
+      } else {
+        // Stripe checkout flow (existing)
+        const res = await fetch('/api/checkout/create-session', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            items: items.map(item => ({ product_id: item.product_id })),
+            customer_name: finalName,
+            customer_email: customerEmail,
+            customer_phone: customerPhone || undefined
+          })
+        })
+
+        const data = await res.json()
+
+        if (!res.ok) {
+          setError(data.error || 'Error al crear sesión de pago')
+          setLoading(false)
+          return
+        }
+
+        // Redirect to Stripe Checkout
+        window.location.href = data.url
       }
-
-      // Redirigir a Stripe Checkout
-      window.location.href = data.url
     } catch (err) {
       setError('Error de conexión')
       setLoading(false)
@@ -134,6 +172,12 @@ export default function CartPage() {
       </div>
     )
   }
+
+  // Determine if bank transfer is available
+  const bankTransferAvailable = items.length === 1
+  const bankTransferDisabledReason = items.length > 1
+    ? 'La transferencia bancaria está disponible para una pieza por pedido. Para múltiples piezas, contáctanos o usa tarjeta.'
+    : null
 
   return (
     <div className="pt-28 pb-24">
@@ -303,6 +347,79 @@ export default function CartPage() {
             </div>
           )}
 
+          {/* Payment Method Selector (MVP.2B) */}
+          <div className="bg-white border border-[#E85A9A]/20 p-6">
+            <h2 className="text-lg font-medium text-gray-900 mb-4">
+              Método de pago
+            </h2>
+            <div className="space-y-3">
+              {/* Stripe / Tarjeta */}
+              <label className={`flex items-start gap-3 p-4 border-2 cursor-pointer transition-colors ${
+                paymentMethod === 'stripe'
+                  ? 'border-[#E85A9A] bg-[#E85A9A]/5'
+                  : 'border-[#E85A9A]/20 hover:border-[#E85A9A]/40'
+              }`}>
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  value="stripe"
+                  checked={paymentMethod === 'stripe'}
+                  onChange={() => setPaymentMethod('stripe')}
+                  className="mt-1"
+                />
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <svg className="w-5 h-5 text-gray-900" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                    </svg>
+                    <span className="font-medium text-gray-900">Tarjeta de crédito o débito</span>
+                  </div>
+                  <p className="text-xs text-gray-900/60">
+                    Pago seguro con Stripe. Confirmación inmediata.
+                  </p>
+                </div>
+              </label>
+
+              {/* Bank Transfer MXN */}
+              <label className={`flex items-start gap-3 p-4 border-2 transition-colors ${
+                !bankTransferAvailable
+                  ? 'border-[#E85A9A]/10 bg-gray-50 cursor-not-allowed'
+                  : paymentMethod === 'bank_transfer'
+                  ? 'border-[#E85A9A] bg-[#E85A9A]/5 cursor-pointer'
+                  : 'border-[#E85A9A]/20 hover:border-[#E85A9A]/40 cursor-pointer'
+              }`}>
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  value="bank_transfer"
+                  checked={paymentMethod === 'bank_transfer'}
+                  onChange={() => setPaymentMethod('bank_transfer')}
+                  disabled={!bankTransferAvailable}
+                  className="mt-1"
+                />
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <svg className={`w-5 h-5 ${!bankTransferAvailable ? 'text-gray-400' : 'text-gray-900'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
+                    </svg>
+                    <span className={`font-medium ${!bankTransferAvailable ? 'text-gray-400' : 'text-gray-900'}`}>
+                      Transferencia bancaria MXN
+                    </span>
+                  </div>
+                  {bankTransferDisabledReason ? (
+                    <p className="text-xs text-amber-600 font-medium">
+                      {bankTransferDisabledReason}
+                    </p>
+                  ) : (
+                    <p className="text-xs text-gray-900/60">
+                      Tu pieza queda reservada mientras validamos tu pago.
+                    </p>
+                  )}
+                </div>
+              </label>
+            </div>
+          </div>
+
           {error && (
             <div className="bg-red-500/10 border border-red-500/30 text-red-500 px-4 py-3 text-sm">
               {error}
@@ -314,11 +431,14 @@ export default function CartPage() {
             disabled={loading}
             className="w-full bg-[#E85A9A] text-white font-medium py-4 hover:bg-[#E85A9A]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? 'Procesando...' : 'Pagar Ahora'}
+            {loading ? 'Procesando...' : paymentMethod === 'stripe' ? 'Pagar Ahora' : 'Continuar con Transferencia'}
           </button>
 
           <p className="text-xs text-gray-900/40 text-center">
-            Serás redirigido a Stripe para completar el pago de forma segura
+            {paymentMethod === 'stripe'
+              ? 'Serás redirigido a Stripe para completar el pago de forma segura'
+              : 'Recibirás las instrucciones bancarias para realizar tu transferencia'
+            }
           </p>
         </form>
       </div>
