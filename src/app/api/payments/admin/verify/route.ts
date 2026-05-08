@@ -101,7 +101,7 @@ export async function POST(req: NextRequest) {
         .update({
           status: 'confirmed',
           confirmed_at: new Date().toISOString(),
-          confirmed_by: 'admin', // Could be enhanced with admin user ID
+          confirmed_by: null, // MVP.2A: iron-session admin has no auth.users UUID
         })
         .eq('id', transactionId);
 
@@ -179,7 +179,7 @@ export async function POST(req: NextRequest) {
         .update({
           status: 'rejected',
           rejected_at: new Date().toISOString(),
-          rejected_by: 'admin', // Could be enhanced with admin user ID
+          rejected_by: null, // MVP.2A: iron-session admin has no auth.users UUID
           rejection_reason: rejectionReason,
         })
         .eq('id', transactionId);
