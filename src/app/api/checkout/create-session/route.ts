@@ -82,18 +82,9 @@ export async function POST(request: NextRequest) {
         }, { status: 400 })
       }
 
-      // Marcar producto como reserved INMEDIATAMENTE
-      const { error: updateError } = await supabaseAdmin
-        .from('products')
-        .update({ status: 'reserved' })
-        .eq('id', product.id)
-
-      if (updateError) {
-        console.error('Error reserving product:', updateError)
-        return NextResponse.json({ 
-          error: `No se pudo reservar el producto ${product.title}` 
-        }, { status: 500 })
-      }
+      // FIX 1: NO marcar como reserved al crear session
+      // Producto solo cambia a 'sold' cuando webhook confirma pago
+      // Esto evita productos bloqueados por checkouts abandonados
 
       validatedItems.push({
         product_id: product.id,
