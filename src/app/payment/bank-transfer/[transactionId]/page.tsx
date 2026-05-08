@@ -249,10 +249,10 @@ export default function BankTransferPaymentPage() {
               </svg>
               <div>
                 <h3 className="font-medium text-emerald-800 mb-1">
-                  Comprobante recibido
+                  Pago en revisión
                 </h3>
                 <p className="text-sm text-emerald-700">
-                  Estamos validando tu pago. Te notificaremos cuando sea confirmado.
+                  Recibimos tu comprobante. Nuestro equipo validará el pago en banco.
                 </p>
               </div>
             </div>

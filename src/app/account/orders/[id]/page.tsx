@@ -374,10 +374,20 @@ export default function OrderDetailPage() {
               </svg>
               <div className="flex-1">
                 <h3 className="text-lg font-medium text-amber-900 mb-2">
-                  Pago por transferencia bancaria pendiente
+                  {bankTransferData.transactionStatus === 'proof_uploaded' || bankTransferData.transactionStatus === 'awaiting_approval'
+                    ? 'Pago en revisión'
+                    : bankTransferData.transactionStatus === 'pending'
+                    ? 'Esperando pago'
+                    : 'Pago por transferencia bancaria'
+                  }
                 </h3>
                 <p className="text-sm text-amber-800 mb-4">
-                  Completa tu transferencia para confirmar tu compra. Tu pieza queda reservada mientras validamos tu pago.
+                  {bankTransferData.transactionStatus === 'proof_uploaded' || bankTransferData.transactionStatus === 'awaiting_approval'
+                    ? 'Recibimos tu comprobante. Nuestro equipo validará el pago en banco.'
+                    : bankTransferData.transactionStatus === 'pending'
+                    ? 'Realiza tu transferencia y sube el comprobante para que podamos validarlo.'
+                    : 'Completa tu transferencia para confirmar tu compra.'
+                  }
                 </p>
 
                 {/* Bank Details */}
@@ -441,9 +451,9 @@ export default function OrderDetailPage() {
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        Comprobante recibido
+                        Pago en revisión
                       </span>
-                      <p className="text-xs text-gray-600">Estamos validando tu pago</p>
+                      <p className="text-xs text-gray-600">Nuestro equipo validará el pago en banco</p>
                     </div>
                   )}
                   {bankTransferData.transactionStatus === 'rejected' && (
