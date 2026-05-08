@@ -120,8 +120,8 @@ export default function CartPage() {
           return
         }
 
-        // Redirect to bank transfer instructions page
-        router.push(`/payment/bank-transfer/${data.transactionId}`)
+        // Redirect to bank transfer instructions page with tracking token
+        router.push(`/payment/bank-transfer/${data.transactionId}?token=${data.trackingToken}`)
       } else {
         // Stripe checkout flow (existing)
         const res = await fetch('/api/checkout/create-session', {

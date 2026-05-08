@@ -158,6 +158,7 @@ export default function OrderDetailPage() {
   const [order, setOrder] = useState<any>(null)
   const [userEmail, setUserEmail] = useState<string>('')
   const [notFound, setNotFound] = useState(false)
+  const [bankTransferData, setBankTransferData] = useState<any>(null)
 
   useEffect(() => {
     const loadOrder = async () => {
@@ -203,6 +204,31 @@ export default function OrderDetailPage() {
         }
         
         setOrder(orderData)
+        
+        // If payment method is bank transfer, fetch transaction data
+        if (orderData.payment_method === 'bank_transfer_mxn' && orderData.tracking_token) {
+          try {
+            const { data: { session } } = await supabaseCustomer.auth.getSession()
+            const headers: HeadersInit = {}
+            
+            if (session?.access_token) {
+              headers['Authorization'] = `Bearer ${session.access_token}`
+            }
+
+            const configUrl = `/api/payments/bank-transfer/config?order_id=${orderId}&token=${encodeURIComponent(orderData.tracking_token)}`
+            const configRes = await fetch(configUrl, { headers })
+
+            if (configRes.ok) {
+              const configData = await configRes.json()
+              setBankTransferData(configData)
+            } else {
+              console.error('[ORDER DETAIL] Failed to fetch bank transfer config')
+            }
+          } catch (err) {
+            console.error('[ORDER DETAIL] Error fetching bank transfer data:', err)
+          }
+        }
+        
         setLoading(false)
       } catch (error) {
         console.error('[ORDER DETAIL] Unexpected error:', error)
@@ -339,6 +365,115 @@ export default function OrderDetailPage() {
           )}
         </div>
 
+        {/* Bank Transfer Payment Block - Show if payment_method is bank_transfer_mxn */}
+        {order.payment_method === 'bank_transfer_mxn' && order.payment_status === 'pending' && bankTransferData && (
+          <div className="bg-amber-50 border-2 border-amber-200 rounded-lg p-6 mb-6">
+            <div className="flex items-start gap-3 mb-4">
+              <svg className="w-6 h-6 text-amber-600 flex-shrink-0 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div className="flex-1">
+                <h3 className="text-lg font-medium text-amber-900 mb-2">
+                  Pago por transferencia bancaria pendiente
+                </h3>
+                <p className="text-sm text-amber-800 mb-4">
+                  Completa tu transferencia para confirmar tu compra. Tu pieza queda reservada mientras validamos tu pago.
+                </p>
+
+                {/* Bank Details */}
+                <div className="bg-white border border-amber-200 rounded-lg p-4 mb-4 space-y-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                    <div>
+                      <p className="text-gray-600 text-xs mb-1">Monto</p>
+                      <p className="font-medium text-gray-900">${bankTransferData.amountMxn.toLocaleString()} MXN</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-600 text-xs mb-1">Banco</p>
+                      <p className="font-medium text-gray-900">{bankTransferData.bankConfig.bankName}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-600 text-xs mb-1">Titular</p>
+                      <p className="font-medium text-gray-900">{bankTransferData.bankConfig.accountHolder}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-600 text-xs mb-1">CLABE</p>
+                      <p className="font-mono text-sm font-medium text-gray-900">****{bankTransferData.bankConfig.clabe.slice(-4)}</p>
+                    </div>
+                  </div>
+
+                  <div className="pt-3 border-t border-amber-100">
+                    <p className="text-gray-600 text-xs mb-1">Referencia de pago</p>
+                    <p className="font-mono text-sm font-bold text-gray-900">{bankTransferData.paymentReference}</p>
+                  </div>
+
+                  {bankTransferData.expiresAt && (
+                    <div className="pt-3 border-t border-amber-100">
+                      <p className="text-gray-600 text-xs mb-1">Válido hasta</p>
+                      <p className="text-sm text-gray-900">
+                        {new Date(bankTransferData.expiresAt).toLocaleString('es-MX', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Proof Status */}
+                <div className="bg-white border border-amber-200 rounded-lg p-4 mb-4">
+                  <p className="text-xs text-gray-600 mb-2">Estado del comprobante</p>
+                  {bankTransferData.transactionStatus === 'pending' && (
+                    <div className="flex items-center gap-2">
+                      <span className="inline-flex items-center gap-1.5 text-sm px-3 py-1.5 rounded bg-gray-100 text-gray-700 border border-gray-300">
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Esperando comprobante
+                      </span>
+                    </div>
+                  )}
+                  {(bankTransferData.transactionStatus === 'proof_uploaded' || bankTransferData.transactionStatus === 'awaiting_approval') && (
+                    <div className="flex items-center gap-2">
+                      <span className="inline-flex items-center gap-1.5 text-sm px-3 py-1.5 rounded bg-blue-100 text-blue-700 border border-blue-300">
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Comprobante recibido
+                      </span>
+                      <p className="text-xs text-gray-600">Estamos validando tu pago</p>
+                    </div>
+                  )}
+                  {bankTransferData.transactionStatus === 'rejected' && (
+                    <div className="flex items-center gap-2">
+                      <span className="inline-flex items-center gap-1.5 text-sm px-3 py-1.5 rounded bg-red-100 text-red-700 border border-red-300">
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                        Comprobante rechazado
+                      </span>
+                      <p className="text-xs text-gray-600">Por favor sube un nuevo comprobante</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* CTA - Link to payment instructions */}
+                <Link
+                  href={`/payment/bank-transfer/${bankTransferData.transactionId}?token=${encodeURIComponent(order.tracking_token)}`}
+                  className="inline-flex items-center gap-2 bg-[#FF69B4] text-white px-6 py-3 text-sm font-medium hover:bg-[#FF69B4]/90 transition-colors rounded"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Ver instrucciones de pago completas
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Payment Status */}
         <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6">
           <h3 className="text-lg font-medium text-gray-900 mb-4">Estado del pago</h3>
@@ -352,9 +487,17 @@ export default function OrderDetailPage() {
               {order.payment_status === 'paid' ? '✓ Pagado' : '⏳ Pendiente'}
             </span>
             
-            {order.payment_status === 'paid' && (
+            {order.payment_status === 'paid' ? (
               <p className="text-sm text-gray-600">
                 Pago procesado correctamente
+              </p>
+            ) : order.payment_method === 'bank_transfer_mxn' ? (
+              <p className="text-sm text-gray-600">
+                Esperando confirmación de transferencia bancaria
+              </p>
+            ) : (
+              <p className="text-sm text-gray-600">
+                Esperando pago
               </p>
             )}
           </div>

@@ -122,6 +122,7 @@ export async function POST(req: NextRequest) {
         total: product.price,
         payment_status: 'pending',
         status: 'pending',
+        payment_method: 'bank_transfer_mxn',
         tracking_token: trackingToken,
         created_at: new Date().toISOString(),
       })
@@ -224,6 +225,7 @@ export async function POST(req: NextRequest) {
     const response: CreateBankOrderResponse = {
       orderId: order.id,
       transactionId: transaction.id,
+      trackingToken: order.tracking_token,
       paymentReference,
       amountMxn: product.price,
       expiresAt: expiresAt.toISOString(),

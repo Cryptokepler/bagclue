@@ -10,6 +10,7 @@ interface TimelineEvent {
 interface OrderTimelineProps {
   order: {
     created_at: string
+    payment_status: string
     shipping_status: string
     shipped_at?: string | null
     delivered_at?: string | null
@@ -20,38 +21,40 @@ interface OrderTimelineProps {
 export default function OrderTimeline({ order }: OrderTimelineProps) {
   const events: TimelineEvent[] = []
 
-  // 1. Pago confirmado (siempre completed)
+  // 1. Pago - Show "Esperando pago" if pending, "Pago confirmado" if paid
+  const isPaid = order.payment_status === 'paid'
   events.push({
-    status: 'completed',
-    label: 'Pago confirmado',
-    icon: '✅',
-    date: formatDate(order.created_at),
-    color: 'text-emerald-500'
+    status: isPaid ? 'completed' : 'current',
+    label: isPaid ? 'Pago confirmado' : 'Esperando pago',
+    icon: isPaid ? '✅' : '⏳',
+    date: isPaid ? formatDate(order.created_at) : undefined,
+    description: isPaid ? undefined : 'Pago pendiente de confirmación',
+    color: isPaid ? 'text-emerald-500' : 'text-amber-500'
   })
 
-  // 2. Preparando envío
-  const isPreparing = ['preparing', 'shipped', 'delivered'].includes(order.shipping_status)
+  // 2. Preparando envío - Only show progress if payment is confirmed
+  const isPreparing = isPaid && ['preparing', 'shipped', 'delivered'].includes(order.shipping_status)
   events.push({
-    status: isPreparing ? 'completed' : order.shipping_status === 'pending' ? 'current' : 'pending',
+    status: isPreparing ? 'completed' : isPaid && order.shipping_status === 'pending' ? 'current' : 'pending',
     label: 'Preparando envío',
-    icon: isPreparing ? '✅' : order.shipping_status === 'pending' ? '🔄' : '⏸️',
+    icon: isPreparing ? '✅' : isPaid && order.shipping_status === 'pending' ? '🔄' : '⏸️',
     date: isPreparing ? 'Preparado' : undefined,
     color: isPreparing ? 'text-blue-500' : 'text-gray-400'
   })
 
   // 3. Enviado
-  const isShipped = ['shipped', 'delivered'].includes(order.shipping_status)
+  const isShipped = isPaid && ['shipped', 'delivered'].includes(order.shipping_status)
   events.push({
-    status: isShipped ? 'completed' : order.shipping_status === 'preparing' ? 'current' : 'pending',
+    status: isShipped ? 'completed' : isPaid && order.shipping_status === 'preparing' ? 'current' : 'pending',
     label: 'Enviado',
-    icon: isShipped ? '✅' : order.shipping_status === 'preparing' ? '🔄' : '⏸️',
+    icon: isShipped ? '✅' : isPaid && order.shipping_status === 'preparing' ? '🔄' : '⏸️',
     date: isShipped && order.shipped_at ? formatDate(order.shipped_at) : undefined,
     description: isShipped && order.tracking_number ? `Guía: ${order.tracking_number}` : undefined,
     color: isShipped ? 'text-purple-500' : 'text-gray-400'
   })
 
   // 4. Entregado
-  const isDelivered = order.shipping_status === 'delivered'
+  const isDelivered = isPaid && order.shipping_status === 'delivered'
   events.push({
     status: isDelivered ? 'completed' : isShipped && !isDelivered ? 'current' : 'pending',
     label: 'Entregado',

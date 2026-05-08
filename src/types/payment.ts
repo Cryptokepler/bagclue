@@ -19,6 +19,7 @@ export interface CreateBankOrderRequest {
 export interface CreateBankOrderResponse {
   orderId: string;
   transactionId: string;
+  trackingToken: string;
   paymentReference: string;
   amountMxn: number;
   expiresAt: string;

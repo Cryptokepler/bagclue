@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { supabaseCustomer } from '@/lib/supabase-customer'
 
@@ -25,7 +25,9 @@ interface TransactionData {
 export default function BankTransferPaymentPage() {
   const params = useParams()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const transactionId = params?.transactionId as string
+  const trackingToken = searchParams?.get('token')
 
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -41,6 +43,11 @@ export default function BankTransferPaymentPage() {
 
     async function fetchTransactionData() {
       try {
+        // Validate tracking token presence
+        if (!trackingToken) {
+          throw new Error('No pudimos validar esta transacción. Revisa el enlace de pago o entra a tu cuenta.')
+        }
+
         // Get session token if available
         const { data: { session } } = await supabaseCustomer.auth.getSession()
         const headers: HeadersInit = {}
@@ -49,37 +56,26 @@ export default function BankTransferPaymentPage() {
           headers['Authorization'] = `Bearer ${session.access_token}`
         }
 
-        // Fetch bank config for this transaction
-        // Note: Backend validates ownership via customer_email or user_id
-        const res = await fetch(`/api/payments/bank-transfer/config?transaction_id=${transactionId}`, {
-          headers
-        })
+        // Fetch bank config and transaction data via API
+        // Backend validates ownership via tracking_token
+        const url = `/api/payments/bank-transfer/config?transaction_id=${transactionId}&token=${encodeURIComponent(trackingToken)}`
+        const res = await fetch(url, { headers })
 
         if (!res.ok) {
           const errorData = await res.json()
           throw new Error(errorData.error || 'Error al cargar datos de pago')
         }
 
-        const configData = await res.json()
+        const apiData = await res.json()
         
-        // Fetch transaction details from payment_transactions
-        const { data: transaction } = await supabaseCustomer
-          .from('payment_transactions')
-          .select('id, order_id, payment_reference, amount, expires_at')
-          .eq('id', transactionId)
-          .single()
-
-        if (!transaction) {
-          throw new Error('Transacción no encontrada')
-        }
-
+        // API now returns complete transaction data
         setData({
-          transactionId: transaction.id,
-          orderId: transaction.order_id,
-          paymentReference: transaction.payment_reference,
-          amountMxn: transaction.amount,
-          expiresAt: transaction.expires_at,
-          bankConfig: configData.bankConfig
+          transactionId: apiData.transactionId,
+          orderId: apiData.orderId,
+          paymentReference: apiData.paymentReference,
+          amountMxn: apiData.amountMxn,
+          expiresAt: apiData.expiresAt,
+          bankConfig: apiData.bankConfig
         })
       } catch (err: any) {
         console.error('[BankTransfer] Error loading data:', err)
@@ -90,7 +86,7 @@ export default function BankTransferPaymentPage() {
     }
 
     fetchTransactionData()
-  }, [transactionId])
+  }, [transactionId, trackingToken])
 
   const copyToClipboard = async (text: string, type: 'clabe' | 'reference') => {
     try {
