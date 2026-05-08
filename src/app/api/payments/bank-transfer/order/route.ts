@@ -17,6 +17,12 @@ import type { CreateBankOrderRequest, CreateBankOrderResponse } from '@/types/pa
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
+// Mask payment reference for logs (security)
+function maskPaymentReference(ref: string): string {
+  if (!ref) return '';
+  return `****${ref.slice(-4)}`;
+}
+
 // Generate unique tracking token (same as Stripe webhook)
 async function generateUniqueTrackingToken(supabase: any): Promise<string> {
   const maxAttempts = 5;
@@ -211,7 +217,7 @@ export async function POST(req: NextRequest) {
     createdTransactionId = transaction.id;
     console.log('[BankTransfer] Transaction created:', {
       transactionId: transaction.id,
-      reference: paymentReference,
+      reference: maskPaymentReference(paymentReference),
     });
 
     // 9. Return response with bank config
