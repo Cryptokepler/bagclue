@@ -182,10 +182,12 @@ export async function POST(req: NextRequest) {
       .from('payment_transactions')
       .insert({
         order_id: order.id,
+        payment_type: 'full_purchase',
         payment_method: 'bank_transfer_mxn',
-        status: 'pending',
         currency: 'MXN',
+        amount: product.price,
         amount_mxn: product.price,
+        status: 'pending',
         payment_reference: paymentReference,
         expires_at: expiresAt.toISOString(),
       })
