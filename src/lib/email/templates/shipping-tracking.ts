@@ -176,11 +176,11 @@ export function generateShippingTrackingHTML(params: ShippingTrackingParams): st
     
     <div class="card">
       <div class="icon">🚚</div>
-      <h1>Tu Pedido Ha Sido Enviado</h1>
+      <h1>Tu Pieza Bagclue Va en Camino</h1>
       
       <p>Hola ${params.customerName},</p>
       
-      <p>Excelentes noticias: tu pedido ha sido enviado y está en camino.</p>
+      <p>Excelentes noticias: tu pieza Bagclue ha sido enviada y está en camino hacia ti.</p>
       
       <div class="status">✓ En Tránsito</div>
       

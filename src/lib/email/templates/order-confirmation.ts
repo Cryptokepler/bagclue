@@ -1,15 +1,17 @@
 /**
- * Template: Confirmación de Compra
- * Trigger: payment_status = paid
+ * Template: Confirmación de Compra (Stripe)
+ * Trigger: Stripe webhook checkout.session.completed, payment_status = paid
+ * Alineado con bank-transfer-confirmed (tono premium Bagclue)
  */
 
 interface OrderConfirmationParams {
   customerName: string;
   orderId: string;
   productName: string;
+  productBrand?: string;
   totalAmount: number;
   currency: string;
-  orderUrl: string;
+  trackingUrl: string; // /track/[tracking_token]
 }
 
 export function generateOrderConfirmationHTML(params: OrderConfirmationParams): string {
@@ -150,11 +152,13 @@ export function generateOrderConfirmationHTML(params: OrderConfirmationParams): 
     </div>
     
     <div class="card">
-      <h1>✅ Compra Confirmada</h1>
+      <h1>✨ Pago Confirmado — Tu Pieza es Tuya</h1>
       
       <p>Hola ${params.customerName},</p>
       
-      <p>Tu pago ha sido confirmado exitosamente. Gracias por tu compra en Bagclue.</p>
+      <p><strong>Tu pago fue verificado. Tu pieza Bagclue es tuya.</strong></p>
+      
+      <p>Prepararemos tu envío para que llegue a ti en las mejores condiciones.</p>
       
       <div class="status">✓ Pago Confirmado</div>
       
@@ -165,7 +169,7 @@ export function generateOrderConfirmationHTML(params: OrderConfirmationParams): 
         </div>
         <div class="detail-row">
           <span class="detail-label">Producto</span>
-          <span class="detail-value">${params.productName}</span>
+          <span class="detail-value">${params.productName}${params.productBrand ? ` (${params.productBrand})` : ''}</span>
         </div>
         <div class="detail-row total">
           <span class="detail-label">Total Pagado</span>
@@ -173,12 +177,12 @@ export function generateOrderConfirmationHTML(params: OrderConfirmationParams): 
         </div>
       </div>
       
-      <p><strong>Próximo paso:</strong> Confirma tu dirección de envío para que podamos preparar tu pedido.</p>
+      <p><strong>Próximo paso:</strong> Si aún no lo has hecho, confirma tu dirección de envío para recibir tu pieza.</p>
       
-      <a href="${params.orderUrl}" class="button">Confirmar Dirección de Envío</a>
+      <a href="${params.trackingUrl}" class="button">Ver Seguimiento</a>
       
       <p style="font-size: 14px; color: #666; margin-top: 24px;">
-        Recibirás una notificación cuando tu pedido sea enviado con el número de seguimiento.
+        Te notificaremos cuando tu pedido sea enviado con el número de rastreo.
       </p>
     </div>
     

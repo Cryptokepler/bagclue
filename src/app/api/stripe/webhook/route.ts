@@ -245,24 +245,30 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   try {
     const { sendOrderConfirmationEmail } = await import('@/lib/email/mailer')
     
-    // Obtener product name desde order_items
+    // Obtener product name y brand desde order_items
     const { data: items } = await supabaseAdmin
       .from('order_items')
       .select('product_snapshot')
       .eq('order_id', order_id)
       .limit(1)
     
-    const productName = items?.[0]?.product_snapshot?.title || 'Tu compra'
-    const orderUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://bagclue.vercel.app'}/account/orders/${order_id}`
+    const productSnapshot = items?.[0]?.product_snapshot
+    const productName = productSnapshot?.title || 'Tu compra'
+    const productBrand = productSnapshot?.brand || undefined
+    
+    // Usar tracking_token para link directo (funciona para guest y usuario logueado)
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://bagclue.vercel.app'
+    const trackingUrl = `${baseUrl}/track/${updatedOrder.tracking_token}`
     
     const emailSent = await sendOrderConfirmationEmail({
       to: updatedOrder.customer_email,
       customerName: updatedOrder.customer_name,
-      orderId: order_id,
+      orderId: order_id.slice(0, 8), // Primeros 8 chars como otros emails
       productName,
+      productBrand,
       totalAmount: updatedOrder.total,
       currency: 'MXN',
-      orderUrl
+      trackingUrl
     })
     
     console.log(`[WEBHOOK] Email confirmation sent: ${emailSent}`)

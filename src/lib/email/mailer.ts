@@ -125,9 +125,10 @@ export async function sendOrderConfirmationEmail(params: {
   customerName?: string;
   orderId: string;
   productName: string;
+  productBrand?: string;
   totalAmount: number;
   currency: string;
-  orderUrl: string;
+  trackingUrl: string;
 }): Promise<boolean> {
   const { generateOrderConfirmationHTML } = await import('./templates/order-confirmation');
   
@@ -135,16 +136,17 @@ export async function sendOrderConfirmationEmail(params: {
     customerName: params.customerName || 'Cliente',
     orderId: params.orderId,
     productName: params.productName,
+    productBrand: params.productBrand,
     totalAmount: params.totalAmount,
     currency: params.currency,
-    orderUrl: params.orderUrl,
+    trackingUrl: params.trackingUrl,
   });
 
   return sendEmail({
     to: params.to,
-    subject: `✅ Confirmación de compra — Pedido #${params.orderId}`,
+    subject: 'Pago confirmado — tu pieza Bagclue es tuya',
     html,
-    text: `Tu compra ha sido confirmada. Pedido #${params.orderId}. Total: ${params.totalAmount} ${params.currency}.`,
+    text: `Tu pago fue verificado. Tu pieza Bagclue es tuya. Pedido #${params.orderId}. Total: ${params.totalAmount} ${params.currency}.`,
   });
 }
 
@@ -208,9 +210,9 @@ export async function sendShippingTrackingEmail(params: {
 
   return sendEmail({
     to: params.to,
-    subject: `🚚 Tu pedido #${params.orderId} ha sido enviado`,
+    subject: 'Tu pieza Bagclue va en camino',
     html,
-    text: `Tu pedido ha sido enviado. Paquetería: ${params.shippingProvider}. Tracking: ${params.trackingNumber}.`,
+    text: `Tu pieza Bagclue va en camino. Paquetería: ${params.shippingProvider}. Tracking: ${params.trackingNumber}.`,
   });
 }
 
