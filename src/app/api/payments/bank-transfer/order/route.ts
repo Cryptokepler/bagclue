@@ -23,6 +23,12 @@ function maskPaymentReference(ref: string): string {
   return `****${ref.slice(-4)}`;
 }
 
+// Mask tracking token for logs (security)
+function maskToken(token?: string | null): string | null {
+  if (!token) return null;
+  return `${token.slice(0, 6)}...${token.slice(-4)}`;
+}
+
 // Generate unique tracking token (same as Stripe webhook)
 async function generateUniqueTrackingToken(supabase: any): Promise<string> {
   const maxAttempts = 5;
@@ -144,7 +150,7 @@ export async function POST(req: NextRequest) {
     createdOrderId = order.id;
     console.log('[BankTransfer] Order created:', {
       orderId: order.id,
-      trackingToken: order.tracking_token,
+      trackingToken: maskToken(order.tracking_token),
     });
 
     // 7. Create order_items with product_snapshot (following Stripe pattern)
@@ -235,7 +241,7 @@ export async function POST(req: NextRequest) {
     console.log('[BankTransfer] Order created successfully:', {
       orderId: order.id,
       transactionId: transaction.id,
-      trackingToken: order.tracking_token,
+      trackingToken: maskToken(order.tracking_token),
       productStatus: 'reserved',
     });
 
