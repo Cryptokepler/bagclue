@@ -178,8 +178,35 @@ export async function POST(req: NextRequest) {
         productStatus: 'sold',
       });
 
-      // TODO: Email integration point - send "payment confirmed" email
-      // Email should include: order details, next steps (shipping preparation)
+      // Send payment confirmed email (non-blocking)
+      // Fetch order_items for product details
+      const { data: orderItems } = await supabase
+        .from('order_items')
+        .select('product_snapshot')
+        .eq('order_id', orderId)
+        .limit(1)
+        .single();
+
+      if (orderItems?.product_snapshot) {
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://bagclue.vercel.app';
+        const trackingUrl = `${baseUrl}/track/${order.tracking_token}`;
+        
+        const { sendBankTransferConfirmedEmail } = await import('@/lib/email/mailer');
+        const emailSent = await sendBankTransferConfirmedEmail({
+          to: order.customer_email,
+          customerName: order.customer_name,
+          orderId: order.id.slice(0, 8),
+          productName: orderItems.product_snapshot.title,
+          productBrand: orderItems.product_snapshot.brand,
+          amount: order.total,
+          currency: 'MXN',
+          trackingUrl,
+        });
+
+        if (!emailSent) {
+          console.warn('[AdminVerify] Failed to send payment confirmed email, but approval successful');
+        }
+      }
 
       const response: VerifyPaymentResponse = {
         success: true,
@@ -246,8 +273,43 @@ export async function POST(req: NextRequest) {
         reason: rejectionReason,
       });
 
-      // TODO: Email integration point - send "payment rejected" email
-      // Email should include: rejection reason, refund instructions (if applicable)
+      // Send payment rejected email (non-blocking)
+      // Fetch transaction with payment_reference and expires_at
+      const { data: fullTransaction } = await supabase
+        .from('payment_transactions')
+        .select('payment_reference, expires_at')
+        .eq('id', transactionId)
+        .single();
+
+      // Fetch order_items for product details
+      const { data: orderItems } = await supabase
+        .from('order_items')
+        .select('product_snapshot')
+        .eq('order_id', orderId)
+        .limit(1)
+        .single();
+
+      if (fullTransaction && orderItems?.product_snapshot) {
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://bagclue.vercel.app';
+        const paymentUrl = `${baseUrl}/payment/bank-transfer/${transactionId}?token=${order.tracking_token}`;
+        
+        const { sendBankTransferRejectedEmail } = await import('@/lib/email/mailer');
+        const emailSent = await sendBankTransferRejectedEmail({
+          to: order.customer_email,
+          customerName: order.customer_name,
+          orderId: order.id.slice(0, 8),
+          productName: orderItems.product_snapshot.title,
+          productBrand: orderItems.product_snapshot.brand,
+          paymentReference: fullTransaction.payment_reference,
+          rejectionReason: rejectionReason || 'Comprobante inválido',
+          expiresAt: fullTransaction.expires_at,
+          paymentUrl,
+        });
+
+        if (!emailSent) {
+          console.warn('[AdminVerify] Failed to send rejection email, but rejection successful');
+        }
+      }
 
       const response: VerifyPaymentResponse = {
         success: true,

@@ -243,8 +243,47 @@ export async function POST(req: NextRequest) {
       // Note: Do not log tracking_token, customer_email, or hash for security
     });
 
-    // TODO: Email integration point - send "proof received" confirmation email
-    // Email should include: order ID, thank you message, next steps (admin review)
+    // Send proof received email (non-blocking)
+    // Fetch transaction with payment_reference
+    const { data: fullTransaction } = await supabase
+      .from('payment_transactions')
+      .select('payment_reference')
+      .eq('id', transactionId)
+      .single();
+
+    // Fetch order and product details
+    const { data: order } = await supabase
+      .from('orders')
+      .select('id, customer_name, customer_email, tracking_token')
+      .eq('id', transaction.order_id)
+      .single();
+
+    const { data: orderItems } = await supabase
+      .from('order_items')
+      .select('product_snapshot')
+      .eq('order_id', transaction.order_id)
+      .limit(1)
+      .single();
+
+    if (order && orderItems?.product_snapshot && fullTransaction) {
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://bagclue.vercel.app';
+      const trackingUrl = `${baseUrl}/track/${order.tracking_token}`;
+      
+      const { sendBankTransferProofReceivedEmail } = await import('@/lib/email/mailer');
+      const emailSent = await sendBankTransferProofReceivedEmail({
+        to: order.customer_email,
+        customerName: order.customer_name,
+        orderId: order.id.slice(0, 8),
+        productName: orderItems.product_snapshot.title,
+        productBrand: orderItems.product_snapshot.brand,
+        paymentReference: fullTransaction.payment_reference,
+        trackingUrl,
+      });
+
+      if (!emailSent) {
+        console.warn('[UploadProof] Failed to send proof received email, but upload successful');
+      }
+    }
 
     return NextResponse.json(
       {

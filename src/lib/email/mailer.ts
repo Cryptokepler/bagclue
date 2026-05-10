@@ -213,3 +213,145 @@ export async function sendShippingTrackingEmail(params: {
     text: `Tu pedido ha sido enviado. Paquetería: ${params.shippingProvider}. Tracking: ${params.trackingNumber}.`,
   });
 }
+
+/**
+ * Envía email de instrucciones de transferencia bancaria
+ */
+export async function sendBankTransferInstructionsEmail(params: {
+  to: string;
+  customerName: string;
+  orderId: string;
+  productName: string;
+  productBrand: string;
+  amount: number;
+  currency: string;
+  paymentReference: string;
+  expiresAt: string;
+  bankName: string;
+  accountHolder: string;
+  clabe: string;
+  paymentUrl: string;
+}): Promise<boolean> {
+  const { generateBankTransferInstructionsHTML } = await import('./templates/bank-transfer-instructions');
+  
+  const html = generateBankTransferInstructionsHTML({
+    customerName: params.customerName,
+    orderId: params.orderId,
+    productName: params.productName,
+    productBrand: params.productBrand,
+    amount: params.amount,
+    currency: params.currency,
+    paymentReference: params.paymentReference,
+    expiresAt: params.expiresAt,
+    bankName: params.bankName,
+    accountHolder: params.accountHolder,
+    clabe: params.clabe,
+    paymentUrl: params.paymentUrl,
+  });
+
+  return sendEmail({
+    to: params.to,
+    subject: `Tu pieza Bagclue está reservada — instrucciones de pago`,
+    html,
+    text: `Tu pieza está reservada. Pedido #${params.orderId}. Transferir ${params.amount} ${params.currency} a CLABE ${params.clabe}. Referencia: ${params.paymentReference}.`,
+  });
+}
+
+/**
+ * Envía email de comprobante recibido / pago en revisión
+ */
+export async function sendBankTransferProofReceivedEmail(params: {
+  to: string;
+  customerName: string;
+  orderId: string;
+  productName: string;
+  productBrand: string;
+  paymentReference: string;
+  trackingUrl: string;
+}): Promise<boolean> {
+  const { generateBankTransferProofReceivedHTML } = await import('./templates/bank-transfer-proof-received');
+  
+  const html = generateBankTransferProofReceivedHTML({
+    customerName: params.customerName,
+    orderId: params.orderId,
+    productName: params.productName,
+    productBrand: params.productBrand,
+    paymentReference: params.paymentReference,
+    trackingUrl: params.trackingUrl,
+  });
+
+  return sendEmail({
+    to: params.to,
+    subject: `Recibimos tu comprobante — pago en revisión`,
+    html,
+    text: `Comprobante recibido. Pedido #${params.orderId}. Validaremos el pago en banco.`,
+  });
+}
+
+/**
+ * Envía email de pago confirmado por transferencia bancaria
+ */
+export async function sendBankTransferConfirmedEmail(params: {
+  to: string;
+  customerName: string;
+  orderId: string;
+  productName: string;
+  productBrand: string;
+  amount: number;
+  currency: string;
+  trackingUrl: string;
+}): Promise<boolean> {
+  const { generateBankTransferConfirmedHTML } = await import('./templates/bank-transfer-confirmed');
+  
+  const html = generateBankTransferConfirmedHTML({
+    customerName: params.customerName,
+    orderId: params.orderId,
+    productName: params.productName,
+    productBrand: params.productBrand,
+    amount: params.amount,
+    currency: params.currency,
+    trackingUrl: params.trackingUrl,
+  });
+
+  return sendEmail({
+    to: params.to,
+    subject: `Pago confirmado — tu pieza Bagclue es tuya`,
+    html,
+    text: `Pago confirmado. Pedido #${params.orderId}. Total: ${params.amount} ${params.currency}. Prepararemos tu envío.`,
+  });
+}
+
+/**
+ * Envía email de comprobante rechazado
+ */
+export async function sendBankTransferRejectedEmail(params: {
+  to: string;
+  customerName: string;
+  orderId: string;
+  productName: string;
+  productBrand: string;
+  paymentReference: string;
+  rejectionReason: string;
+  expiresAt: string | null;
+  paymentUrl: string;
+}): Promise<boolean> {
+  const { generateBankTransferRejectedHTML } = await import('./templates/bank-transfer-rejected');
+  
+  const html = generateBankTransferRejectedHTML({
+    customerName: params.customerName,
+    orderId: params.orderId,
+    productName: params.productName,
+    productBrand: params.productBrand,
+    paymentReference: params.paymentReference,
+    rejectionReason: params.rejectionReason,
+    expiresAt: params.expiresAt,
+    paymentUrl: params.paymentUrl,
+  });
+
+  return sendEmail({
+    to: params.to,
+    subject: `Necesitamos revisar tu comprobante de pago`,
+    html,
+    text: `Comprobante rechazado. Pedido #${params.orderId}. Motivo: ${params.rejectionReason}. Sube un nuevo comprobante.`,
+  });
+}

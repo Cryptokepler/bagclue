@@ -239,8 +239,30 @@ export async function POST(req: NextRequest) {
       productStatus: 'reserved',
     });
 
-    // TODO: Email integration point - send transfer instructions email
-    // Email should include: reference, amount, bank details, expiry, payment instructions
+    // Send transfer instructions email (non-blocking)
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://bagclue.vercel.app';
+    const paymentUrl = `${baseUrl}/payment/bank-transfer/${transaction.id}?token=${order.tracking_token}`;
+    
+    const { sendBankTransferInstructionsEmail } = await import('@/lib/email/mailer');
+    const emailSent = await sendBankTransferInstructionsEmail({
+      to: order.customer_email,
+      customerName: order.customer_name,
+      orderId: order.id.slice(0, 8),
+      productName: product.title,
+      productBrand: product.brand,
+      amount: product.price,
+      currency: 'MXN',
+      paymentReference,
+      expiresAt: expiresAt.toISOString(),
+      bankName: bankConfig.bankName,
+      accountHolder: bankConfig.accountHolder,
+      clabe: bankConfig.clabe,
+      paymentUrl,
+    });
+
+    if (!emailSent) {
+      console.warn('[BankTransfer] Failed to send instructions email, but order created successfully');
+    }
 
     return NextResponse.json(response, { status: 201 });
   } catch (error: any) {
