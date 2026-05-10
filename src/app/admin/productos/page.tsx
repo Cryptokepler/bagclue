@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 import { isAuthenticated } from '@/lib/session'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import AdminNav from '@/components/admin/AdminNav'
@@ -80,6 +81,18 @@ async function getProducts(filters: any) {
     query = query.eq('authenticity_verified', false)
   }
   
+  // Marca
+  if (filters.brand && filters.brand !== 'all') {
+    query = query.eq('brand', filters.brand)
+  }
+  
+  // Stock
+  if (filters.stock === 'in') {
+    query = query.gt('stock', 0)
+  } else if (filters.stock === 'out') {
+    query = query.or('stock.is.null,stock.eq.0')
+  }
+  
   query = query.order('created_at', { ascending: false })
   
   const { data: products, error } = await query
@@ -117,6 +130,8 @@ export default async function AdminProductosPage({ searchParams }: PageProps) {
     status: typeof params.status === 'string' ? params.status : 'all',
     published: typeof params.published === 'string' ? params.published : 'all',
     category: typeof params.category === 'string' ? params.category : 'all',
+    brand: typeof params.brand === 'string' ? params.brand : 'all',
+    stock: typeof params.stock === 'string' ? params.stock : 'all',
     images: typeof params.images === 'string' ? params.images : 'all',
     cost: typeof params.cost === 'string' ? params.cost : 'all',
     auth: typeof params.auth === 'string' ? params.auth : 'all'
@@ -135,6 +150,7 @@ export default async function AdminProductosPage({ searchParams }: PageProps) {
     published: products.filter(p => p.is_published).length,
     draft: products.filter(p => !p.is_published).length,
     available: products.filter(p => p.status === 'available').length,
+    reserved: products.filter(p => p.status === 'reserved').length,
     sold: products.filter(p => p.status === 'sold').length,
     totalValue: products
       .filter(p => ['available', 'preorder'].includes(p.status))
@@ -164,47 +180,73 @@ export default async function AdminProductosPage({ searchParams }: PageProps) {
         
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
-          {/* Total */}
-          <div className="bg-white/5 border border-[#FF69B4]/20 p-4">
+          {/* Total - limpiar filtros */}
+          <Link
+            href="/admin/productos"
+            className="bg-white/5 border border-[#FF69B4]/20 p-4 hover:border-[#FF69B4] transition-colors cursor-pointer"
+          >
             <div className="text-2xl font-bold text-white mb-1">
               {stats.total}
             </div>
             <div className="text-xs text-gray-400">Total productos</div>
-          </div>
+          </Link>
           
-          {/* Publicados */}
-          <div className="bg-white/5 border border-[#FF69B4]/20 p-4">
+          {/* Activos (Publicados) */}
+          <Link
+            href="/admin/productos?published=published"
+            className="bg-white/5 border border-[#FF69B4]/20 p-4 hover:border-[#FF69B4] transition-colors cursor-pointer"
+          >
             <div className="text-2xl font-bold text-emerald-400 mb-1">
               {stats.published}
             </div>
-            <div className="text-xs text-gray-400">Publicados</div>
-          </div>
+            <div className="text-xs text-gray-400">Activos</div>
+          </Link>
           
-          {/* Borradores */}
-          <div className="bg-white/5 border border-[#FF69B4]/20 p-4">
+          {/* Inactivos (Borradores) */}
+          <Link
+            href="/admin/productos?published=draft"
+            className="bg-white/5 border border-[#FF69B4]/20 p-4 hover:border-[#FF69B4] transition-colors cursor-pointer"
+          >
             <div className="text-2xl font-bold text-yellow-400 mb-1">
               {stats.draft}
             </div>
-            <div className="text-xs text-gray-400">Borradores</div>
-          </div>
+            <div className="text-xs text-gray-400">Inactivos</div>
+          </Link>
           
           {/* Disponibles */}
-          <div className="bg-white/5 border border-[#FF69B4]/20 p-4">
+          <Link
+            href="/admin/productos?status=available"
+            className="bg-white/5 border border-[#FF69B4]/20 p-4 hover:border-[#FF69B4] transition-colors cursor-pointer"
+          >
             <div className="text-2xl font-bold text-emerald-300 mb-1">
               {stats.available}
             </div>
             <div className="text-xs text-gray-400">Disponibles</div>
-          </div>
+          </Link>
+          
+          {/* Apartados */}
+          <Link
+            href="/admin/productos?status=reserved"
+            className="bg-white/5 border border-[#FF69B4]/20 p-4 hover:border-[#FF69B4] transition-colors cursor-pointer"
+          >
+            <div className="text-2xl font-bold text-yellow-300 mb-1">
+              {stats.reserved}
+            </div>
+            <div className="text-xs text-gray-400">Apartados</div>
+          </Link>
           
           {/* Vendidos */}
-          <div className="bg-white/5 border border-[#FF69B4]/20 p-4">
+          <Link
+            href="/admin/productos?status=sold"
+            className="bg-white/5 border border-[#FF69B4]/20 p-4 hover:border-[#FF69B4] transition-colors cursor-pointer"
+          >
             <div className="text-2xl font-bold text-red-400 mb-1">
               {stats.sold}
             </div>
             <div className="text-xs text-gray-400">Vendidos</div>
-          </div>
+          </Link>
           
-          {/* Valor Inventario */}
+          {/* Valor Inventario - informativo */}
           <div className="bg-white/5 border border-[#FF69B4]/20 p-4">
             <div className="text-2xl font-bold text-[#C9A96E] mb-1">
               {formatCurrency(stats.totalValue)}
@@ -212,7 +254,7 @@ export default async function AdminProductosPage({ searchParams }: PageProps) {
             <div className="text-xs text-gray-400">Valor disponible</div>
           </div>
           
-          {/* Costo Total (opcional) */}
+          {/* Costo Total - informativo */}
           <div className="bg-white/5 border border-[#FF69B4]/20 p-4">
             <div className="text-2xl font-bold text-gray-400 mb-1">
               {formatCurrency(stats.totalCost)}
@@ -220,7 +262,7 @@ export default async function AdminProductosPage({ searchParams }: PageProps) {
             <div className="text-xs text-gray-400">Costo disponible</div>
           </div>
           
-          {/* Margen Promedio (opcional) */}
+          {/* Margen Promedio - informativo */}
           <div className="bg-white/5 border border-[#FF69B4]/20 p-4">
             <div className="text-2xl font-bold text-cyan-400 mb-1">
               {formatMargin(stats.averageMargin)}

@@ -4,9 +4,10 @@
 export function StatusBadge({ status }: { status: string }) {
   const config: Record<string, { label: string; color: string }> = {
     available: { label: 'Disponible', color: 'bg-emerald-500/20 text-emerald-400' },
-    preorder: { label: 'Pre-orden', color: 'bg-blue-500/20 text-blue-400' },
-    reserved: { label: 'Reservado', color: 'bg-yellow-500/20 text-yellow-400' },
-    sold: { label: 'Vendido', color: 'bg-red-500/20 text-red-400' }
+    preorder: { label: 'Pre-venta', color: 'bg-blue-500/20 text-blue-400' },
+    reserved: { label: 'Apartada', color: 'bg-yellow-500/20 text-yellow-400' },
+    sold: { label: 'Vendida', color: 'bg-red-500/20 text-red-400' },
+    hidden: { label: 'Oculto', color: 'bg-gray-500/20 text-gray-400' }
   }
   
   const { label, color } = config[status] || { label: status, color: 'bg-gray-500/20 text-gray-400' }

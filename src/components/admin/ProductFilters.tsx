@@ -14,6 +14,8 @@ export default function ProductFilters() {
   const statusFilter = searchParams.get('status') || 'all'
   const publishedFilter = searchParams.get('published') || 'all'
   const categoryFilter = searchParams.get('category') || 'all'
+  const brandFilter = searchParams.get('brand') || 'all'
+  const stockFilter = searchParams.get('stock') || 'all'
   const imageFilter = searchParams.get('images') || 'all'
   const costFilter = searchParams.get('cost') || 'all'
   const authFilter = searchParams.get('auth') || 'all'
@@ -37,6 +39,8 @@ export default function ProductFilters() {
     statusFilter !== 'all' ? statusFilter : null,
     publishedFilter !== 'all' ? publishedFilter : null,
     categoryFilter !== 'all' ? categoryFilter : null,
+    brandFilter !== 'all' ? brandFilter : null,
+    stockFilter !== 'all' ? stockFilter : null,
     imageFilter !== 'all' ? imageFilter : null,
     costFilter !== 'all' ? costFilter : null,
     authFilter !== 'all' ? authFilter : null
@@ -62,20 +66,21 @@ export default function ProductFilters() {
         >
           <option value="all">Todos los status</option>
           <option value="available">Disponible</option>
-          <option value="preorder">Pre-orden</option>
-          <option value="reserved">Reservado</option>
-          <option value="sold">Vendido</option>
+          <option value="reserved">Apartada</option>
+          <option value="sold">Vendida</option>
+          <option value="preorder">Pre-venta</option>
+          <option value="hidden">Oculto</option>
         </select>
         
-        {/* Publicación */}
+        {/* Visibilidad */}
         <select
           value={publishedFilter}
           onChange={(e) => updateFilter('published', e.target.value)}
           className="bg-white/5 border border-[#FF69B4]/20 text-white px-3 py-2 text-sm focus:outline-none focus:border-[#FF69B4] transition-colors"
         >
           <option value="all">Todos</option>
-          <option value="published">Publicados</option>
-          <option value="draft">Borradores</option>
+          <option value="published">Activo</option>
+          <option value="draft">Inactivo</option>
         </select>
         
         {/* Categoría */}
@@ -86,9 +91,34 @@ export default function ProductFilters() {
         >
           <option value="all">Todas las categorías</option>
           <option value="Bolsas">Bolsas</option>
-          <option value="Cinturones">Cinturones</option>
           <option value="Zapatos">Zapatos</option>
           <option value="Joyería">Joyería</option>
+          <option value="Accesorios">Accesorios</option>
+        </select>
+        
+        {/* Marca */}
+        <select
+          value={brandFilter}
+          onChange={(e) => updateFilter('brand', e.target.value)}
+          className="bg-white/5 border border-[#FF69B4]/20 text-white px-3 py-2 text-sm focus:outline-none focus:border-[#FF69B4] transition-colors"
+        >
+          <option value="all">Todas las marcas</option>
+          <option value="Chanel">Chanel</option>
+          <option value="Hermès">Hermès</option>
+          <option value="Goyard">Goyard</option>
+          <option value="Louis Vuitton">Louis Vuitton</option>
+          <option value="Dior">Dior</option>
+        </select>
+        
+        {/* Stock */}
+        <select
+          value={stockFilter}
+          onChange={(e) => updateFilter('stock', e.target.value)}
+          className="bg-white/5 border border-[#FF69B4]/20 text-white px-3 py-2 text-sm focus:outline-none focus:border-[#FF69B4] transition-colors"
+        >
+          <option value="all">Todos</option>
+          <option value="in">Con stock</option>
+          <option value="out">Sin stock</option>
         </select>
         
         {/* Imágenes */}
