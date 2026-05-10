@@ -208,7 +208,7 @@ export default function AdminPaymentsPage() {
                       </div>
                       <div>
                         <p className="text-gray-400">Referencia</p>
-                        <p className="font-mono text-gray-200">****{payment.paymentReference.slice(-4)}</p>
+                        <p className="font-mono text-gray-200">{payment.paymentReference}</p>
                       </div>
                       <div>
                         <p className="text-gray-400">Subido</p>
