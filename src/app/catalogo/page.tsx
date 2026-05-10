@@ -79,7 +79,7 @@ function CatalogoContent() {
           model: p.model || p.title,
           color: p.color || '',
           origin: p.origin || '',
-          status: dbStatusToLegacy(p.status),
+          status: p.status,  // Pass DB status directly (ProductCard supports both DB and legacy)
           price: p.price,
           category: p.category as any,
           image: p.product_images?.[0]?.url || '',
