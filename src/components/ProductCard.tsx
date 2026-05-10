@@ -41,12 +41,26 @@ export default function ProductCard({ product }: { product: Product }) {
             </span>
           </div>
 
-          {/* Status badge - solo si NO es "En inventario" */}
-          {product.status !== 'En inventario' && (
+          {/* Status badge - solo si NO es available */}
+          {(product.status as string) !== 'available' && (product.status as string) !== 'En inventario' && (
             <div className="absolute top-3 left-3">
               <Badge 
-                type={product.status === 'Apartada' ? 'reserved' : 'available'} 
-                label={getStatusLabel(product.status)} 
+                type={
+                  (product.status as string) === 'sold' ? 'sold' :
+                  (product.status as string) === 'reserved' ? 'reserved' :
+                  (product.status as string) === 'Apartada' ? 'reserved' :
+                  (product.status as string) === 'preorder' ? 'special' :
+                  (product.status as string) === 'Pre-venta' ? 'special' :
+                  'available'
+                }
+                label={
+                  (product.status as string) === 'sold' ? 'Vendida' :
+                  (product.status as string) === 'reserved' ? 'Apartada' :
+                  (product.status as string) === 'Apartada' ? 'Apartada' :
+                  (product.status as string) === 'preorder' ? 'Pre-venta' :
+                  (product.status as string) === 'Pre-venta' ? 'Pre-venta' :
+                  'Disponible'
+                }
               />
             </div>
           )}
