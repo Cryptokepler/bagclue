@@ -140,22 +140,37 @@ export default async function AdminProductosPage({ searchParams }: PageProps) {
   // Log temporal para debugging (sin secretos)
   console.log('[AdminProductos] Filters applied:', filters)
   
-  const products = await getProducts(filters)
+  // Obtener productos filtrados para tabla/listado
+  const filteredProducts = await getProducts(filters)
   
-  console.log('[AdminProductos] Products returned:', products.length)
+  // Obtener TODOS los productos para stats globales (sin filtros de usuario)
+  const allProducts = await getProducts({
+    search: '',
+    status: 'all',
+    published: 'all',
+    category: 'all',
+    brand: 'all',
+    stock: 'all',
+    images: 'all',
+    cost: 'all',
+    auth: 'all'
+  })
   
-  // Calcular stats
+  console.log('[AdminProductos] Filtered products:', filteredProducts.length)
+  console.log('[AdminProductos] All products (stats):', allProducts.length)
+  
+  // Calcular stats GLOBALES (desde allProducts, no filteredProducts)
   const stats = {
-    total: products.length,
-    published: products.filter(p => p.is_published).length,
-    draft: products.filter(p => !p.is_published).length,
-    available: products.filter(p => p.status === 'available').length,
-    reserved: products.filter(p => p.status === 'reserved').length,
-    sold: products.filter(p => p.status === 'sold').length,
-    totalValue: products
+    total: allProducts.length,
+    published: allProducts.filter(p => p.is_published).length,
+    draft: allProducts.filter(p => !p.is_published).length,
+    available: allProducts.filter(p => p.status === 'available').length,
+    reserved: allProducts.filter(p => p.status === 'reserved').length,
+    sold: allProducts.filter(p => p.status === 'sold').length,
+    totalValue: allProducts
       .filter(p => ['available', 'preorder'].includes(p.status))
       .reduce((sum, p) => sum + (Number(p.price) || 0), 0),
-    totalCost: products
+    totalCost: allProducts
       .filter(p => ['available', 'preorder'].includes(p.status))
       .reduce((sum, p) => {
         const costPrice = Number(p.cost_price) || 0
@@ -163,7 +178,7 @@ export default async function AdminProductosPage({ searchParams }: PageProps) {
         return sum + costPrice + additionalTotal
       }, 0),
     averageMargin: calculateAverageMargin(
-      products.filter(p => ['available', 'preorder'].includes(p.status))
+      allProducts.filter(p => ['available', 'preorder'].includes(p.status))
     )
   }
 
@@ -292,28 +307,28 @@ export default async function AdminProductosPage({ searchParams }: PageProps) {
         
         {/* Contador de resultados */}
         <div className="mb-4 text-sm text-gray-400">
-          {products.length === 0 ? (
+          {filteredProducts.length === 0 ? (
             <span className="text-yellow-400">⚠️ No hay productos que coincidan con los filtros</span>
           ) : (
             <span>
-              {products.length} producto{products.length !== 1 ? 's' : ''} encontrado{products.length !== 1 ? 's' : ''}
+              {filteredProducts.length} producto{filteredProducts.length !== 1 ? 's' : ''} encontrado{filteredProducts.length !== 1 ? 's' : ''}
             </span>
           )}
         </div>
         
         {/* Tabla Desktop */}
         <div className="hidden lg:block">
-          <ProductsTable products={products} />
+          <ProductsTable products={filteredProducts} />
         </div>
         
         {/* Cards Mobile */}
         <div className="lg:hidden space-y-4">
-          {products.length === 0 ? (
+          {filteredProducts.length === 0 ? (
             <div className="bg-white/5 border border-[#FF69B4]/20 p-12 text-center">
               <p className="text-gray-400">No hay productos que coincidan con los filtros</p>
             </div>
           ) : (
-            products.map((product: any) => (
+            filteredProducts.map((product: any) => (
               <ProductCard key={product.id} product={product} />
             ))
           )}
