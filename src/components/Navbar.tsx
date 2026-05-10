@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useState, useRef, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import CartIcon from './CartIcon';
 import MegaMenu from './MegaMenu';
 
@@ -20,6 +21,7 @@ export default function Navbar() {
   const [categoriasExpanded, setCategoriasExpanded] = useState(false);
   
   const closeTimer = useRef<NodeJS.Timeout | null>(null);
+  const pathname = usePathname();
 
   const openMenu = () => {
     if (closeTimer.current) {
@@ -38,6 +40,11 @@ export default function Navbar() {
   const closeMenu = () => {
     setIsCatalogMenuOpen(false);
   };
+
+  // Reset menu state on route change
+  useEffect(() => {
+    setIsCatalogMenuOpen(false);
+  }, [pathname]);
 
   // Close on Escape key
   useEffect(() => {
@@ -62,9 +69,8 @@ export default function Navbar() {
 
         {/* Desktop */}
         <div className="hidden md:flex items-center gap-10">
-          {/* Catálogo con mega menú */}
+          {/* Botón Catálogo */}
           <div 
-            className="relative"
             onMouseEnter={openMenu}
             onMouseLeave={scheduleClose}
           >
@@ -80,14 +86,6 @@ export default function Navbar() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
             </button>
-            
-            {/* Mega menú con handlers propios */}
-            <MegaMenu 
-              isOpen={isCatalogMenuOpen} 
-              onClose={closeMenu}
-              onMouseEnter={openMenu}
-              onMouseLeave={scheduleClose}
-            />
           </div>
 
           {/* Resto de links */}
@@ -117,6 +115,14 @@ export default function Navbar() {
           </svg>
         </button>
       </div>
+
+      {/* Mega menú desktop - full width */}
+      <MegaMenu 
+        isOpen={isCatalogMenuOpen} 
+        onClose={closeMenu}
+        onMouseEnter={openMenu}
+        onMouseLeave={scheduleClose}
+      />
 
       {/* Mobile menu */}
       {mobileOpen && (

@@ -14,28 +14,31 @@ export default function MegaMenu({ isOpen, onClose, onMouseEnter, onMouseLeave }
 
   return (
     <div 
-      className="absolute left-1/2 -translate-x-1/2 bg-[#FFFBF8] border border-[#E85A9A]/[0.18] z-[80] hidden lg:block"
+      className="absolute left-0 right-0 top-full z-[80] hidden lg:block"
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       style={{
-        top: '100%',
-        marginTop: '8px',
-        width: 'min(1120px, calc(100vw - 64px))',
-        maxWidth: '1120px',
-        minHeight: '300px',
-        maxHeight: 'calc(100vh - 160px)',
-        padding: '40px 48px',
-        boxShadow: '0 24px 80px rgba(0,0,0,0.12)',
-        overflowY: 'auto',
+        marginTop: '0px',
       }}
     >
       <div 
-        className="grid items-start"
+        className="mx-auto bg-[#FFFBF8] border-t border-[#E85A9A]/[0.18]"
         style={{
-          gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
-          gap: '56px',
+          maxWidth: '1200px',
+          minHeight: '300px',
+          maxHeight: 'calc(100vh - 160px)',
+          padding: '40px 48px',
+          boxShadow: '0 24px 80px rgba(0,0,0,0.12)',
+          overflowY: 'auto',
         }}
       >
+        <div 
+          className="grid items-start"
+          style={{
+            gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
+            gap: '56px',
+          }}
+        >
         {/* Columna 1: DISEÑADORES */}
         <div style={{ minWidth: 0, overflow: 'visible' }}>
           <h3 
@@ -304,6 +307,7 @@ export default function MegaMenu({ isOpen, onClose, onMouseEnter, onMouseLeave }
             </li>
           </ul>
         </div>
+      </div>
       </div>
     </div>
   );

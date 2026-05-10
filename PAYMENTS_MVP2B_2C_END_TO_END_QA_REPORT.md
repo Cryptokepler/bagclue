@@ -366,3 +366,94 @@ cat /tmp/flujo_a_ids.json
 **Reporte generado:** 2026-05-10 12:19 UTC  
 **Versión:** 1.0  
 **Status:** PARCIAL (requiere validación manual UI)
+
+---
+
+## OBSERVACIONES UX DETECTADAS DURANTE QA
+
+### ⚠️ Observación 1: Falta CTA para dirección de envío después de pago confirmado
+
+**Contexto:**
+Cuando el pago es confirmado por admin, el cliente ve en tracking page:
+- ✓ "Pago confirmado"
+- Mensaje: "Tu pago fue confirmado. Estamos preparando tu pieza."
+
+**Problema:**
+- NO hay botón/CTA para que el cliente proporcione o confirme dirección de envío
+- El cliente no tiene forma proactiva de completar el siguiente paso
+- Admin queda esperando que el cliente proporcione dirección sin un flujo claro
+
+**Flujo actual (tracking page):**
+```
+payment_status = 'paid' → Muestra "Pago confirmado"
+                        → CTAs genéricos: "Ver catálogo" / "Volver al inicio"
+                        → Cliente no sabe qué hacer next
+```
+
+**Flujo ideal sugerido:**
+```
+payment_status = 'paid' AND shipping_address = null
+  → Mostrar banner: "¡Pago confirmado! Ahora necesitamos tu dirección de envío."
+  → CTA prominente: "Proporcionar dirección de envío" (botón verde/destacado)
+  → Click → formulario inline o redirect a /account/addresses
+  → Cliente guarda dirección → admin puede continuar con preparación
+
+payment_status = 'paid' AND shipping_address EXISTS
+  → Mostrar: "Dirección confirmada: [dirección]"
+  → CTA: "Cambiar dirección" (opcional, menos prominente)
+```
+
+**Impacto:**
+- **UX:** Cliente queda en limbo después de pago confirmado
+- **Operativo:** Admin debe contactar cliente manualmente para solicitar dirección
+- **Fricción:** Retrasa proceso de envío
+
+**Archivos relevantes:**
+- `/src/app/track/[tracking_token]/page.tsx` (líneas 50-97: lógica de estados)
+- `/src/components/OrderTimeline.tsx` (posiblemente)
+
+**Recomendación:**
+Implementar CTA condicional post-pago confirmado que guíe al cliente a proporcionar dirección de envío.
+
+**Prioridad:** MEDIA-ALTA (afecta UX post-compra, pero workaround manual existe)
+
+---
+
+### ⚠️ Observación 2: Referencia de pago ofuscada en admin payments (RESUELTO ✅)
+
+**Problema:**
+Admin payments mostraba referencia como `****1132` en vez de `BGTF15541132` completa.
+
+**Impacto:**
+Admin no podía validar referencia contra banco.
+
+**Fix aplicado:**
+- Commit: `99e5414`
+- Archivo: `src/app/admin/payments/page.tsx` línea 217
+- Cambio: `****{payment.paymentReference.slice(-4)}` → `{payment.paymentReference}`
+
+**Status:** ✅ RESUELTO Y DEPLOYADO
+
+---
+
+### ⚠️ Observación 3: Transaction sin expires_at causaba "orden expirada" (RESUELTO ✅)
+
+**Problema:**
+Transactions creadas con `expires_at = null` mostraban "orden expirada" en frontend por comparación `new Date(null) < new Date()`.
+
+**Impacto:**
+Página de pago inaccesible incluso para transactions válidas.
+
+**Fix aplicado:**
+- Transaction de prueba actualizada con `expires_at` = 24 horas futuro
+- Código frontend: línea 236 de `/payment/bank-transfer/[transactionId]/page.tsx`
+  ```tsx
+  const expiresDate = new Date(data.expiresAt)
+  const isExpired = expiresDate < new Date()
+  ```
+
+**Nota:** Backend debería garantizar que todas las transactions nuevas tengan `expires_at` válido (sugerencia para MVP.2D).
+
+**Status:** ✅ RESUELTO (workaround aplicado)
+
+---
