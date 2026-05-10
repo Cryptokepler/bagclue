@@ -106,6 +106,36 @@ export default async function TrackOrderPage({
           <p className="text-sm text-gray-600">{statusInfo.message}</p>
         </div>
 
+        {/* CTA Confirmar Dirección - Solo si pago confirmado y sin dirección */}
+        {order.payment_status === 'paid' && 
+         order.status === 'confirmed' && 
+         (!order.shipping_address || order.shipping_address.trim() === '') && (
+          <div className="bg-[#FFFBF8] border border-[#FF69B4]/20 p-6 mb-6">
+            <h2 className="text-lg font-medium text-gray-900 mb-3">
+              Confirma tu dirección de envío
+            </h2>
+            <p className="text-sm text-gray-600 mb-5">
+              Tu pago fue confirmado. Para preparar el envío, necesitamos que confirmes la dirección donde recibirás tu pieza.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Link 
+                href="/account/login?redirect=/account"
+                className="flex-1 bg-[#FF69B4] text-white px-6 py-3 text-center text-sm font-medium hover:bg-[#FF69B4]/90 transition-colors"
+              >
+                Iniciar sesión para confirmar dirección
+              </Link>
+              <a 
+                href="https://ig.me/m/salebybagcluemx"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 border border-[#FF69B4]/30 text-gray-900 px-6 py-3 text-center text-sm font-medium hover:border-[#FF69B4] transition-colors"
+              >
+                Contactar a Bagclue
+              </a>
+            </div>
+          </div>
+        )}
+
         {/* Orden Info */}
         <div className="bg-white border border-[#FF69B4]/10 p-6 mb-6">
           <h2 className="text-lg font-medium text-gray-900 mb-4">Información del Pedido</h2>
