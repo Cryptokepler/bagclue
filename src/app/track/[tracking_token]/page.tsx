@@ -119,7 +119,7 @@ export default async function TrackOrderPage({
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
               <Link 
-                href="/account/login?redirect=/account"
+                href="/account/login?redirect=/account/addresses"
                 className="flex-1 bg-[#FF69B4] text-white px-6 py-3 text-center text-sm font-medium hover:bg-[#FF69B4]/90 transition-colors"
               >
                 Iniciar sesión para confirmar dirección
