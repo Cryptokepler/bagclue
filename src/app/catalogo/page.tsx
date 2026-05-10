@@ -1,5 +1,4 @@
 'use client';
-// Force rebuild: 2026-05-10 11:23 UTC
 
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
