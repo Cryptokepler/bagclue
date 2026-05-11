@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { uploadShippingProof, deleteShippingProof } from '@/lib/supabase-upload-shipping'
 
 interface ShippingProofSectionProps {
   orderId: string
@@ -71,44 +70,26 @@ export default function ShippingProofSection({ orderId, currentProof, onSuccess 
     setFileError(null)
 
     try {
-      // PASO 1: Upload archivo
-      console.log('[PROOF SECTION] Uploading file...')
-      const uploadResult = await uploadShippingProof(orderId, selectedFile)
+      console.log('[PROOF SECTION] Uploading file via API...')
 
-      if ('error' in uploadResult) {
-        setFileError(uploadResult.error)
-        setUploading(false)
-        return
-      }
+      // Create FormData
+      const formData = new FormData()
+      formData.append('file', selectedFile)
 
-      console.log('[PROOF SECTION] File uploaded successfully')
-
-      // PASO 2: Update orden con proof metadata
-      const response = await fetch(`/api/orders/${orderId}/shipping`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          shipping_proof_url: uploadResult.url,
-          shipping_proof_file_name: uploadResult.fileName,
-          shipping_proof_file_type: uploadResult.fileType,
-          shipping_proof_file_size: uploadResult.fileSize,
-          shipping_proof_uploaded_at: new Date().toISOString()
-        })
+      // Upload via API (server-side)
+      const response = await fetch(`/api/orders/${orderId}/upload-proof`, {
+        method: 'POST',
+        body: formData
       })
 
       const data = await response.json()
 
       if (!response.ok) {
-        console.error('[PROOF SECTION] Order update failed:', data.error)
-        
-        // Rollback: eliminar archivo subido
-        console.log('[PROOF SECTION] Rolling back: deleting uploaded file')
-        await deleteShippingProof(orderId, selectedFile.name)
-        
-        throw new Error(data.error || 'Error al guardar comprobante')
+        console.error('[PROOF SECTION] Upload failed:', data.error)
+        throw new Error(data.error || 'Error al subir comprobante')
       }
 
-      console.log('[PROOF SECTION] Order updated successfully')
+      console.log('[PROOF SECTION] Upload successful')
 
       // Éxito
       setUploadSuccess(true)
