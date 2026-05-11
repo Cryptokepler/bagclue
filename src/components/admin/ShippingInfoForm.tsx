@@ -41,6 +41,23 @@ export default function ShippingInfoForm({ orderId, initialData, onSuccess }: Sh
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    // Validación frontend: shipping_status = 'shipped' requiere campos obligatorios
+    if (formData.shipping_status === 'shipped') {
+      if (!formData.shipping_provider || formData.shipping_provider === '') {
+        setError('Para marcar como "Enviado" debes seleccionar una paquetería')
+        return
+      }
+      if (!formData.tracking_number || formData.tracking_number.trim() === '') {
+        setError('Para marcar como "Enviado" debes ingresar un número de rastreo')
+        return
+      }
+      if (!formData.shipping_address || formData.shipping_address.trim() === '') {
+        setError('Para marcar como "Enviado" debes ingresar una dirección de envío')
+        return
+      }
+    }
+    
     setSaving(true)
     setError(null)
     setSuccess(false)
@@ -179,6 +196,11 @@ export default function ShippingInfoForm({ orderId, initialData, onSuccess }: Sh
             <option value="shipped">Enviado</option>
             <option value="delivered">Entregado</option>
           </select>
+          {formData.shipping_status === 'shipped' && (
+            <p className="text-xs text-yellow-400 mt-2">
+              ⚠️ Para marcar como "Enviado" debes llenar: Paquetería, Número de rastreo y Dirección de envío
+            </p>
+          )}
         </div>
 
         {/* Paquetería */}

@@ -7,7 +7,7 @@
 -- ========================================
 
 ALTER TABLE customer_profiles
-ADD COLUMN welcome_email_sent_at TIMESTAMPTZ NULL;
+ADD COLUMN IF NOT EXISTS welcome_email_sent_at TIMESTAMPTZ NULL;
 
 COMMENT ON COLUMN customer_profiles.welcome_email_sent_at IS 'Timestamp when welcome email was successfully sent. NULL = not sent yet.';
 
@@ -26,7 +26,7 @@ WHERE welcome_email_sent_at IS NULL;
 -- ========================================
 
 -- CRON will query: WHERE welcome_email_sent_at IS NULL AND email IS NOT NULL
-CREATE INDEX idx_customer_profiles_welcome_email_pending 
+CREATE INDEX IF NOT EXISTS idx_customer_profiles_welcome_email_pending 
 ON customer_profiles(welcome_email_sent_at, created_at)
 WHERE welcome_email_sent_at IS NULL AND email IS NOT NULL;
 

@@ -4,6 +4,7 @@ import { isAuthenticated } from '@/lib/session'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import AdminNav from '@/components/admin/AdminNav'
 import ShippingInfoForm from '@/components/admin/ShippingInfoForm'
+import ShippingProofSection from '@/components/admin/ShippingProofSection'
 
 async function getOrder(id: string) {
   const { data: order, error } = await supabaseAdmin
@@ -162,64 +163,15 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
             />
 
             {/* Comprobante de Envío */}
-            <div className="bg-white/5 border border-[#FF69B4]/20 p-6">
-              <h2 className="text-lg text-white font-medium mb-4">Comprobante de envío</h2>
-              
-              {order.shipping_proof_url ? (
-                <div className="space-y-4">
-                  <div className="bg-emerald-500/10 border border-emerald-500/20 rounded p-4">
-                    <div className="flex items-center gap-3 mb-3">
-                      <span className="text-2xl">📄</span>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-sm text-emerald-400 font-medium">
-                          Comprobante disponible
-                        </div>
-                        {order.shipping_proof_file_name && (
-                          <div className="text-xs text-gray-400 mt-1 truncate">
-                            {order.shipping_proof_file_name}
-                          </div>
-                        )}
-                        {order.shipping_proof_file_size && (
-                          <div className="text-xs text-gray-500 mt-1">
-                            {(order.shipping_proof_file_size / 1024).toFixed(1)} KB
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    <a
-                      href={order.shipping_proof_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500 text-white rounded hover:bg-emerald-600 transition-colors text-sm font-medium"
-                    >
-                      <span>📄</span>
-                      Ver Comprobante
-                    </a>
-                  </div>
-                  
-                  {order.shipping_proof_uploaded_at && (
-                    <div className="text-xs text-gray-500">
-                      Subido: {new Date(order.shipping_proof_uploaded_at).toLocaleString('es-MX', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="text-center py-6">
-                  <div className="text-gray-500 text-sm mb-2">
-                    Sin comprobante cargado
-                  </div>
-                  <div className="text-xs text-gray-600">
-                    El comprobante puede subirse al marcar el pedido como enviado
-                  </div>
-                </div>
-              )}
-            </div>
+            <ShippingProofSection
+              orderId={order.id}
+              currentProof={{
+                url: order.shipping_proof_url,
+                fileName: order.shipping_proof_file_name,
+                fileSize: order.shipping_proof_file_size,
+                uploadedAt: order.shipping_proof_uploaded_at
+              }}
+            />
           </div>
 
           {/* Sidebar */}

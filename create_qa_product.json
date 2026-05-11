@@ -1,0 +1,21 @@
+{
+  "slug": "qa-pre-live-flow-test",
+  "title": "QA Pre-Live Flow Test",
+  "brand": "Goyard",
+  "model": "QA Flow",
+  "color": "Test",
+  "status": "available",
+  "condition": "new",
+  "price": 20.0,
+  "currency": "MXN",
+  "category": "Bolsas",
+  "is_published": true,
+  "stock": 1,
+  "allow_layaway": false,
+  "includes_box": false,
+  "includes_dust_bag": false,
+  "includes_papers": false,
+  "authenticity_verified": false,
+  "description": "Producto test para QA pre-live. NO ES REAL. Solo para validación de flujos.",
+  "internal_notes": "QA test product - Created 2026-05-11 - Delete after QA"
+}
