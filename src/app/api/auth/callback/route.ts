@@ -1,76 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseCustomer } from '@/lib/supabase-customer'
-import { createClient, User } from '@supabase/supabase-js'
-import { sendWelcomeEmail } from '@/lib/email/mailer'
-
-// Service role client for server-side queries
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
 
 /**
- * Check if user is new and send welcome email
- * Fire-and-forget - does not block redirect
+ * Welcome Email Delivery: Handled by CRON endpoint
  * 
- * @param user - User object from exchangeCodeForSession or verifyOtp
+ * Previous approach: Send email directly from OAuth/Magic Link callback
+ * Problem: Lambda can terminate before email sends, unreliable delivery
+ * 
+ * New approach: CRON-based reliable delivery
+ * - Endpoint: /api/cron/welcome-email
+ * - Schedule: Every 5 minutes
+ * - DB flag: customer_profiles.welcome_email_sent_at
+ * - Strategy: Query pending users, send email, mark as sent
+ * 
+ * Migration: 018_add_welcome_email_tracking.sql
  */
-async function checkAndSendWelcomeEmail(user: User) {
-  try {
-    if (!user || !user.email) {
-      console.log('[Welcome Email] No user or email provided, skipping')
-      return
-    }
-
-    console.log(`[Welcome Email] Checking for user ${user.id}`)
-
-    // Query customer_profiles with service role to bypass RLS
-    const { data: profile, error } = await supabaseAdmin
-      .from('customer_profiles')
-      .select('created_at, name')
-      .eq('user_id', user.id)
-      .single()
-
-    if (error) {
-      console.error('[Welcome Email] Profile query error:', error.message)
-      return
-    }
-
-    if (!profile) {
-      console.log('[Welcome Email] Profile not found, skipping')
-      return
-    }
-
-    // Check if user was created recently (<20 minutes)
-    const createdAt = new Date(profile.created_at)
-    const now = new Date()
-    const minutesSinceCreation = (now.getTime() - createdAt.getTime()) / 1000 / 60
-
-    if (minutesSinceCreation < 20) {
-      console.log(`[Welcome Email] New user detected (created ${minutesSinceCreation.toFixed(1)}min ago), sending welcome email to ${user.email}`)
-      
-      // Send welcome email (fire-and-forget with result logging)
-      sendWelcomeEmail({
-        to: user.email,
-        customerName: profile.name || undefined,
-      }).then(success => {
-        if (success) {
-          console.log(`[Welcome Email] ✅ Sent successfully to ${user.email}`)
-        } else {
-          console.error(`[Welcome Email] ❌ Failed to send to ${user.email} (SMTP error or config issue)`)
-        }
-      }).catch(err => {
-        console.error('[Welcome Email] ❌ Unexpected error:', err.message)
-        // Don't throw - email failure should not break auth flow
-      })
-    } else {
-      console.log(`[Welcome Email] Existing user (created ${minutesSinceCreation.toFixed(1)}min ago), skipping`)
-    }
-  } catch (error: any) {
-    console.error('[Welcome Email] Unexpected error:', error.message)
-    // Don't throw - email failure should not break auth flow
-  }
-}
 
 export async function GET(req: NextRequest) {
   const { searchParams, origin } = new URL(req.url)
@@ -97,11 +41,8 @@ export async function GET(req: NextRequest) {
         return NextResponse.redirect(new URL('/account/login?error=oauth_exchange_failed', req.url))
       }
 
-      // Successful OAuth login - check and send welcome email if new user
-      if (data?.user) {
-        // IMPORTANT: await to prevent lambda from being killed before email sends
-        await checkAndSendWelcomeEmail(data.user)
-      }
+      // Successful OAuth login
+      // Welcome email is handled by /api/cron/welcome-email (reliable delivery)
 
       // Redirect to next destination
       return NextResponse.redirect(new URL(next, req.url))
@@ -119,11 +60,8 @@ export async function GET(req: NextRequest) {
         return NextResponse.redirect(new URL('/account/login?error=verification_failed', req.url))
       }
 
-      // Successful magic link login - check and send welcome email if new user
-      if (data?.user) {
-        // IMPORTANT: await to prevent lambda from being killed before email sends
-        await checkAndSendWelcomeEmail(data.user)
-      }
+      // Successful magic link login
+      // Welcome email is handled by /api/cron/welcome-email (reliable delivery)
 
       // Redirect to account dashboard
       return NextResponse.redirect(new URL('/account', req.url))
