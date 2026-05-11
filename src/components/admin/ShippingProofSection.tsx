@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import ClientDate from '@/components/ClientDate'
 
 interface ShippingProofSectionProps {
@@ -22,8 +22,14 @@ export default function ShippingProofSection({ orderId, currentProof, onSuccess 
   const [fileError, setFileError] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
   const [uploadSuccess, setUploadSuccess] = useState(false)
+  const [mounted, setMounted] = useState(false)
 
   const hasProof = !!currentProof.url
+
+  // Evitar hydration mismatch: solo renderizar comprobante tras mount
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   // Validar archivo
   const validateFile = (file: File): string | null => {
@@ -108,6 +114,16 @@ export default function ShippingProofSection({ orderId, currentProof, onSuccess 
       setFileError(error.message || 'Error al subir. Intenta de nuevo.')
       setUploading(false)
     }
+  }
+
+  // Fallback estable durante SSR para evitar hydration mismatch
+  if (!mounted) {
+    return (
+      <div className="bg-white/5 border border-[#FF69B4]/20 p-6">
+        <h2 className="text-lg text-white font-medium mb-4">Comprobante de envío</h2>
+        <div className="text-sm text-gray-400">Cargando comprobante...</div>
+      </div>
+    )
   }
 
   return (
