@@ -157,6 +157,29 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
                 notes: order.notes
               }}
             />
+
+            {/* Comprobante de Envío - Placeholder UI */}
+            <div className="bg-white/5 border border-[#FF69B4]/20 p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg text-white font-medium">Comprobante de envío</h2>
+                <span className="px-2 py-1 text-xs bg-[#FF69B4]/10 text-[#FF69B4] border border-[#FF69B4]/30 rounded">
+                  Disponible próximamente
+                </span>
+              </div>
+              
+              <div className="text-center py-8 space-y-4">
+                <div className="text-gray-400 text-sm">
+                  El comprobante de envío estará disponible aquí una vez generado.
+                </div>
+                
+                <button
+                  disabled
+                  className="px-4 py-2 bg-white/5 text-gray-500 border border-gray-700 rounded cursor-not-allowed opacity-50"
+                >
+                  Subir comprobante
+                </button>
+              </div>
+            </div>
           </div>
 
           {/* Sidebar */}
