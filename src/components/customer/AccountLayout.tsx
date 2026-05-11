@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import Link from 'next/link'
+import { supabaseCustomer } from '@/lib/supabase-customer'
 
 interface AccountLayoutProps {
   children: React.ReactNode
@@ -20,13 +21,22 @@ export default function AccountLayout({ children, userEmail }: AccountLayoutProp
     setLoggingOut(true)
 
     try {
-      await fetch('/api/auth/logout', { method: 'POST' })
+      // Sign out directly from browser (not via route handler)
+      const { error } = await supabaseCustomer.auth.signOut()
+      
+      if (error) {
+        console.error('Logout error:', error)
+        alert('Error al cerrar sesión')
+        setLoggingOut(false)
+        return
+      }
+
+      // Redirect to home and refresh
       router.push('/')
       router.refresh()
     } catch (error) {
       console.error('Logout error:', error)
       alert('Error al cerrar sesión')
-    } finally {
       setLoggingOut(false)
     }
   }

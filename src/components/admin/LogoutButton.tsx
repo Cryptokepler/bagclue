@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { supabaseCustomer } from '@/lib/supabase-customer'
 
 export default function LogoutButton() {
   const router = useRouter()
@@ -10,7 +11,15 @@ export default function LogoutButton() {
   const handleLogout = async () => {
     setLoading(true)
     try {
-      await fetch('/api/auth/logout', { method: 'POST' })
+      // Sign out directly from browser (not via route handler)
+      const { error } = await supabaseCustomer.auth.signOut()
+      
+      if (error) {
+        console.error('Logout error:', error)
+        setLoading(false)
+        return
+      }
+
       router.push('/admin/login')
       router.refresh()
     } catch (error) {
