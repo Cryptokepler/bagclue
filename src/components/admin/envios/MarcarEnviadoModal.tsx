@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { EnviosOrder } from '@/types/admin-envios'
-import { uploadShippingProof, deleteShippingProof, ShippingProofUploadResult } from '@/lib/supabase-upload-shipping'
 
 interface MarcarEnviadoModalProps {
   order: EnviosOrder
@@ -110,21 +109,31 @@ export default function MarcarEnviadoModal({
 
     setUploading(true)
 
-    let proofData: ShippingProofUploadResult | null = null
+    let proofData: { url: string; fileName: string; fileType: string; fileSize: number } | null = null
 
     try {
-      // PASO 1: Upload archivo (si existe)
+      // PASO 1: Upload archivo (si existe) via API
       if (selectedFile) {
-        console.log('[MODAL] Uploading shipping proof...')
-        const uploadResult = await uploadShippingProof(order.id, selectedFile)
+        console.log('[MODAL] Uploading shipping proof via API...')
+        
+        const formData = new FormData()
+        formData.append('file', selectedFile)
 
-        if ('error' in uploadResult) {
-          setFileError(uploadResult.error)
+        const uploadResponse = await fetch(`/api/orders/${order.id}/upload-proof`, {
+          method: 'POST',
+          body: formData
+        })
+
+        const uploadData = await uploadResponse.json()
+
+        if (!uploadResponse.ok) {
+          console.error('[MODAL] Upload failed:', uploadData.error)
+          setFileError(uploadData.error || 'Error al subir comprobante')
           setUploading(false)
           return
         }
 
-        proofData = uploadResult
+        proofData = uploadData.proof
         console.log('[MODAL] Shipping proof uploaded successfully')
       }
 
@@ -146,12 +155,9 @@ export default function MarcarEnviadoModal({
     } catch (error: any) {
       console.error('[MODAL] Submit error:', error.message)
 
-      // Rollback: Eliminar archivo si update falló
-      if (proofData && selectedFile) {
-        console.log('[MODAL] Rolling back: deleting uploaded file')
-        await deleteShippingProof(order.id, selectedFile.name)
-      }
-
+      // Nota: Si el upload fue exitoso pero onConfirm falla, el archivo ya está en storage
+      // El admin puede volver a intentar o eliminar desde /admin/orders/[id]
+      
       setFileError('Error al procesar. Intenta de nuevo.')
       setUploading(false)
     }
