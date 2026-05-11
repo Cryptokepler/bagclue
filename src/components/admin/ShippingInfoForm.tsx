@@ -33,11 +33,18 @@ export default function ShippingInfoForm({ orderId, initialData, onSuccess }: Sh
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
   const [copySuccess, setCopySuccess] = useState(false)
+  const [publicTrackingUrl, setPublicTrackingUrl] = useState<string | null>(null)
   
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://bagclue.vercel.app'
-  const publicTrackingUrl = initialData.tracking_token 
-    ? `${baseUrl}/track/${initialData.tracking_token}`
-    : null
+  // Calcular tracking URL solo en cliente para evitar hydration mismatch
+  useEffect(() => {
+    if (initialData.tracking_token) {
+      // Usar window.location.origin en cliente, fallback para SSR (aunque no debería renderizar en SSR con este patrón)
+      const baseUrl = typeof window !== 'undefined' 
+        ? window.location.origin 
+        : 'https://bagclue.vercel.app'
+      setPublicTrackingUrl(`${baseUrl}/track/${initialData.tracking_token}`)
+    }
+  }, [initialData.tracking_token])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
