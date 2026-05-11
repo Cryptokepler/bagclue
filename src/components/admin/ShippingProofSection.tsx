@@ -15,7 +15,7 @@ interface ShippingProofSectionProps {
 }
 
 export default function ShippingProofSection({ orderId, currentProof, onSuccess }: ShippingProofSectionProps) {
-  // PASO C: Agregar fileName
+  // PASO D: Agregar fileSize
   return (
     <div className="bg-white/5 border border-[#FF69B4]/20 p-6">
       <h2 className="text-lg text-white font-medium mb-4">Comprobante de envío</h2>
@@ -29,8 +29,13 @@ export default function ShippingProofSection({ orderId, currentProof, onSuccess 
             {currentProof.fileName}
           </div>
         )}
+        {currentProof.fileSize && (
+          <div className="text-xs text-gray-500 mt-1">
+            {(currentProof.fileSize / 1024).toFixed(1)} KB
+          </div>
+        )}
         <div className="text-xs text-gray-500 mt-2">
-          [PRUEBA C] Con fileName
+          [PRUEBA D] Con fileName + fileSize
         </div>
       </div>
     </div>
