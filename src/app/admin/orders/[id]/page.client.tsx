@@ -103,6 +103,11 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
     <div className="min-h-screen bg-[#0a0a0a]">
       <AdminNav />
 
+      {/* BUILD TEST MARKER */}
+      <div className="bg-yellow-500 text-black text-center py-3 px-4 font-bold text-sm">
+        🔍 BUILD TEST fc61bd9 - PRUEBA A ACTIVA 🔍
+      </div>
+
       {/* Main */}
       <main className="max-w-7xl mx-auto px-6 py-8">
         {/* Header */}
