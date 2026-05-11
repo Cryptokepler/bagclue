@@ -34,7 +34,9 @@ export async function GET(
         tracking_url,
         shipped_at,
         delivered_at,
-        notes
+        notes,
+        shipping_proof_url,
+        shipping_proof_file_name
       `)
       .eq('tracking_token', tracking_token)
       .single()
@@ -97,7 +99,9 @@ export async function GET(
         tracking_number: order.tracking_number,
         tracking_url: order.tracking_url,
         shipped_at: order.shipped_at,
-        delivered_at: order.delivered_at
+        delivered_at: order.delivered_at,
+        shipping_proof_url: order.shipping_proof_url,
+        shipping_proof_file_name: order.shipping_proof_file_name
       },
       items: orderItems
     })

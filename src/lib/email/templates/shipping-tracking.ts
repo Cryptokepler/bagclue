@@ -11,6 +11,7 @@ interface ShippingTrackingParams {
   trackingNumber: string;
   trackingUrl?: string;
   orderTrackingUrl: string;
+  shippingProofUrl?: string; // Nuevo campo
 }
 
 export function generateShippingTrackingHTML(params: ShippingTrackingParams): string {
@@ -207,6 +208,25 @@ export function generateShippingTrackingHTML(params: ShippingTrackingParams): st
       </div>
       
       <p>Puedes usar este número para rastrear tu envío directamente en la página de ${providerName}.</p>
+      
+      ${params.shippingProofUrl ? `
+      <div style="margin: 24px 0; padding: 16px; background: #F5F1ED; border-radius: 8px; text-align: center;">
+        <p style="margin: 0 0 12px 0; font-size: 14px; color: #666; font-weight: 600;">
+          📄 Comprobante de envío disponible
+        </p>
+        <p style="margin: 0 0 16px 0; font-size: 13px; color: #888;">
+          Consulta la guía o comprobante asociado a tu envío
+        </p>
+        <a 
+          href="${params.shippingProofUrl}" 
+          target="_blank"
+          rel="noopener noreferrer"
+          class="button button-secondary" 
+          style="display: inline-block; background: #111111; color: white; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 15px; margin: 8px 0; text-align: center;">
+          Ver Comprobante de Envío
+        </a>
+      </div>
+      ` : ''}
       
       <p style="font-size: 14px; color: #666; margin-top: 24px;">
         <strong>Tiempo estimado de entrega:</strong> 3-5 días hábiles según tu ubicación.

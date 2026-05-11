@@ -28,7 +28,13 @@ export async function PUT(
       shipping_provider,
       tracking_number,
       tracking_url: customTrackingUrl,
-      notes
+      notes,
+      // Shipping proof fields (optional)
+      shipping_proof_url,
+      shipping_proof_file_name,
+      shipping_proof_file_type,
+      shipping_proof_file_size,
+      shipping_proof_uploaded_at
     } = body
 
     // ========================================
@@ -132,6 +138,13 @@ export async function PUT(
       tracking_url = generateTrackingUrl(shipping_provider, tracking_number)
     }
 
+    // Validar shipping_proof_url (si se proporciona)
+    if (shipping_proof_url && typeof shipping_proof_url !== 'string') {
+      return NextResponse.json({ 
+        error: 'Invalid shipping_proof_url. Must be a valid URL string' 
+      }, { status: 400 })
+    }
+
     // Construir objeto de actualización
     const updates: any = {}
     
@@ -142,6 +155,13 @@ export async function PUT(
     if (tracking_number !== undefined) updates.tracking_number = tracking_number
     if (tracking_url !== undefined) updates.tracking_url = tracking_url
     if (notes !== undefined) updates.notes = notes
+    
+    // Shipping proof fields (optional)
+    if (shipping_proof_url !== undefined) updates.shipping_proof_url = shipping_proof_url
+    if (shipping_proof_file_name !== undefined) updates.shipping_proof_file_name = shipping_proof_file_name
+    if (shipping_proof_file_type !== undefined) updates.shipping_proof_file_type = shipping_proof_file_type
+    if (shipping_proof_file_size !== undefined) updates.shipping_proof_file_size = shipping_proof_file_size
+    if (shipping_proof_uploaded_at !== undefined) updates.shipping_proof_uploaded_at = shipping_proof_uploaded_at
 
     // Timestamps automáticos (REGLA B5, C2)
     if (shipping_status === 'shipped' && !updates.shipped_at) {
@@ -195,7 +215,8 @@ export async function PUT(
           shippingProvider: shipping_provider || 'manual',
           trackingNumber: tracking_number || 'N/A',
           trackingUrl: tracking_url || undefined,
-          orderTrackingUrl: public_tracking_url || `${baseUrl}/account/orders/${orderId}`
+          orderTrackingUrl: public_tracking_url || `${baseUrl}/account/orders/${orderId}`,
+          shippingProofUrl: shipping_proof_url || undefined  // Nuevo campo
         })
         
         console.log(`[SHIPPING UPDATE] Tracking email sent: ${emailSent}`)

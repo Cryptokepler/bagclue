@@ -294,6 +294,32 @@ export default async function TrackOrderPage({
           </div>
         )}
 
+        {/* Comprobante de Envío */}
+        {order.shipping_proof_url && (
+          <div className="bg-white border border-[#FF69B4]/10 p-6 mb-6">
+            <h2 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
+              <span>📄</span> Comprobante de Envío
+            </h2>
+            <p className="text-sm text-gray-600 mb-4">
+              Puedes consultar la guía o comprobante asociado a tu envío.
+            </p>
+            <a
+              href={order.shipping_proof_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 bg-purple-600 text-white px-6 py-3 hover:bg-purple-700 transition-colors text-sm font-medium"
+            >
+              <span>📄</span>
+              Ver Comprobante de Envío
+            </a>
+            {order.shipping_proof_file_name && (
+              <p className="text-xs text-gray-500 mt-3">
+                Archivo: {order.shipping_proof_file_name}
+              </p>
+            )}
+          </div>
+        )}
+
         {/* Timeline */}
         <div className="bg-white border border-[#FF69B4]/10 p-6 mb-6">
           <h2 className="text-lg font-medium text-gray-900 mb-4">Progreso del Pedido</h2>

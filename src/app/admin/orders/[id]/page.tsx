@@ -8,7 +8,10 @@ import ShippingInfoForm from '@/components/admin/ShippingInfoForm'
 async function getOrder(id: string) {
   const { data: order, error } = await supabaseAdmin
     .from('orders')
-    .select('*, order_items(*, products(*))')
+    .select(`
+      *,
+      order_items(*, products(*))
+    `)
     .eq('id', id)
     .single()
 
@@ -158,27 +161,64 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
               }}
             />
 
-            {/* Comprobante de Envío - Placeholder UI */}
+            {/* Comprobante de Envío */}
             <div className="bg-white/5 border border-[#FF69B4]/20 p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg text-white font-medium">Comprobante de envío</h2>
-                <span className="px-2 py-1 text-xs bg-[#FF69B4]/10 text-[#FF69B4] border border-[#FF69B4]/30 rounded">
-                  Disponible próximamente
-                </span>
-              </div>
+              <h2 className="text-lg text-white font-medium mb-4">Comprobante de envío</h2>
               
-              <div className="text-center py-8 space-y-4">
-                <div className="text-gray-400 text-sm">
-                  El comprobante de envío estará disponible aquí una vez generado.
+              {order.shipping_proof_url ? (
+                <div className="space-y-4">
+                  <div className="bg-emerald-500/10 border border-emerald-500/20 rounded p-4">
+                    <div className="flex items-center gap-3 mb-3">
+                      <span className="text-2xl">📄</span>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm text-emerald-400 font-medium">
+                          Comprobante disponible
+                        </div>
+                        {order.shipping_proof_file_name && (
+                          <div className="text-xs text-gray-400 mt-1 truncate">
+                            {order.shipping_proof_file_name}
+                          </div>
+                        )}
+                        {order.shipping_proof_file_size && (
+                          <div className="text-xs text-gray-500 mt-1">
+                            {(order.shipping_proof_file_size / 1024).toFixed(1)} KB
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <a
+                      href={order.shipping_proof_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500 text-white rounded hover:bg-emerald-600 transition-colors text-sm font-medium"
+                    >
+                      <span>📄</span>
+                      Ver Comprobante
+                    </a>
+                  </div>
+                  
+                  {order.shipping_proof_uploaded_at && (
+                    <div className="text-xs text-gray-500">
+                      Subido: {new Date(order.shipping_proof_uploaded_at).toLocaleString('es-MX', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </div>
+                  )}
                 </div>
-                
-                <button
-                  disabled
-                  className="px-4 py-2 bg-white/5 text-gray-500 border border-gray-700 rounded cursor-not-allowed opacity-50"
-                >
-                  Subir comprobante
-                </button>
-              </div>
+              ) : (
+                <div className="text-center py-6">
+                  <div className="text-gray-500 text-sm mb-2">
+                    Sin comprobante cargado
+                  </div>
+                  <div className="text-xs text-gray-600">
+                    El comprobante puede subirse al marcar el pedido como enviado
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 

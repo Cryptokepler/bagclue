@@ -195,6 +195,7 @@ export async function sendShippingTrackingEmail(params: {
   trackingNumber: string;
   trackingUrl?: string;
   orderTrackingUrl: string;
+  shippingProofUrl?: string; // Nuevo campo
 }): Promise<boolean> {
   const { generateShippingTrackingHTML } = await import('./templates/shipping-tracking');
   
@@ -206,6 +207,7 @@ export async function sendShippingTrackingEmail(params: {
     trackingNumber: params.trackingNumber,
     trackingUrl: params.trackingUrl,
     orderTrackingUrl: params.orderTrackingUrl,
+    shippingProofUrl: params.shippingProofUrl, // Nuevo campo
   });
 
   return sendEmail({
