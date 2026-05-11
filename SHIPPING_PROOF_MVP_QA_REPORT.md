@@ -126,7 +126,46 @@ Esperar 1-2 minutos para que Vercel complete deploy de commit `e31e614`, luego e
 1. Verificar commit en Vercel dashboard
 2. Deploy manual con Vercel CLI
 3. Investigar otros componentes en página (AdminNav, ShippingInfoForm)
-4. Opción nuclear: Convertir página completa en client component
+4. ✅ **EJECUTADO:** Convertir página completa en client component
+
+---
+
+### FIX 3 — SOLUCIÓN DEFINITIVA: CLIENT COMPONENT (COMMIT ea14057)
+
+**Diagnóstico confirmado por Jhonatan:**
+- Primera carga (navegación client-side) → ✅ Sin error
+- Refresh de página (SSR + hydration) → ❌ Error #418 aparece
+
+**Patrón identificado:** Hydration mismatch clásico entre SSR y client render.
+
+**Causa raíz:** A pesar de fixes 1 y 2, el problema persiste porque la página `/admin/orders/[id]` es server component. Incluso con formatNumber() y ClientDate, Next.js hace SSR del HTML inicial, y algo en el proceso sigue generando mismatch al refrescar.
+
+**Solución definitiva aplicada:**
+Convertir página completa en **client component** (elimina SSR completamente).
+
+**Archivos modificados (Fix 3):**
+- ✅ `src/app/admin/orders/[id]/page.tsx` → Wrapper mínimo que pasa orderId
+- ✅ `src/app/admin/orders/[id]/page.client.tsx` → Client component completo con fetch
+- ✅ `src/app/api/orders/[id]/route.ts` → Nuevo endpoint API para obtener orden
+
+**Arquitectura nueva:**
+```
+page.tsx (server, solo params) 
+  → OrderDetailClient (client component)
+    → useEffect fetch → /api/orders/[id]
+      → supabaseAdmin (server-side)
+```
+
+**Beneficios:**
+- ✅ NO hydration mismatch (no hay SSR del contenido dinámico)
+- ✅ Auth check en API route
+- ✅ Loading state en cliente
+- ✅ Mantiene seguridad (supabaseAdmin en API route, no en cliente)
+
+**Commit:** `ea14057`  
+**Build local:** ✅ PASS  
+**Push:** ✅ Exitoso  
+**Deploy:** ⏳ En progreso (auto-deploy esperado)
 
 ---
 
