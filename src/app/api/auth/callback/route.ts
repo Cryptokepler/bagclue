@@ -99,9 +99,8 @@ export async function GET(req: NextRequest) {
 
       // Successful OAuth login - check and send welcome email if new user
       if (data?.user) {
-        checkAndSendWelcomeEmail(data.user).catch(err => {
-          console.error('[Welcome Email] Failed in OAuth flow:', err.message)
-        })
+        // IMPORTANT: await to prevent lambda from being killed before email sends
+        await checkAndSendWelcomeEmail(data.user)
       }
 
       // Redirect to next destination
@@ -122,9 +121,8 @@ export async function GET(req: NextRequest) {
 
       // Successful magic link login - check and send welcome email if new user
       if (data?.user) {
-        checkAndSendWelcomeEmail(data.user).catch(err => {
-          console.error('[Welcome Email] Failed in magic link flow:', err.message)
-        })
+        // IMPORTANT: await to prevent lambda from being killed before email sends
+        await checkAndSendWelcomeEmail(data.user)
       }
 
       // Redirect to account dashboard
