@@ -41,12 +41,12 @@ async function checkAndSendWelcomeEmail(user: User) {
       return
     }
 
-    // Check if user was created recently (<15 minutes)
+    // Check if user was created recently (<20 minutes)
     const createdAt = new Date(profile.created_at)
     const now = new Date()
     const minutesSinceCreation = (now.getTime() - createdAt.getTime()) / 1000 / 60
 
-    if (minutesSinceCreation < 15) {
+    if (minutesSinceCreation < 20) {
       console.log(`[Welcome Email] New user detected (created ${minutesSinceCreation.toFixed(1)}min ago), sending welcome email to ${user.email}`)
       
       // Send welcome email (fire-and-forget with result logging)
