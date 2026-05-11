@@ -146,10 +146,6 @@ export default function ShippingProofSection({ orderId, currentProof, onSuccess 
             </a>
           </div>
         )}
-        
-        <div className="text-xs text-gray-500 mt-2">
-          [PRUEBA G] Con Ver + Reemplazar comprobante
-        </div>
       </div>
       
       {hasProof && (
