@@ -6,6 +6,7 @@ import AdminNav from '@/components/admin/AdminNav'
 import ShippingInfoForm from '@/components/admin/ShippingInfoForm'
 import ShippingProofSection from '@/components/admin/ShippingProofSection'
 import ClientDate from '@/components/ClientDate'
+import { formatNumber } from '@/lib/format'
 
 async function getOrder(id: string) {
   const { data: order, error } = await supabaseAdmin
@@ -80,7 +81,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
                     </div>
                     <div className="text-right">
                       <div className="text-white">
-                        ${item.unit_price.toLocaleString()} {item.product_snapshot?.currency || 'MXN'}
+                        ${formatNumber(item.unit_price)} {item.product_snapshot?.currency || 'MXN'}
                       </div>
                       <div className="text-sm text-gray-400">
                         Cantidad: {item.quantity}
@@ -94,15 +95,15 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
               <div className="mt-6 pt-4 border-t border-[#FF69B4]/10 space-y-2">
                 <div className="flex justify-between text-sm text-gray-400">
                   <span>Subtotal</span>
-                  <span>${order.subtotal.toLocaleString()} MXN</span>
+                  <span>${formatNumber(order.subtotal)} MXN</span>
                 </div>
                 <div className="flex justify-between text-sm text-gray-400">
                   <span>Envío</span>
-                  <span>${order.shipping.toLocaleString()} MXN</span>
+                  <span>${formatNumber(order.shipping)} MXN</span>
                 </div>
                 <div className="flex justify-between text-lg text-white font-medium pt-2 border-t border-[#FF69B4]/10">
                   <span>Total</span>
-                  <span>${order.total.toLocaleString()} MXN</span>
+                  <span>${formatNumber(order.total)} MXN</span>
                 </div>
               </div>
             </div>

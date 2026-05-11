@@ -1,323 +1,128 @@
-# SHIPPING PROOF MVP — QA MANUAL REPORT
+# SHIPPING PROOF MVP QA REPORT
 **Fecha:** 2026-05-11  
+**Sesión:** Manual QA — Fase 1  
 **Ejecutor:** Jhonatan  
-**Asistente:** Kepler  
-**Entorno:** Production (bagclue.vercel.app)  
+**Status:** EN PROGRESO
 
 ---
 
-## ⚙️ PRE-QA SETUP
+## TEST 1 — REACT ERROR #418 FIX ⚠️
 
-### Órdenes disponibles para testing:
-```
-ORDER 1: 57faad17-94b5-4ec0-a428-320059469335
-  Status: confirmed
-  Payment: paid
-  Total: $20 MXN
-  Tracking token: 9a888a29615a94b9f9ac468220b2a7a2
-  Proof: null (perfecto para test)
+### Issue Reportado
+- **Página:** `/admin/orders/[id]`
+- **Acción:** Subir comprobante de envío (PDF)
+- **Resultado funcional:** PASS (comprobante subió correctamente)
+- **Error crítico:** `Uncaught Error: Minified React error #418` en consola
 
-ORDER 2: 8b028ac7-424d-487d-9d6d-ab5079cd57a0
-  Status: confirmed
-  Payment: paid
-  Total: $20 MXN
-  Tracking token: 631fc56e0af0c0cd8527f181bf9f1985
-  Proof: null
+### Diagnóstico
+**Causa exacta:** Hydration mismatch por formateo de fechas con `toLocaleString()`.
 
-ORDER 3: 5ce4fbbe-9f33-48b0-b7f7-39fc5039970f
-  Status: confirmed
-  Payment: paid
-  Total: $20 MXN
-  Tracking token: e603295a184a4137b324a90c9816d4c0
-  Proof: null
-```
+**Ubicaciones problemáticas:**
+1. `ShippingProofSection.tsx` línea ~123: Fecha "Subido:"
+2. `page.tsx` líneas ~159 y ~169: Fechas "Creada" y "Actualizada"
 
-### URLs:
-- Admin login: https://bagclue.vercel.app/admin/login
-- Admin orders: https://bagclue.vercel.app/admin/orders/57faad17-94b5-4ec0-a428-320059469335
-- Admin envios: https://bagclue.vercel.app/admin/envios
-- Tracking page: https://bagclue.vercel.app/track/9a888a29615a94b9f9ac468220b2a7a2
+**Por qué falla:**
+- Server renderiza fecha en timezone de Node.js (puede ser UTC)
+- Client renderiza fecha en timezone del navegador del usuario
+- HTML inicial ≠ HTML tras hidratación → React error #418
 
-### Archivos de prueba recomendados:
-- JPG: Imagen menor a 5MB (ej: screenshot, foto de guía DHL)
-- PDF: Documento menor a 5MB (ej: PDF de guía de envío)
-- INVÁLIDO: Archivo .txt o .docx (para test negativo)
-- GRANDE: Archivo >5MB (para test negativo)
+### Fix Aplicado
+**Commit:** `27a1e12` — "Fix: React hydration error #418 - Use ClientDate component for date formatting"
 
----
+**Archivos modificados:**
+- ✅ `src/components/ClientDate.tsx` (nuevo componente)
+- ✅ `src/components/admin/ShippingProofSection.tsx` (import ClientDate, usar en uploadedAt)
+- ✅ `src/app/admin/orders/[id]/page.tsx` (import ClientDate, usar en created_at y updated_at)
 
-## 🧪 TEST 1 — UPLOAD COMPROBANTE DESDE /admin/orders/[id]
+**Solución:**
+- Componente `ClientDate` solo renderiza en cliente usando `useEffect` + `useState`
+- Durante SSR muestra "Cargando..." (placeholder)
+- Tras hidratación muestra fecha formateada correcta
+- Evita mismatch entre server y client
 
-**Objetivo:** Validar upload directo desde order detail page
-
-### Pasos manuales (UI):
-1. [ ] Ir a: https://bagclue.vercel.app/admin/orders/57faad17-94b5-4ec0-a428-320059469335
-2. [ ] Scroll a sección "Comprobante de envío"
-3. [ ] Verificar que aparece texto: "Sin comprobante cargado"
-4. [ ] Verificar que aparece CTA: "Subir comprobante de envío"
-5. [ ] Click en "Subir comprobante de envío"
-6. [ ] Seleccionar archivo JPG o PDF (<5MB)
-7. [ ] Verificar que aparece nombre del archivo
-8. [ ] Verificar que aparece tamaño del archivo
-9. [ ] Click en "Guardar comprobante"
-10. [ ] Esperar confirmación "Comprobante subido correctamente"
-11. [ ] Página debe refrescar automáticamente
-12. [ ] Verificar que aparece botón "Ver comprobante"
-13. [ ] Click en "Ver comprobante"
-14. [ ] Archivo debe abrir en nueva pestaña
-
-### Validación DB (ejecutar después del paso 11):
-```bash
-curl -s 'https://orhjnwpbzxyqtyrayvoi.supabase.co/rest/v1/orders?select=id,shipping_proof_url,shipping_proof_file_name,shipping_proof_file_type,shipping_proof_file_size,shipping_proof_uploaded_at&id=eq.57faad17-94b5-4ec0-a428-320059469335' \
-  -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9yaGpud3Bienh5cXR5cmF5dm9pIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NzQwMDM0MCwiZXhwIjoyMDkyOTc2MzQwfQ._0MWYvnD3KgamA6KguGgpDu82pmHst-3QWyuAKRLkJA" \
-  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9yaGpud3Bienh5cXR5cmF5dm9pIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NzQwMDM0MCwiZXhwIjoyMDkyOTc2MzQwfQ._0MWYvnD3KgamA6KguGgpDu82pmHst-3QWyuAKRLkJA" | python3 -m json.tool
-```
-
-**Expected result:**
-```json
-{
-  "shipping_proof_url": "https://...supabase.co/storage/v1/object/sign/shipping-proofs/...",
-  "shipping_proof_file_name": "nombre_archivo.jpg",
-  "shipping_proof_file_type": "image/jpeg",
-  "shipping_proof_file_size": 123456,
-  "shipping_proof_uploaded_at": "2026-05-11T20:XX:XX"
-}
-```
-
-### Resultado:
-- [ ] PASS / [ ] FAIL
-- **Order ID (parcial):** 57faad17...9335
-- **Proof file name:** _______________
-- **Proof file size:** _______________
-- **Link abre:** [ ] SÍ / [ ] NO
-- **Bugs encontrados:** _______________
+**Build local:** ✅ PASS (sin errores TypeScript, Next.js build completado)  
+**Push:** ✅ Exitoso a main  
+**Commit esperado:** `27a1e12`  
+**Deploy:** ✅ Auto-deploy detectado por Vercel  
+**Production URL:** https://bagclue.vercel.app  
+**Vercel Status:** READY/PROMOTED (verificado vía curl)
 
 ---
 
-## 🧪 TEST 2 — MARCAR ENVIADO CON COMPROBANTE DESDE /admin/envios
+## VERIFICACIÓN MANUAL REQUERIDA
 
-**Objetivo:** Validar modal "Marcar como enviado" con upload de comprobante
+⚠️ **Acción requerida por Jhonatan:**
 
-### Pasos manuales (UI):
-1. [ ] Usar ORDER 2: 8b028ac7-424d-487d-9d6d-ab5079cd57a0
-2. [ ] Ir a: https://bagclue.vercel.app/admin/envios
-3. [ ] Localizar orden 8b028ac7...
-4. [ ] Click en "Marcar como enviado" (si existe botón)
-5. [ ] Llenar campos:
-   - Paquetería: DHL
-   - Tracking: TEST123456789
-   - URL tracking: (dejar vacío para auto-generar)
-6. [ ] Verificar que aparece campo "Comprobante / guía de envío (opcional)"
-7. [ ] Seleccionar archivo PDF (<5MB)
-8. [ ] Verificar que aparece nombre del archivo
-9. [ ] Click en "Confirmar envío"
-10. [ ] Esperar confirmación
-11. [ ] Modal debe cerrar
-12. [ ] Tabla debe refrescar
+Ejecutar verificación manual siguiendo: `VERIFY_REACT_ERROR_FIX.md`
 
-### Validación DB (ejecutar después del paso 12):
-```bash
-curl -s 'https://orhjnwpbzxyqtyrayvoi.supabase.co/rest/v1/orders?select=id,shipping_status,tracking_number,shipping_provider,shipping_proof_url,shipping_proof_file_name&id=eq.8b028ac7-424d-487d-9d6d-ab5079cd57a0' \
-  -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9yaGpud3Bienh5cXR5cmF5dm9pIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NzQwMDM0MCwiZXhwIjoyMDkyOTc2MzQwfQ._0MWYvnD3KgamA6KguGgpDu82pmHst-3QWyuAKRLkJA" \
-  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9yaGpud3Bienh5cXR5cmF5dm9pIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NzQwMDM0MCwiZXhwIjoyMDkyOTc2MzQwfQ._0MWYvnD3KgamA6KguGgpDu82pmHst-3QWyuAKRLkJA" | python3 -m json.tool
+**Pasos críticos:**
+1. Abrir Chrome DevTools (F12) → Pestaña Console
+2. Navegar a: https://bagclue.vercel.app/admin/orders/[id] (con comprobante)
+3. **Verificar:** NO debe aparecer `React error #418` en consola
+4. **Verificar:** Fechas visibles correctamente (no "Cargando..." permanente)
+5. **Verificar:** Comprobante visible y funcional
+6. **Verificar:** Reemplazar comprobante sin errores
+
+**Resultado esperado:**
+- ✅ Consola limpia (sin React error #418)
+- ✅ Fechas renderizadas correctamente
+- ✅ Funcionalidad de comprobante intacta
+
+**Si PASS:** Continuar con próximos tests de Shipping Proof MVP QA  
+**Si FAIL:** Reportar error exacto y screenshot de consola
+
+---
+
+## DEPLOY VERIFICATION REPORT (POLÍTICA 12)
+
+**Build local:** ✅ PASS  
+**Commit:** `27a1e12`  
+**Mensaje:** "Fix: React hydration error #418 - Use ClientDate component for date formatting"  
+**Push:** ✅ PASS  
+**Vercel deploy ID:** (auto-deploy detectado)  
+**Vercel status:** READY/PROMOTED  
+**Production commit:** (pendiente verificación visual en Git UI de Vercel)  
+**Expected commit:** `27a1e12`  
+**Match:** PENDIENTE (requiere verificación manual)  
+**Production URL:** https://bagclue.vercel.app  
+**Ruta validada:** `/admin/orders/[id]` (pendiente verificación manual)  
+**Console errors:** PENDIENTE (requiere verificación manual por Jhonatan)
+
+**Archivos modificados en este fix:** 3 (1 nuevo, 2 actualizados)  
+**Líneas de código agregadas:** ~30 (componente ClientDate + imports + reemplazos)  
+**Regresiones esperadas:** NINGUNA (componente solo cambia renderizado de fechas)
+
+---
+
+## PRÓXIMOS PASOS
+
+1. ✅ Fix aplicado y desplegado
+2. ⏳ **PENDIENTE:** Jhonatan ejecuta verificación manual (VERIFY_REACT_ERROR_FIX.md)
+3. ⏳ **PENDIENTE:** Reportar resultado (PASS/FAIL)
+4. ⏳ Si PASS: Continuar con resto de Shipping Proof MVP QA (tests pendientes del checklist)
+5. ⏳ Si FAIL: Diagnosticar error adicional y aplicar nuevo fix
+
+---
+
+## LESSONS LEARNED
+
+**Hydration mismatch de fechas:**
+- `toLocaleString()` puede renderizar diferente en server vs client (timezone)
+- React detecta mismatch → Error #418
+- **Solución:** Componente client-only que usa `useEffect` para renderizar fecha
+- **Alternativa:** Formatear fecha de manera estable (ISO string) o usar librería como `date-fns` con formato explícito
+
+**Patrón seguro para fechas:**
+```tsx
+// ❌ INCORRECTO (causa hydration mismatch)
+{new Date(date).toLocaleString('es-MX', {...})}
+
+// ✅ CORRECTO (renderiza solo en cliente)
+<ClientDate date={date} />
 ```
 
-**Expected result:**
-```json
-{
-  "shipping_status": "shipped",
-  "tracking_number": "TEST123456789",
-  "shipping_provider": "dhl",
-  "shipping_proof_url": "https://...supabase.co/storage/v1/object/sign/...",
-  "shipping_proof_file_name": "guia.pdf"
-}
-```
-
-### Resultado:
-- [ ] PASS / [ ] FAIL
-- **Order ID (parcial):** 8b028ac7...57a0
-- **Tracking number:** _______________
-- **Proof guardado:** [ ] SÍ / [ ] NO
-- **Email enviado:** [ ] SÍ / [ ] NO
-- **Bugs encontrados:** _______________
-
----
-
-## 🧪 TEST 3 — EMAIL TRACKING
-
-**Objetivo:** Validar que email incluye comprobante si existe
-
-### Pasos manuales:
-1. [ ] Revisar inbox del email de la orden (customer_email)
-2. [ ] Buscar email "Tu pieza Bagclue va en camino"
-3. [ ] Verificar contenido:
-   - [ ] Tracking number visible
-   - [ ] Link "Rastrear Paquete en DHL" (si trackingUrl existe)
-   - [ ] Link "Ver Estado del Pedido" (tracking Bagclue)
-   - [ ] Bloque "Comprobante de envío disponible" (si proof existe)
-   - [ ] Botón "Ver Comprobante de Envío" (si proof existe)
-4. [ ] Click en "Ver Comprobante de Envío"
-5. [ ] Archivo debe abrir en nueva pestaña
-
-### Resultado:
-- [ ] PASS / [ ] FAIL
-- **Email recibido:** [ ] SÍ / [ ] NO
-- **Tracking number visible:** [ ] SÍ / [ ] NO
-- **CTA comprobante visible:** [ ] SÍ / [ ] NO
-- **Link comprobante abre:** [ ] SÍ / [ ] NO
-- **Bugs encontrados:** _______________
-
----
-
-## 🧪 TEST 4 — TRACKING PAGE CLIENTE
-
-**Objetivo:** Validar que tracking page muestra comprobante
-
-### Pasos manuales (UI):
-1. [ ] Ir a: https://bagclue.vercel.app/track/631fc56e0af0c0cd8527f181bf9f1985
-2. [ ] Verificar que aparece estado "Enviado" o "En Tránsito"
-3. [ ] Verificar que aparece tracking number
-4. [ ] Verificar que aparece paquetería (DHL)
-5. [ ] Scroll hasta encontrar sección "Comprobante de Envío" (si proof existe)
-6. [ ] Verificar que aparece texto: "Puedes consultar la guía o comprobante asociado a tu envío"
-7. [ ] Verificar que aparece botón "Ver Comprobante de Envío"
-8. [ ] Click en botón
-9. [ ] Archivo debe abrir en nueva pestaña
-
-### Validación API tracking:
-```bash
-curl -s 'https://bagclue.vercel.app/api/orders/track/631fc56e0af0c0cd8527f181bf9f1985' | python3 -m json.tool | grep -A 2 "shipping_proof"
-```
-
-**Expected result:**
-```json
-"shipping_proof_url": "https://...supabase.co/storage/v1/object/sign/...",
-"shipping_proof_file_name": "archivo.pdf"
-```
-
-### Resultado:
-- [ ] PASS / [ ] FAIL
-- **Tracking token (parcial):** 631fc56e...1985
-- **Estado enviado visible:** [ ] SÍ / [ ] NO
-- **Bloque comprobante visible:** [ ] SÍ / [ ] NO
-- **Link abre:** [ ] SÍ / [ ] NO
-- **Bugs encontrados:** _______________
-
----
-
-## 🧪 TEST 5 — VALIDACIONES NEGATIVAS
-
-**Objetivo:** Validar que las validaciones funcionan correctamente
-
-### Test 5A: Archivo inválido (.txt)
-1. [ ] Ir a /admin/orders/5ce4fbbe-9f33-48b0-b7f7-39fc5039970f
-2. [ ] Intentar subir archivo .txt
-3. [ ] Verificar mensaje de error: "Formato no válido. Solo JPG, PNG o PDF."
-4. [ ] Verificar que botón "Guardar" está deshabilitado o no sube
-
-**Resultado 5A:**
-- [ ] PASS / [ ] FAIL
-- **Error claro:** [ ] SÍ / [ ] NO
-
-### Test 5B: Archivo >5MB
-1. [ ] Intentar subir archivo de 7MB
-2. [ ] Verificar mensaje de error: "Archivo demasiado grande. Máximo 5 MB."
-3. [ ] Verificar que botón "Guardar" está deshabilitado o no sube
-
-**Resultado 5B:**
-- [ ] PASS / [ ] FAIL
-- **Error claro:** [ ] SÍ / [ ] NO
-
-### Test 5C: Shipping sin comprobante (flujo normal)
-1. [ ] Marcar orden como enviado SIN subir comprobante
-2. [ ] Verificar que funciona normalmente
-3. [ ] Email NO debe incluir bloque de comprobante
-4. [ ] Tracking page NO debe mostrar sección comprobante
-
-**Resultado 5C:**
-- [ ] PASS / [ ] FAIL
-- **Funciona sin proof:** [ ] SÍ / [ ] NO
-
-### Test 5D: Seguridad en logs
-1. [ ] Abrir DevTools → Console
-2. [ ] Realizar upload de comprobante
-3. [ ] Verificar que NO aparece en logs:
-   - [ ] Signed URL completa (solo path truncado OK)
-   - [ ] tracking_token completo (solo primeros 8 chars OK)
-   - [ ] SUPABASE_SERVICE_ROLE_KEY
-   - [ ] Secrets/passwords
-
-**Resultado 5D:**
-- [ ] PASS / [ ] FAIL
-- **Secrets expuestos:** [ ] SÍ / [ ] NO
-
-### Test 5E: Consola sin errores críticos
-1. [ ] Navegar por todas las páginas admin (/envios, /orders/[id])
-2. [ ] Verificar que NO aparece:
-   - [ ] "supabaseKey is required"
-   - [ ] Uncaught errors
-   - [ ] Failed to fetch (críticos)
-   - [ ] CORS errors
-
-**Resultado 5E:**
-- [ ] PASS / [ ] FAIL
-- **Errores críticos:** [ ] SÍ / [ ] NO
-
----
-
-## 📊 RESUMEN FINAL
-
-### Tests ejecutados:
-- [ ] TEST 1 - Upload desde order detail
-- [ ] TEST 2 - Marcar enviado con comprobante
-- [ ] TEST 3 - Email tracking
-- [ ] TEST 4 - Tracking page cliente
-- [ ] TEST 5 - Validaciones negativas
-
-### Resultado global:
-- **PASS:** ___ / 5
-- **FAIL:** ___ / 5
-
-### Bugs críticos encontrados:
-1. _______________
-2. _______________
-3. _______________
-
-### Bugs menores encontrados:
-1. _______________
-2. _______________
-
-### Áreas validadas:
-- [ ] DB migration aplicada correctamente
-- [ ] Bucket privado funciona
-- [ ] Upload server-side funciona
-- [ ] Signed URLs funcionan (no expiran prematuramente)
-- [ ] Email incluye comprobante correctamente
-- [ ] Tracking page muestra comprobante
-- [ ] Validaciones frontend funcionan
-- [ ] Validaciones backend funcionan
-- [ ] No secrets en logs
-- [ ] Consola limpia
-
----
-
-## ✅ DECISIÓN FINAL
-
-### SHIPPING PROOF MVP:
-- [ ] **CERRADO ✅** (todos los tests PASS, ready for production)
-- [ ] **NO CERRADO ❌** (bugs críticos encontrados, requiere fix)
-
-### Notas adicionales:
-_______________________________________________________________________________
-_______________________________________________________________________________
-_______________________________________________________________________________
-
----
-
-**Firma digital:** Jhonatan  
-**Fecha de cierre:** _____________  
-**Asistente:** Kepler  
-
----
-
-**END OF QA REPORT**
+**Aplicable a:**
+- Fechas con timezone
+- Timestamps
+- Cualquier valor que dependa de configuración del navegador (locale, timezone, etc.)
+- Valores que usen `window`, `document`, `localStorage` durante SSR
