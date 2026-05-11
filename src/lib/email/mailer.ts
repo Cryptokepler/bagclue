@@ -357,3 +357,25 @@ export async function sendBankTransferRejectedEmail(params: {
     text: `Comprobante rechazado. Pedido #${params.orderId}. Motivo: ${params.rejectionReason}. Sube un nuevo comprobante.`,
   });
 }
+
+/**
+ * Envía email de bienvenida a nuevos clientes
+ */
+export async function sendWelcomeEmail(params: {
+  to: string;
+  customerName?: string;
+}): Promise<boolean> {
+  const { generateWelcomeHTML } = await import('./templates/welcome');
+  
+  const html = generateWelcomeHTML({
+    customerName: params.customerName || undefined,
+    email: params.to,
+  });
+
+  return sendEmail({
+    to: params.to,
+    subject: 'Bienvenida a Bagclue ✨',
+    html,
+    text: `Bienvenida a Bagclue. Explora piezas de lujo verificadas en nuestro catálogo: https://bagclue.vercel.app/catalogo`,
+  });
+}
