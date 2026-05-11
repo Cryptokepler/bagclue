@@ -105,7 +105,7 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
 
       {/* BUILD TEST MARKER */}
       <div className="bg-yellow-500 text-black text-center py-3 px-4 font-bold text-sm">
-        🔍 BUILD TEST - PRUEBA B ACTIVA 🔍
+        🔍 BUILD TEST - PRUEBA C ACTIVA 🔍
       </div>
 
       {/* Main */}

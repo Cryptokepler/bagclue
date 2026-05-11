@@ -15,7 +15,7 @@ interface ShippingProofSectionProps {
 }
 
 export default function ShippingProofSection({ orderId, currentProof, onSuccess }: ShippingProofSectionProps) {
-  // PASO B: Caja estática sin datos
+  // PASO C: Agregar fileName
   return (
     <div className="bg-white/5 border border-[#FF69B4]/20 p-6">
       <h2 className="text-lg text-white font-medium mb-4">Comprobante de envío</h2>
@@ -24,8 +24,13 @@ export default function ShippingProofSection({ orderId, currentProof, onSuccess 
         <div className="text-sm text-emerald-400 font-medium">
           Comprobante disponible
         </div>
+        {currentProof.fileName && (
+          <div className="text-xs text-gray-400 mt-1 truncate">
+            {currentProof.fileName}
+          </div>
+        )}
         <div className="text-xs text-gray-500 mt-2">
-          [PRUEBA B] Caja estática sin datos
+          [PRUEBA C] Con fileName
         </div>
       </div>
     </div>
