@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import ClientDate from '@/components/ClientDate'
 
 interface ShippingProofSectionProps {
   orderId: string
@@ -154,13 +155,7 @@ export default function ShippingProofSection({ orderId, currentProof, onSuccess 
           
           {currentProof.uploadedAt && (
             <div className="text-xs text-gray-500">
-              Subido: {new Date(currentProof.uploadedAt).toLocaleString('es-MX', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-              })}
+              Subido: <ClientDate date={currentProof.uploadedAt} />
             </div>
           )}
 

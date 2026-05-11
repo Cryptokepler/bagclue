@@ -5,6 +5,7 @@ import { supabaseAdmin } from '@/lib/supabase-admin'
 import AdminNav from '@/components/admin/AdminNav'
 import ShippingInfoForm from '@/components/admin/ShippingInfoForm'
 import ShippingProofSection from '@/components/admin/ShippingProofSection'
+import ClientDate from '@/components/ClientDate'
 
 async function getOrder(id: string) {
   const { data: order, error } = await supabaseAdmin
@@ -210,25 +211,13 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
                 <div>
                   <div className="text-xs text-gray-400 mb-1">Creada</div>
                   <div className="text-sm text-white">
-                    {new Date(order.created_at).toLocaleString('es-MX', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    })}
+                    <ClientDate date={order.created_at} />
                   </div>
                 </div>
                 <div>
                   <div className="text-xs text-gray-400 mb-1">Actualizada</div>
                   <div className="text-sm text-gray-300">
-                    {new Date(order.updated_at).toLocaleString('es-MX', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    })}
+                    <ClientDate date={order.updated_at} />
                   </div>
                 </div>
               </div>
