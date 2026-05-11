@@ -49,12 +49,18 @@ async function checkAndSendWelcomeEmail(user: User) {
     if (minutesSinceCreation < 15) {
       console.log(`[Welcome Email] New user detected (created ${minutesSinceCreation.toFixed(1)}min ago), sending welcome email to ${user.email}`)
       
-      // Send welcome email (fire-and-forget)
+      // Send welcome email (fire-and-forget with result logging)
       sendWelcomeEmail({
         to: user.email,
         customerName: profile.name || undefined,
+      }).then(success => {
+        if (success) {
+          console.log(`[Welcome Email] ✅ Sent successfully to ${user.email}`)
+        } else {
+          console.error(`[Welcome Email] ❌ Failed to send to ${user.email} (SMTP error or config issue)`)
+        }
       }).catch(err => {
-        console.error('[Welcome Email] Send failed:', err.message)
+        console.error('[Welcome Email] ❌ Unexpected error:', err.message)
         // Don't throw - email failure should not break auth flow
       })
     } else {
