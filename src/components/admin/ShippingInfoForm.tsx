@@ -19,6 +19,7 @@ interface ShippingInfoFormProps {
 }
 
 export default function ShippingInfoForm({ orderId, initialData, onSuccess }: ShippingInfoFormProps) {
+  const [mounted, setMounted] = useState(false)
   const [formData, setFormData] = useState({
     status: initialData.status || 'confirmed',
     customer_phone: initialData.customer_phone || '',
@@ -34,6 +35,11 @@ export default function ShippingInfoForm({ orderId, initialData, onSuccess }: Sh
   const [success, setSuccess] = useState(false)
   const [copySuccess, setCopySuccess] = useState(false)
   const [publicTrackingUrl, setPublicTrackingUrl] = useState<string | null>(null)
+
+  // CRITICAL: Mounted guard to prevent hydration mismatch
+  useEffect(() => {
+    setMounted(true)
+  }, [])
   
   // Calcular tracking URL solo en cliente para evitar hydration mismatch
   useEffect(() => {
@@ -122,6 +128,15 @@ export default function ShippingInfoForm({ orderId, initialData, onSuccess }: Sh
     }
   }
 
+  // Fallback antes de mounted para evitar hydration mismatch
+  if (!mounted) {
+    return (
+      <div className="bg-white/5 border border-[#FF69B4]/20 p-6 rounded">
+        <h2 className="text-white text-sm">Cargando formulario de envío...</h2>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
       {/* Tracking Link - Always visible */}
@@ -204,7 +219,7 @@ export default function ShippingInfoForm({ orderId, initialData, onSuccess }: Sh
             <option value="delivered">Entregado</option>
           </select>
           {formData.shipping_status === 'shipped' && (
-            <p className="text-xs text-yellow-400 mt-2">
+            <p className="text-xs text-yellow-400 mt-2" suppressHydrationWarning>
               ⚠️ Para marcar como "Enviado" debes llenar: Paquetería, Número de rastreo y Dirección de envío
             </p>
           )}
