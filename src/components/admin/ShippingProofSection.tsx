@@ -15,7 +15,7 @@ interface ShippingProofSectionProps {
 }
 
 export default function ShippingProofSection({ orderId, currentProof, onSuccess }: ShippingProofSectionProps) {
-  // PASO D: Agregar fileSize
+  // PASO E: Agregar uploadedAt con ClientDate
   return (
     <div className="bg-white/5 border border-[#FF69B4]/20 p-6">
       <h2 className="text-lg text-white font-medium mb-4">Comprobante de envío</h2>
@@ -34,8 +34,13 @@ export default function ShippingProofSection({ orderId, currentProof, onSuccess 
             {(currentProof.fileSize / 1024).toFixed(1)} KB
           </div>
         )}
+        {currentProof.uploadedAt && (
+          <div className="text-xs text-gray-500 mt-1">
+            Subido: <ClientDate date={currentProof.uploadedAt} />
+          </div>
+        )}
         <div className="text-xs text-gray-500 mt-2">
-          [PRUEBA D] Con fileName + fileSize
+          [PRUEBA E] Con fileName + fileSize + uploadedAt
         </div>
       </div>
     </div>
