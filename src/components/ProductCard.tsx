@@ -3,7 +3,10 @@ import { Product, brandGradients, formatPrice, getStatusLabel } from '@/data/pro
 import Badge from './Badge';
 
 export default function ProductCard({ product }: { product: Product }) {
-  const gradient = brandGradients[product.brand];
+  const defaultGradient = { from: '#1a1a1a', to: '#4A4A4A' };
+  const gradient = product.brand in brandGradients 
+    ? brandGradients[product.brand]
+    : defaultGradient;
 
   return (
     <Link href={`/catalogo/${product.slug || product.id}`} className="group block">
@@ -85,12 +88,12 @@ export default function ProductCard({ product }: { product: Product }) {
           
           {/* Color · Origen */}
           <p className="font-[family-name:var(--font-inter)] text-xs text-white/70 mt-1.5">
-            {product.color} · {product.origin}
+            {product.color || 'N/A'} · {product.origin || 'N/A'}
           </p>
           
           {/* Precio - separado y elegante */}
           <div className="mt-4">
-            {product.price ? (
+            {product.price && typeof product.price === 'number' ? (
               <div className="flex items-baseline gap-1.5">
                 <span className="font-[family-name:var(--font-inter)] text-xl font-semibold text-[#E85A9A]">
                   ${product.price.toLocaleString('es-MX')}

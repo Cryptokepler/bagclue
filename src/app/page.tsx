@@ -23,20 +23,26 @@ async function getFeaturedProducts() {
     return [];
   }
 
-  const transformedProducts: LegacyProduct[] = (productsData || []).map((p: any) => ({
-    id: p.slug || p.id,
-    slug: p.slug || undefined,
-    brand: p.brand as Brand,
-    model: p.model || p.title,
-    color: p.color || '',
-    origin: p.origin || '',
-    status: dbStatusToLegacy(p.status),
-    price: p.price,
-    category: p.category as any,
-    image: p.product_images?.[0]?.url || '',
-    badge: p.badge || undefined,
-    description: p.description || undefined
-  }));
+  const transformedProducts: LegacyProduct[] = (productsData || [])
+    .filter((p: any) => {
+      // Filter out products with invalid brands that would break rendering
+      const validBrands = ['Chanel', 'Hermès', 'Goyard', 'Céline', 'Louis Vuitton', 'Balenciaga'];
+      return validBrands.includes(p.brand);
+    })
+    .map((p: any) => ({
+      id: p.slug || p.id,
+      slug: p.slug || undefined,
+      brand: p.brand as Brand,
+      model: p.model || p.title || 'Sin modelo',
+      color: p.color || 'N/A',
+      origin: p.origin || 'N/A',
+      status: dbStatusToLegacy(p.status),
+      price: typeof p.price === 'number' ? p.price : null,
+      category: p.category as any,
+      image: p.product_images?.[0]?.url || '',
+      badge: p.badge || undefined,
+      description: p.description || undefined
+    }));
 
   return transformedProducts;
 }
