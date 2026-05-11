@@ -52,6 +52,7 @@ export async function POST(
         shipping_proof_file_name: uploadResult.fileName,
         shipping_proof_file_type: uploadResult.fileType,
         shipping_proof_file_size: uploadResult.fileSize,
+        shipping_proof_path: uploadResult.storagePath,  // Store actual storage path
         shipping_proof_uploaded_at: new Date().toISOString()
       })
       .eq('id', orderId)

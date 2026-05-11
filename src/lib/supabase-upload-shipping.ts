@@ -10,6 +10,7 @@ export interface ShippingProofUploadResult {
   fileName: string
   fileType: string
   fileSize: number
+  storagePath: string  // Full storage path: {orderId}/{timestamp}_{sanitizedFileName}
 }
 
 export interface ShippingProofUploadError {
@@ -113,7 +114,8 @@ export async function uploadShippingProof(
       url: urlData.signedUrl,
       fileName: file.name,
       fileType: file.type,
-      fileSize: file.size
+      fileSize: file.size,
+      storagePath: filePath  // Full path with timestamp
     }
   } catch (error: any) {
     console.error('[SHIPPING PROOF] Unexpected error:', error.message)
