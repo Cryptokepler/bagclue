@@ -15,7 +15,9 @@ interface ShippingProofSectionProps {
 }
 
 export default function ShippingProofSection({ orderId, currentProof, onSuccess }: ShippingProofSectionProps) {
-  // PASO E: Agregar uploadedAt con ClientDate
+  // PASO F: Agregar botón Ver Comprobante con endpoint estable
+  const hasProof = !!(currentProof.fileName && currentProof.fileSize)
+  
   return (
     <div className="bg-white/5 border border-[#FF69B4]/20 p-6">
       <h2 className="text-lg text-white font-medium mb-4">Comprobante de envío</h2>
@@ -39,8 +41,23 @@ export default function ShippingProofSection({ orderId, currentProof, onSuccess 
             Subido: <ClientDate date={currentProof.uploadedAt} />
           </div>
         )}
+        
+        {hasProof && (
+          <div className="mt-3">
+            <a
+              href={`/api/admin/orders/${orderId}/shipping-proof/download`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500 text-white rounded hover:bg-emerald-600 transition-colors text-sm font-medium"
+            >
+              <span>📄</span>
+              Ver Comprobante
+            </a>
+          </div>
+        )}
+        
         <div className="text-xs text-gray-500 mt-2">
-          [PRUEBA E] Con fileName + fileSize + uploadedAt
+          [PRUEBA F] Con botón Ver Comprobante (endpoint estable)
         </div>
       </div>
     </div>
