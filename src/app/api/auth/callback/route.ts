@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseCustomer } from '@/lib/supabase-customer'
-import { createClient } from '@supabase/supabase-js'
+import { createClient, User } from '@supabase/supabase-js'
 import { sendWelcomeEmail } from '@/lib/email/mailer'
 
 // Service role client for server-side queries
@@ -12,15 +12,17 @@ const supabaseAdmin = createClient(
 /**
  * Check if user is new and send welcome email
  * Fire-and-forget - does not block redirect
+ * 
+ * @param user - User object from exchangeCodeForSession or verifyOtp
  */
-async function checkAndSendWelcomeEmail() {
+async function checkAndSendWelcomeEmail(user: User) {
   try {
-    // Get current user
-    const { data: { user } } = await supabaseCustomer.auth.getUser()
-    if (!user) {
-      console.log('[Welcome Email] No user found, skipping')
+    if (!user || !user.email) {
+      console.log('[Welcome Email] No user or email provided, skipping')
       return
     }
+
+    console.log(`[Welcome Email] Checking for user ${user.id}`)
 
     // Query customer_profiles with service role to bypass RLS
     const { data: profile, error } = await supabaseAdmin
@@ -49,7 +51,7 @@ async function checkAndSendWelcomeEmail() {
       
       // Send welcome email (fire-and-forget)
       sendWelcomeEmail({
-        to: user.email!,
+        to: user.email,
         customerName: profile.name || undefined,
       }).catch(err => {
         console.error('[Welcome Email] Send failed:', err.message)
@@ -82,7 +84,7 @@ export async function GET(req: NextRequest) {
   try {
     // OAuth Flow (Google, etc.)
     if (code) {
-      const { error: exchangeError } = await supabaseCustomer.auth.exchangeCodeForSession(code)
+      const { data, error: exchangeError } = await supabaseCustomer.auth.exchangeCodeForSession(code)
 
       if (exchangeError) {
         console.error('Code exchange error:', exchangeError)
@@ -90,9 +92,11 @@ export async function GET(req: NextRequest) {
       }
 
       // Successful OAuth login - check and send welcome email if new user
-      checkAndSendWelcomeEmail().catch(err => {
-        console.error('[Welcome Email] Failed in OAuth flow:', err.message)
-      })
+      if (data?.user) {
+        checkAndSendWelcomeEmail(data.user).catch(err => {
+          console.error('[Welcome Email] Failed in OAuth flow:', err.message)
+        })
+      }
 
       // Redirect to next destination
       return NextResponse.redirect(new URL(next, req.url))
@@ -100,7 +104,7 @@ export async function GET(req: NextRequest) {
 
     // Magic Link Flow
     if (token_hash && type === 'magiclink') {
-      const { error: verifyError } = await supabaseCustomer.auth.verifyOtp({
+      const { data, error: verifyError } = await supabaseCustomer.auth.verifyOtp({
         token_hash,
         type: 'magiclink',
       })
@@ -111,9 +115,11 @@ export async function GET(req: NextRequest) {
       }
 
       // Successful magic link login - check and send welcome email if new user
-      checkAndSendWelcomeEmail().catch(err => {
-        console.error('[Welcome Email] Failed in magic link flow:', err.message)
-      })
+      if (data?.user) {
+        checkAndSendWelcomeEmail(data.user).catch(err => {
+          console.error('[Welcome Email] Failed in magic link flow:', err.message)
+        })
+      }
 
       // Redirect to account dashboard
       return NextResponse.redirect(new URL('/account', req.url))
