@@ -54,26 +54,47 @@ export default async function AdminDashboardPage() {
           </a>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <div className="bg-white/5 border border-[#FF69B4]/20 p-6">
-            <div className="text-3xl font-bold text-white mb-1">
-              {products.length}
-            </div>
-            <div className="text-sm text-gray-400">Total productos</div>
-          </div>
+        {/* Stats Operativas */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+          {/* Principal: Activos/Publicados */}
           <div className="bg-white/5 border border-[#FF69B4]/20 p-6">
             <div className="text-3xl font-bold text-emerald-400 mb-1">
               {products.filter(p => p.is_published).length}
             </div>
-            <div className="text-sm text-gray-400">Publicados</div>
+            <div className="text-sm text-gray-400">Productos activos</div>
           </div>
+          
+          {/* Disponibles para venta */}
           <div className="bg-white/5 border border-[#FF69B4]/20 p-6">
-            <div className="text-3xl font-bold text-[#FF69B4] mb-1">
+            <div className="text-3xl font-bold text-emerald-300 mb-1">
+              {products.filter(p => p.is_published && p.status === 'available').length}
+            </div>
+            <div className="text-sm text-gray-400">Disponibles venta</div>
+          </div>
+          
+          {/* Inactivos/Ocultos */}
+          <div className="bg-white/5 border border-[#FF69B4]/20 p-6">
+            <div className="text-3xl font-bold text-yellow-400 mb-1">
               {products.filter(p => !p.is_published).length}
             </div>
-            <div className="text-sm text-gray-400">Ocultos</div>
+            <div className="text-sm text-gray-400">Inactivos/Ocultos</div>
           </div>
+          
+          {/* Valor disponible */}
+          <div className="bg-white/5 border border-[#FF69B4]/20 p-6">
+            <div className="text-3xl font-bold text-[#C9A96E] mb-1">
+              ${products
+                .filter(p => p.is_published && ['available', 'preorder'].includes(p.status))
+                .reduce((sum, p) => sum + (Number(p.price) || 0), 0)
+                .toLocaleString()}
+            </div>
+            <div className="text-sm text-gray-400">Valor disponible</div>
+          </div>
+        </div>
+        
+        {/* Base histórica - referencia */}
+        <div className="mb-6 p-4 bg-white/5 border border-[#FF69B4]/10 text-sm text-gray-400">
+          <span className="font-medium text-white">Base histórica:</span> {products.length} productos total en DB (incluye test, vendidos, inactivos)
         </div>
 
         {/* Products Table */}
