@@ -76,7 +76,7 @@ export default async function AdminDashboardPage() {
         </div>
 
         {/* Stats Operativas */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           {/* Principal: Activos/Publicados */}
           <div className="bg-white/5 border border-[#FF69B4]/20 p-6">
             <div className="text-3xl font-bold text-emerald-400 mb-1">
@@ -91,14 +91,6 @@ export default async function AdminDashboardPage() {
               {allProducts.filter(p => p.is_published && p.status === 'available').length}
             </div>
             <div className="text-sm text-gray-400">Disponibles venta</div>
-          </div>
-          
-          {/* Inactivos/Ocultos */}
-          <div className="bg-white/5 border border-[#FF69B4]/20 p-6">
-            <div className="text-3xl font-bold text-yellow-400 mb-1">
-              {allProducts.filter(p => !p.is_published).length}
-            </div>
-            <div className="text-sm text-gray-400">Inactivos/Ocultos</div>
           </div>
           
           {/* Valor disponible */}
