@@ -30,54 +30,43 @@ export async function GET(
 
     const { orderId } = await context.params
 
-    // Fetch order
+    // Fetch order (shipping_proof_path column doesn't exist yet, use only existing columns)
     const { data: order, error: orderError } = await supabaseAdmin
       .from('orders')
-      .select('shipping_proof_path, shipping_proof_url, shipping_proof_file_name')
+      .select('shipping_proof_url, shipping_proof_file_name')
       .eq('id', orderId)
       .single()
 
-    if (orderError || !order) {
+    if (orderError) {
+      console.error('[DOWNLOAD PROOF] Database error:', orderError.message)
+      return NextResponse.json({ error: 'Database error' }, { status: 500 })
+    }
+
+    if (!order) {
       console.error('[DOWNLOAD PROOF] Order not found:', orderId)
       return NextResponse.json({ error: 'Order not found' }, { status: 404 })
     }
 
-    if (!order.shipping_proof_file_name) {
+    if (!order.shipping_proof_file_name || !order.shipping_proof_url) {
       console.error('[DOWNLOAD PROOF] No shipping proof for order:', orderId)
       return NextResponse.json({ error: 'No shipping proof available' }, { status: 404 })
     }
 
+    // Parse file path from signed URL
     let filePath: string
-
-    // Try to use shipping_proof_path first (new uploads)
-    if (order.shipping_proof_path) {
-      filePath = order.shipping_proof_path
-      console.log('[DOWNLOAD PROOF] Using stored path:', filePath)
-    } 
-    // Fallback: parse from signed URL (legacy orders)
-    else if (order.shipping_proof_url) {
-      console.log('[DOWNLOAD PROOF] No stored path, parsing from URL (legacy order)')
-      try {
-        // Extract path from signed URL: .../shipping-proofs/{orderId}/{file}?token=...
-        const urlMatch = order.shipping_proof_url.match(/shipping-proofs\/([^?]+)/)
-        if (urlMatch && urlMatch[1]) {
-          filePath = urlMatch[1]
-          console.log('[DOWNLOAD PROOF] Extracted path from URL:', filePath)
-        } else {
-          throw new Error('Could not parse path from URL')
-        }
-      } catch (error: any) {
-        console.error('[DOWNLOAD PROOF] Failed to parse URL:', error.message)
-        return NextResponse.json({ 
-          error: 'Cannot locate file. Please re-upload the shipping proof.' 
-        }, { status: 404 })
+    try {
+      // Extract path from signed URL: .../shipping-proofs/{orderId}/{file}?token=...
+      const urlMatch = order.shipping_proof_url.match(/shipping-proofs\/([^?]+)/)
+      if (urlMatch && urlMatch[1]) {
+        filePath = urlMatch[1]
+        console.log('[DOWNLOAD PROOF] Extracted path from URL for order:', orderId.slice(0, 8))
+      } else {
+        throw new Error('Could not parse path from URL')
       }
-    } 
-    // No path and no URL: cannot proceed
-    else {
-      console.error('[DOWNLOAD PROOF] No path or URL available')
+    } catch (error: any) {
+      console.error('[DOWNLOAD PROOF] Failed to parse URL:', error.message)
       return NextResponse.json({ 
-        error: 'Shipping proof metadata missing. Please re-upload.' 
+        error: 'Cannot locate file. Please re-upload the shipping proof.' 
       }, { status: 404 })
     }
     const { data: urlData, error: urlError } = await supabaseAdmin.storage
