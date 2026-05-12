@@ -415,11 +415,17 @@ async function handleLayawayDeposit(session: Stripe.Checkout.Session) {
         to: fullLayaway.customer_email,
         customerName: fullLayaway.customer_name,
         productName: product?.title || 'Tu producto',
-        totalPrice: fullLayaway.total_amount,
-        amountPaid: fullLayaway.amount_paid || fullLayaway.total_amount * 0.2,
-        remainingBalance: fullLayaway.amount_remaining || fullLayaway.total_amount * 0.8,
+        totalPrice: fullLayaway.total_amount || fullLayaway.product_price,
+        amountPaid: fullLayaway.amount_paid || fullLayaway.deposit_amount,
+        remainingBalance: fullLayaway.amount_remaining || fullLayaway.balance_amount,
         currency: 'MXN',
-        accountUrl
+        accountUrl,
+        // Weekly plans fields (with fallbacks for legacy layaways)
+        planWeeks: fullLayaway.total_payments || 4,
+        paymentsCompleted: fullLayaway.payments_completed || 1,
+        paymentsRemaining: fullLayaway.payments_remaining || 0,
+        nextPaymentAmount: fullLayaway.next_payment_amount || 0,
+        nextPaymentDate: fullLayaway.next_payment_due_date || new Date().toISOString()
       })
       
       console.log(`[WEBHOOK] Layaway email sent: ${emailSent}`)

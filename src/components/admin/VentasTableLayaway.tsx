@@ -7,6 +7,8 @@ type Layaway = {
   user_id?: string | null
   product_title: string
   product_brand?: string
+  total_payments?: number
+  plan_type?: string
   total_amount: number
   amount_paid: number
   amount_remaining: number
@@ -89,6 +91,7 @@ export default function VentasTableLayaway({ layaways, showHeader = true }: Vent
               <th className="px-6 py-3">Cliente</th>
               <th className="px-6 py-3">Email</th>
               <th className="px-6 py-3">Producto</th>
+              <th className="px-6 py-3">Plan</th>
               <th className="px-6 py-3">Total</th>
               <th className="px-6 py-3">Pagado</th>
               <th className="px-6 py-3">Pendiente</th>
@@ -102,7 +105,7 @@ export default function VentasTableLayaway({ layaways, showHeader = true }: Vent
           <tbody className="divide-y divide-[#FF69B4]/10">
             {layaways.length === 0 ? (
               <tr>
-                <td colSpan={11} className="px-6 py-8 text-center text-gray-400">
+                <td colSpan={12} className="px-6 py-8 text-center text-gray-400">
                   No hay ventas a pagos
                 </td>
               </tr>
@@ -120,6 +123,9 @@ export default function VentasTableLayaway({ layaways, showHeader = true }: Vent
                       {layaway.product_brand && `${layaway.product_brand} `}
                       {layaway.product_title}
                     </div>
+                  </td>
+                  <td className="px-6 py-4 text-xs text-gray-400">
+                    {layaway.total_payments ? `${layaway.total_payments} sem` : '-'}
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-300">
                     {formatCurrency(layaway.total_amount)}

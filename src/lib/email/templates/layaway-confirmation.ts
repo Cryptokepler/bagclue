@@ -4,13 +4,18 @@
  */
 
 interface LayawayConfirmationParams {
-  customerName: string;
-  productName: string;
-  totalPrice: number;
-  amountPaid: number;
-  remainingBalance: number;
-  currency: string;
-  accountUrl: string;
+  customerName: string
+  productName: string
+  totalPrice: number
+  amountPaid: number
+  remainingBalance: number
+  currency: string
+  accountUrl: string
+  planWeeks: number
+  paymentsCompleted: number
+  paymentsRemaining: number
+  nextPaymentAmount: number
+  nextPaymentDate: string  // ISO string
 }
 
 export function generateLayawayConfirmationHTML(params: LayawayConfirmationParams): string {
@@ -18,9 +23,19 @@ export function generateLayawayConfirmationHTML(params: LayawayConfirmationParam
     style: 'currency',
     currency: params.currency,
     minimumFractionDigits: 0,
-  }).format(amount);
+  }).format(amount)
 
-  const progressPercent = Math.round((params.amountPaid / params.totalPrice) * 100);
+  const formatDate = (isoString: string) => {
+    const date = new Date(isoString)
+    return date.toLocaleDateString('es-MX', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric'
+    })
+  }
+
+  const progressPercent = Math.round((params.amountPaid / params.totalPrice) * 100)
+  const isCompleted = params.remainingBalance === 0
 
   return `
 <!DOCTYPE html>
@@ -121,6 +136,13 @@ export function generateLayawayConfirmationHTML(params: LayawayConfirmationParam
       text-align: center;
       margin: 20px 0;
     }
+    .completed {
+      font-size: 20px;
+      font-weight: 600;
+      color: #10B981;
+      text-align: center;
+      margin: 20px 0;
+    }
     .button {
       display: inline-block;
       background: #E85A9A;
@@ -151,6 +173,13 @@ export function generateLayawayConfirmationHTML(params: LayawayConfirmationParam
       color: #666;
       font-size: 14px;
     }
+    .highlight {
+      background: #FFF9E6;
+      border-left: 4px solid #F59E0B;
+      padding: 16px;
+      margin: 20px 0;
+      border-radius: 4px;
+    }
     @media only screen and (max-width: 600px) {
       .container {
         padding: 20px 10px;
@@ -175,11 +204,14 @@ export function generateLayawayConfirmationHTML(params: LayawayConfirmationParam
     </div>
     
     <div class="card">
-      <h1>✅ Apartado Confirmado</h1>
+      <h1>${isCompleted ? '🎉 Apartado Completado' : '✅ Apartado Confirmado'}</h1>
       
       <p>Hola ${params.customerName},</p>
       
-      <p>Tu pago ha sido recibido exitosamente. Gracias por apartar tu pieza con Bagclue.</p>
+      <p>${isCompleted 
+        ? 'Tu pago ha sido recibido exitosamente y has liquidado tu apartado por completo. ¡Tu pieza está lista para ser enviada!' 
+        : 'Tu pago ha sido recibido exitosamente. Gracias por apartar tu pieza con Bagclue.'
+      }</p>
       
       <div class="status">✓ Pago Recibido</div>
       
@@ -189,12 +221,20 @@ export function generateLayawayConfirmationHTML(params: LayawayConfirmationParam
           <span class="detail-value">${params.productName}</span>
         </div>
         <div class="detail-row">
+          <span class="detail-label">Plan Elegido</span>
+          <span class="detail-value">${params.planWeeks} semanas</span>
+        </div>
+        <div class="detail-row">
           <span class="detail-label">Precio Total</span>
           <span class="detail-value">${formatCurrency(params.totalPrice)}</span>
         </div>
         <div class="detail-row">
           <span class="detail-label">Pagado Hoy</span>
           <span class="detail-value">${formatCurrency(params.amountPaid)}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Pagos Realizados</span>
+          <span class="detail-value">${params.paymentsCompleted} de ${params.planWeeks}</span>
         </div>
       </div>
       
@@ -203,11 +243,30 @@ export function generateLayawayConfirmationHTML(params: LayawayConfirmationParam
       </div>
       <div class="progress-text">${progressPercent}% completado</div>
       
-      <div class="remaining">
-        Saldo pendiente: ${formatCurrency(params.remainingBalance)}
-      </div>
-      
-      <p>Puedes continuar con pagos semanales hasta completar el total. Una vez pagado, tu pieza será enviada.</p>
+      ${isCompleted ? `
+        <div class="completed">
+          ✅ Apartado liquidado
+        </div>
+        <p>Tu pieza será enviada en las próximas 24-48 horas. Recibirás un email con el número de seguimiento.</p>
+      ` : `
+        <div class="remaining">
+          Saldo pendiente: ${formatCurrency(params.remainingBalance)}
+        </div>
+        
+        <div class="highlight">
+          <p style="margin: 0 0 8px 0;"><strong>📅 Próximo Pago</strong></p>
+          <p style="margin: 0; font-size: 18px; font-weight: 600; color: #0B0B0B;">
+            ${formatCurrency(params.nextPaymentAmount)}
+          </p>
+          <p style="margin: 4px 0 0 0; font-size: 14px; color: #666;">
+            Vence el ${formatDate(params.nextPaymentDate)}
+          </p>
+        </div>
+        
+        <p><strong>Pagos restantes:</strong> ${params.paymentsRemaining} pagos semanales de aproximadamente ${formatCurrency(params.nextPaymentAmount)}.</p>
+        
+        <p>Pagas cada semana hasta completar tu plan de ${params.planWeeks} semanas. Una vez pagado el total, tu pieza será enviada.</p>
+      `}
       
       <a href="${params.accountUrl}" class="button">Ver Mi Apartado</a>
       
@@ -227,5 +286,5 @@ export function generateLayawayConfirmationHTML(params: LayawayConfirmationParam
   </div>
 </body>
 </html>
-  `.trim();
+  `.trim()
 }
