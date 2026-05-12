@@ -43,7 +43,7 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
         }
 
         if (!response.ok) {
-          throw new Error('Error al cargar orden')
+          throw new Error('Error al cargar pedido')
         }
 
         const data = await response.json()
@@ -51,7 +51,7 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
         setLoading(false)
       } catch (err: any) {
         console.error('[ORDER DETAIL] Error:', err)
-        setError(err.message || 'Error al cargar orden')
+        setError(err.message || 'Error al cargar pedido')
         setLoading(false)
       }
     }
@@ -63,7 +63,7 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
   if (!clientMounted) {
     return (
       <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
-        <div className="text-white">Cargando orden...</div>
+        <div className="text-white">Cargando pedido...</div>
       </div>
     )
   }
@@ -74,7 +74,7 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
         <AdminNav />
         <main className="max-w-7xl mx-auto px-6 py-8">
           <div className="text-center text-white">
-            Cargando orden...
+            Cargando pedido...
           </div>
         </main>
       </div>
@@ -87,11 +87,11 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
         <AdminNav />
         <main className="max-w-7xl mx-auto px-6 py-8">
           <div className="text-center text-red-400">
-            {error || 'Orden no encontrada'}
+            {error || 'Pedido no encontrado'}
           </div>
           <div className="mt-4 text-center">
             <Link href="/admin/orders" className="text-[#FF69B4] hover:underline">
-              ← Volver a órdenes
+              ← Volver a ventas
             </Link>
           </div>
         </main>
@@ -111,12 +111,12 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
             href="/admin/orders"
             className="text-gray-400 hover:text-white transition-colors"
           >
-            ← Volver a órdenes
+            ← Volver a ventas
           </Link>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Información de Orden */}
+          {/* Información de Pedido */}
           <div className="lg:col-span-2 space-y-6">
             {/* Productos */}
             <div className="bg-white/5 border border-[#FF69B4]/20 p-6">

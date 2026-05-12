@@ -39,7 +39,7 @@ export default async function AdminOrdersPage() {
             <div className="text-3xl font-bold text-white mb-1">
               {orders.length}
             </div>
-            <div className="text-sm text-gray-400">Total órdenes</div>
+            <div className="text-sm text-gray-400">Total ventas</div>
           </div>
           <div className="bg-white/5 border border-[#FF69B4]/20 p-6">
             <div className="text-3xl font-bold text-emerald-400 mb-1">
@@ -64,7 +64,7 @@ export default async function AdminOrdersPage() {
         {/* Orders Table */}
         <div className="bg-white/5 border border-[#FF69B4]/20">
           <div className="px-6 py-4 border-b border-[#FF69B4]/10">
-            <h2 className="text-lg text-white font-medium">Órdenes Recientes</h2>
+            <h2 className="text-lg text-white font-medium">Ventas Recientes</h2>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full">
@@ -84,7 +84,7 @@ export default async function AdminOrdersPage() {
                 {orders.length === 0 ? (
                   <tr>
                     <td colSpan={8} className="px-6 py-8 text-center text-gray-400">
-                      No hay órdenes todavía
+                      No hay ventas todavía
                     </td>
                   </tr>
                 ) : (
