@@ -19,7 +19,8 @@ export default function ClientesListClient({ initialMetrics }: Props) {
   const [filters, setFilters] = useState({
     search: '',
     status: 'all',
-    orderBy: 'recent'
+    orderBy: 'recent',
+    showArchived: false
   })
 
   const fetchClientes = async () => {
@@ -29,6 +30,7 @@ export default function ClientesListClient({ initialMetrics }: Props) {
         search: filters.search,
         status: filters.status,
         orderBy: filters.orderBy,
+        showArchived: filters.showArchived.toString(),
         page: page.toString(),
         limit: '25'
       })

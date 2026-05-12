@@ -7,6 +7,7 @@ interface Props {
     search: string
     status: string
     orderBy: string
+    showArchived: boolean
   }) => void
 }
 
@@ -14,63 +15,84 @@ export default function ClientesFilters({ onFilterChange }: Props) {
   const [search, setSearch] = useState('')
   const [status, setStatus] = useState('all')
   const [orderBy, setOrderBy] = useState('recent')
+  const [showArchived, setShowArchived] = useState(false)
 
   const handleSearchChange = (value: string) => {
     setSearch(value)
-    onFilterChange({ search: value, status, orderBy })
+    onFilterChange({ search: value, status, orderBy, showArchived })
   }
 
   const handleStatusChange = (value: string) => {
     setStatus(value)
-    onFilterChange({ search, status: value, orderBy })
+    onFilterChange({ search, status: value, orderBy, showArchived })
   }
 
   const handleOrderByChange = (value: string) => {
     setOrderBy(value)
-    onFilterChange({ search, status, orderBy: value })
+    onFilterChange({ search, status, orderBy: value, showArchived })
+  }
+
+  const handleShowArchivedChange = (value: boolean) => {
+    setShowArchived(value)
+    onFilterChange({ search, status, orderBy, showArchived: value })
   }
 
   return (
-    <div className="mb-6 flex flex-col md:flex-row gap-4">
-      {/* Search */}
-      <div className="flex-1">
-        <input
-          type="text"
-          placeholder="Buscar por nombre, email o teléfono..."
-          value={search}
-          onChange={(e) => handleSearchChange(e.target.value)}
-          className="w-full px-4 py-2 bg-white/5 border border-[#FF69B4]/20 text-white placeholder-gray-400 focus:outline-none focus:border-[#FF69B4]"
-        />
+    <div className="mb-6 space-y-4">
+      <div className="flex flex-col md:flex-row gap-4">
+        {/* Search */}
+        <div className="flex-1">
+          <input
+            type="text"
+            placeholder="Buscar por nombre, email o teléfono..."
+            value={search}
+            onChange={(e) => handleSearchChange(e.target.value)}
+            className="w-full px-4 py-2 bg-white/5 border border-[#FF69B4]/20 text-white placeholder-gray-400 focus:outline-none focus:border-[#FF69B4]"
+          />
+        </div>
+
+        {/* Status filter */}
+        <div>
+          <select
+            value={status}
+            onChange={(e) => handleStatusChange(e.target.value)}
+            className="px-4 py-2 bg-white/5 border border-[#FF69B4]/20 text-white focus:outline-none focus:border-[#FF69B4]"
+          >
+            <option value="all">Todos</option>
+            <option value="pending_payments">Pagos pendientes</option>
+            <option value="payment_review">Pago en revisión</option>
+            <option value="confirmed_purchases">Compras confirmadas</option>
+            <option value="pending_address">Pendientes de dirección</option>
+            <option value="recurring">Recurrentes</option>
+          </select>
+        </div>
+
+        {/* Order by */}
+        <div>
+          <select
+            value={orderBy}
+            onChange={(e) => handleOrderByChange(e.target.value)}
+            className="px-4 py-2 bg-white/5 border border-[#FF69B4]/20 text-white focus:outline-none focus:border-[#FF69B4]"
+          >
+            <option value="recent">Más recientes</option>
+            <option value="total_spent">Mayor valor comprado</option>
+            <option value="balance_due">Mayor saldo pendiente</option>
+            <option value="last_purchase">Última compra</option>
+          </select>
+        </div>
       </div>
 
-      {/* Status filter */}
-      <div>
-        <select
-          value={status}
-          onChange={(e) => handleStatusChange(e.target.value)}
-          className="px-4 py-2 bg-white/5 border border-[#FF69B4]/20 text-white focus:outline-none focus:border-[#FF69B4]"
-        >
-          <option value="all">Todos</option>
-          <option value="pending_payments">Pagos pendientes</option>
-          <option value="payment_review">Pago en revisión</option>
-          <option value="confirmed_purchases">Compras confirmadas</option>
-          <option value="pending_address">Pendientes de dirección</option>
-          <option value="recurring">Recurrentes</option>
-        </select>
-      </div>
-
-      {/* Order by */}
-      <div>
-        <select
-          value={orderBy}
-          onChange={(e) => handleOrderByChange(e.target.value)}
-          className="px-4 py-2 bg-white/5 border border-[#FF69B4]/20 text-white focus:outline-none focus:border-[#FF69B4]"
-        >
-          <option value="recent">Más recientes</option>
-          <option value="total_spent">Mayor valor comprado</option>
-          <option value="balance_due">Mayor saldo pendiente</option>
-          <option value="last_purchase">Última compra</option>
-        </select>
+      {/* Show archived toggle */}
+      <div className="flex items-center gap-3">
+        <label className="flex items-center gap-2 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={showArchived}
+            onChange={(e) => handleShowArchivedChange(e.target.checked)}
+            className="w-4 h-4 accent-[#FF69B4]"
+          />
+          <span className="text-white text-sm">Mostrar clientes archivados</span>
+        </label>
       </div>
     </div>
   )

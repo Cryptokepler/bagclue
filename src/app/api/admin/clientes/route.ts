@@ -27,6 +27,7 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get('search') || ''
     const status = searchParams.get('status') || 'all'
     const orderBy = searchParams.get('orderBy') || 'recent'
+    const showArchived = searchParams.get('showArchived') === 'true'
     const page = parseInt(searchParams.get('page') || '1', 10)
     const limit = parseInt(searchParams.get('limit') || '25', 10)
     const offset = (page - 1) * limit
@@ -74,9 +75,16 @@ export async function GET(request: NextRequest) {
     })
 
     // Fetch customer profiles
-    const { data: profiles, error: profilesError } = await supabaseAdmin
+    let profilesQuery = supabaseAdmin
       .from('customer_profiles')
-      .select('user_id, email, name, phone, created_at')
+      .select('user_id, email, name, phone, created_at, archived_at')
+
+    // Filtrar archivados por defecto (salvo si showArchived = true)
+    if (!showArchived) {
+      profilesQuery = profilesQuery.is('archived_at', null)
+    }
+
+    const { data: profiles, error: profilesError } = await profilesQuery
 
     if (profilesError) {
       console.error('[CLIENTES LIST] Profiles error:', profilesError)
@@ -169,11 +177,12 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    // Add registered_at from profiles
+    // Add registered_at and archived_at from profiles
     profiles?.forEach(profile => {
       const client = clientMap.get(profile.user_id)
       if (client) {
         client.registered_at = profile.created_at
+        client.archived_at = profile.archived_at
         // Update name/phone if missing from orders/layaways
         if (!client.name) client.name = profile.name
         if (!client.phone) client.phone = profile.phone
@@ -196,8 +205,11 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    // Convert to array
+    // Convert to array and filtrar archivados si showArchived = false
     let clientes = Array.from(clientMap.values())
+    if (!showArchived) {
+      clientes = clientes.filter(c => !c.archived_at)
+    }
 
     // Apply search filter
     if (search) {

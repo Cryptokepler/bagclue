@@ -32,6 +32,7 @@ export interface Cliente {
   has_payment_review: boolean
   has_active_layaway: boolean
   registered_at: string | null
+  archived_at?: string | null
 }
 
 export interface ClienteProfile {
@@ -45,6 +46,8 @@ export interface ClienteProfile {
   welcome_email_sent_at: string | null
   first_purchase_at: string | null
   type: 'registered' | 'guest'
+  internal_notes?: string | null
+  archived_at?: string | null
 }
 
 export interface ClienteAddress {
@@ -148,4 +151,22 @@ export interface ClienteDetailResponse {
   orders: ClienteOrder[]
   layaways: ClienteLayaway[]
   payment_reviews: ClientePaymentReview[]
+}
+
+// MVP.2 - Gestión operativa
+export interface ClienteUpdate {
+  name?: string | null
+  phone?: string | null
+  phone_country_code?: string | null
+  phone_country_iso?: string | null
+  internal_notes?: string | null
+}
+
+export interface ClienteDeleteValidation {
+  can_delete: boolean
+  has_orders: boolean
+  has_layaways: boolean
+  has_payments: boolean
+  order_count?: number
+  layaway_count?: number
 }

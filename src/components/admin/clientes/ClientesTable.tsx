@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import ClienteArchivedBadge from './ClienteArchivedBadge'
 import type { Cliente } from '@/types/admin-clientes'
 
 interface Props {
@@ -107,7 +108,10 @@ export default function ClientesTable({ clientes }: Props) {
               clientes.map((cliente) => (
                 <tr key={cliente.id} className="hover:bg-white/5 transition-colors">
                   <td className="px-6 py-4 text-sm text-white">
-                    {cliente.name || '-'}
+                    <div className="flex items-center gap-2">
+                      <span>{cliente.name || '-'}</span>
+                      <ClienteArchivedBadge archivedAt={cliente.archived_at} />
+                    </div>
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-300">
                     {cliente.email}
