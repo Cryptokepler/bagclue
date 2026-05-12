@@ -378,6 +378,6 @@ export async function sendWelcomeEmail(params: {
     to: params.to,
     subject: 'Bienvenida a Bagclue ✨',
     html,
-    text: `Bienvenida a Bagclue. Explora piezas de lujo verificadas en nuestro catálogo: https://bagclue.vercel.app/catalogo`,
+    text: `Bienvenida a Bagclue. Explora piezas de lujo verificadas en nuestro catálogo: https://bagclue.com/catalogo`,
   });
 }
