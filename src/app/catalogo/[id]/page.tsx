@@ -180,7 +180,6 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
                       product={{
                         id: product.id,
                         price: product.price,
-                        layaway_deposit_percent: product.layaway_deposit_percent,
                         currency: product.currency
                       }}
                     />

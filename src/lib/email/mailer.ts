@@ -162,6 +162,12 @@ export async function sendLayawayConfirmationEmail(params: {
   remainingBalance: number;
   currency: string;
   accountUrl: string;
+  // Weekly plans fields
+  planWeeks: number;
+  paymentsCompleted: number;
+  paymentsRemaining: number;
+  nextPaymentAmount: number;
+  nextPaymentDate: string;
 }): Promise<boolean> {
   const { generateLayawayConfirmationHTML } = await import('./templates/layaway-confirmation');
   
@@ -173,13 +179,19 @@ export async function sendLayawayConfirmationEmail(params: {
     remainingBalance: params.remainingBalance,
     currency: params.currency,
     accountUrl: params.accountUrl,
+    // Weekly plans fields
+    planWeeks: params.planWeeks,
+    paymentsCompleted: params.paymentsCompleted,
+    paymentsRemaining: params.paymentsRemaining,
+    nextPaymentAmount: params.nextPaymentAmount,
+    nextPaymentDate: params.nextPaymentDate,
   });
 
   return sendEmail({
     to: params.to,
     subject: '✅ Apartado confirmado — Bagclue',
     html,
-    text: `Tu apartado ha sido confirmado. Producto: ${params.productName}. Pagado: ${params.amountPaid} ${params.currency}. Saldo: ${params.remainingBalance} ${params.currency}.`,
+    text: `Tu apartado ha sido confirmado. Producto: ${params.productName}. Plan: ${params.planWeeks} semanas. Pagado: ${params.amountPaid} ${params.currency}. Saldo: ${params.remainingBalance} ${params.currency}.`,
   });
 }
 
