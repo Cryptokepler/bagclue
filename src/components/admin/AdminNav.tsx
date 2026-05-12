@@ -12,7 +12,8 @@ export default function AdminNav() {
     { href: '/admin/productos', label: 'Inventario' },
     { href: '/admin/payments', label: 'Pagos' },
     { href: '/admin/envios', label: 'Envíos' },
-    { href: '/admin/orders', label: 'Órdenes' }
+    { href: '/admin/orders', label: 'Órdenes' },
+    { href: '/admin/clientes', label: 'Clientes' }
   ]
 
   return (

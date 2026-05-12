@@ -1,224 +1,234 @@
-# SHIPPING PROOF MVP QA REPORT
-**Fecha:** 2026-05-11  
-**Sesión:** Manual QA — Fase 1  
-**Ejecutor:** Jhonatan  
-**Status:** EN PROGRESO
+# SHIPPING PROOF MVP - QA REPORT
+
+**Fecha inicio:** 2026-05-12  
+**Tester:** Jhonatan  
+**Ejecutor:** Kepler  
+**Objetivo:** Validar funcionalidad completa de Shipping Proof MVP antes de cierre formal
 
 ---
 
-## TEST 1 — REACT ERROR #418 FIX ⚠️ → ✅ RESUELTO
+## ESTADO PREVIO
 
-### Issue Reportado
-- **Página:** `/admin/orders/[id]`
-- **Acción:** Subir comprobante de envío (PDF)
-- **Resultado funcional:** PASS (comprobante subió correctamente)
-- **Error crítico:** `Uncaught Error: Minified React error #418` en consola
+### Deploy actual
+- **Commit:** 76b6391 (`fix: quitar shipping_proof_path del SELECT (columna no existe en DB)`)
+- **Production:** https://bagclue.vercel.app
+- **Status:** READY + PROMOTED ✅
+- **Timestamp:** 2026-05-12 00:15:14 UTC
 
-### Diagnóstico (2 causas encontradas)
+### Componentes implementados
+- ✅ Migration 019: 5 columnas shipping proof
+- ✅ Bucket: `shipping-proofs` (private)
+- ✅ Backend: Storage helper, API endpoints
+- ✅ Frontend: ShippingProofSection (upload + replace + view)
+- ✅ Frontend: MarcarEnviadoModal (upload al marcar enviado)
+- ✅ Tracking page: Bloque comprobante
+- ✅ Email template: Link comprobante
+- ✅ Endpoint estable: `/api/admin/orders/[orderId]/shipping-proof/download`
 
-#### CAUSA 1: Fechas con toLocaleString()
-**Ubicaciones problemáticas:**
-1. `ShippingProofSection.tsx` línea ~123: Fecha "Subido:"
-2. `page.tsx` líneas ~159 y ~169: Fechas "Creada" y "Actualizada"
-
-**Por qué falla:**
-- Server renderiza fecha en timezone de Node.js (puede ser UTC)
-- Client renderiza fecha en timezone del navegador del usuario
-- HTML inicial ≠ HTML tras hidratación → React error #418
-
-**Fix 1 aplicado:**
-**Commit:** `27a1e12` — "Fix: React hydration error #418 - Use ClientDate component for date formatting"
-
-**Archivos modificados (Fix 1):**
-- ✅ `src/components/ClientDate.tsx` (nuevo componente)
-- ✅ `src/components/admin/ShippingProofSection.tsx` (import ClientDate, usar en uploadedAt)
-- ✅ `src/app/admin/orders/[id]/page.tsx` (import ClientDate, usar en created_at y updated_at)
-
-**Solución Fix 1:**
-- Componente `ClientDate` solo renderiza en cliente usando `useEffect` + `useState`
-- Durante SSR muestra "Cargando..." (placeholder)
-- Tras hidratación muestra fecha formateada correcta
-- Evita mismatch entre server y client
-
-**Build local Fix 1:** ✅ PASS  
-**Push Fix 1:** ✅ Exitoso a main  
-**Commit Fix 1:** `27a1e12`
+### Fix React Error #418
+- ✅ Causa raíz: Signed URL dinámica en HTML
+- ✅ Solución: Endpoint estable que genera signed URL server-side
+- ✅ Validado: Múltiples hard refreshes sin error
+- ✅ Confirmado por Jhonatan: "Ver Comprobante" funciona correctamente
 
 ---
 
-#### CAUSA 2: Números con toLocaleString() (ERROR PERSISTIÓ TRAS FIX 1)
-**Reporte Jhonatan:** Error #418 persiste tras deploy de Fix 1
+## TESTS DE VALIDACIÓN
 
-**Ubicaciones problemáticas adicionales:**
-1. `page.tsx` línea ~88: `item.unit_price.toLocaleString()`
-2. `page.tsx` línea ~99: `order.subtotal.toLocaleString()`
-3. `page.tsx` línea ~104: `order.shipping.toLocaleString()`
-4. `page.tsx` línea ~109: `order.total.toLocaleString()`
+### ⏳ TEST 1 — Upload desde /admin/orders/[id]
 
-**Por qué falla:**
-- `.toLocaleString()` en números también causa hydration mismatch
-- Server puede formatear "1000" mientras client formatea "1,000" (separadores de miles)
-- Depende del locale del entorno (Node.js vs navegador)
-- HTML inicial ≠ HTML tras hidratación → React error #418 persiste
+**URL de prueba:** https://bagclue.vercel.app/admin/orders/57faad17-94b5-4ec0-a428-320059469335
 
-**Fix 2 aplicado:**
-**Commit:** `e31e614` — "Fix: React error #418 - Replace number toLocaleString() with stable formatNumber()"
+**Acciones:**
+1. Login admin
+2. Navegar a orden con status "paid"
+3. Marcar como enviada → subir comprobante
+4. Validar archivo se sube correctamente
+5. Validar botón "Ver Comprobante" aparece
+6. Click "Ver Comprobante" → abre archivo
 
-**Archivos modificados (Fix 2):**
-- ✅ `src/lib/format.ts` (nuevo helper: formatNumber() con separadores estables)
-- ✅ `src/app/admin/orders/[id]/page.tsx` (reemplazar 4 instancias de toLocaleString() por formatNumber())
-
-**Solución Fix 2:**
-- Helper `formatNumber()` que formatea de manera consistente (regex para separadores de miles)
-- NO depende de locale del entorno
-- Mismo resultado en server y client → NO hydration mismatch
-
-**Build local Fix 2:** ✅ PASS  
-**Push Fix 2:** ✅ Exitoso a main  
-**Commit Fix 2:** `e31e614`  
-**Deploy:** ⏳ En progreso (auto-deploy esperado)
-
----
-
-## VERIFICACIÓN MANUAL REQUERIDA (FIX 2 - COMMIT e31e614)
-
-⚠️ **Acción requerida por Jhonatan:**
-
-Esperar 1-2 minutos para que Vercel complete deploy de commit `e31e614`, luego ejecutar verificación:
-
-**Pasos críticos:**
-1. **HARD REFRESH** de la página (Ctrl+Shift+R o Cmd+Shift+R) para limpiar cache
-2. Abrir Chrome DevTools (F12) → Pestaña Console → Limpiar consola (icono 🚫)
-3. Navegar a: https://bagclue.vercel.app/admin/orders/57faad17-94b5-4ec0-a428-320059469335
-4. **Verificar consola:** NO debe aparecer `React error #418`
-5. **Verificar montos:** Subtotal, Envío, Total deben mostrar formato $X,XXX (con comas)
-6. **Verificar fechas:** "Creada", "Actualizada", "Subido" visibles correctamente
-7. **Verificar comprobante:** Visible y funcional
-8. **Scroll completo** de la página (arriba → abajo) mientras DevTools abierto
-9. **Verificar consola final:** Sin errores React #418
-
-**Resultado esperado:**
-- ✅ Consola limpia (sin React error #418)
-- ✅ Montos formateados con comas: $20, $1,000, $89,900, etc.
-- ✅ Fechas renderizadas correctamente
-- ✅ Funcionalidad de comprobante intacta
-
-**Si PASS:** ✅ TEST 1 COMPLETO → Continuar con resto de Shipping Proof MVP QA  
-**Si FAIL (error persiste):** ❌ Seguir procedimiento de `AGGRESSIVE_CACHE_CLEAR.md`
-
----
-
-### ACTUALIZACIÓN: ERROR PERSISTIÓ TRAS FIX 2
-
-**Status:** ⚠️ Error #418 persiste incluso tras Fix 2 (números con toLocaleString)
-
-**Acciones tomadas:**
-1. ✅ Verificado código local: formatNumber() está implementado correctamente
-2. ✅ Deploy forzado: commit `dfbb225` (empty commit para forzar redeploy)
-3. ⏳ **Siguiente paso:** Limpieza agresiva de cache (ver `AGGRESSIVE_CACHE_CLEAR.md`)
-
-**Hipótesis restantes:**
-1. Cache de Vercel edge/navegador sirviendo código viejo (MÁS PROBABLE)
-2. Deploy no aplicó cambios correctamente (verificar en Vercel dashboard)
-3. Otra fuente de hydration mismatch no identificada
-
-**Plan B (si cache clear no resuelve):**
-1. Verificar commit en Vercel dashboard
-2. Deploy manual con Vercel CLI
-3. Investigar otros componentes en página (AdminNav, ShippingInfoForm)
-4. ✅ **EJECUTADO:** Convertir página completa en client component
-
----
-
-### FIX 3 — SOLUCIÓN DEFINITIVA: CLIENT COMPONENT (COMMIT ea14057)
-
-**Diagnóstico confirmado por Jhonatan:**
-- Primera carga (navegación client-side) → ✅ Sin error
-- Refresh de página (SSR + hydration) → ❌ Error #418 aparece
-
-**Patrón identificado:** Hydration mismatch clásico entre SSR y client render.
-
-**Causa raíz:** A pesar de fixes 1 y 2, el problema persiste porque la página `/admin/orders/[id]` es server component. Incluso con formatNumber() y ClientDate, Next.js hace SSR del HTML inicial, y algo en el proceso sigue generando mismatch al refrescar.
-
-**Solución definitiva aplicada:**
-Convertir página completa en **client component** (elimina SSR completamente).
-
-**Archivos modificados (Fix 3):**
-- ✅ `src/app/admin/orders/[id]/page.tsx` → Wrapper mínimo que pasa orderId
-- ✅ `src/app/admin/orders/[id]/page.client.tsx` → Client component completo con fetch
-- ✅ `src/app/api/orders/[id]/route.ts` → Nuevo endpoint API para obtener orden
-
-**Arquitectura nueva:**
-```
-page.tsx (server, solo params) 
-  → OrderDetailClient (client component)
-    → useEffect fetch → /api/orders/[id]
-      → supabaseAdmin (server-side)
+**Validación DB:**
+```sql
+SELECT id,
+       shipping_proof_url,
+       shipping_proof_file_name,
+       shipping_proof_file_type,
+       shipping_proof_file_size,
+       shipping_proof_uploaded_at
+FROM orders
+WHERE id = '57faad17-94b5-4ec0-a428-320059469335';
 ```
 
-**Beneficios:**
-- ✅ NO hydration mismatch (no hay SSR del contenido dinámico)
-- ✅ Auth check en API route
-- ✅ Loading state en cliente
-- ✅ Mantiene seguridad (supabaseAdmin en API route, no en cliente)
+**Esperado:**
+- ✅ Upload exitoso
+- ✅ Metadata guardada (file_name, file_type, file_size, uploaded_at)
+- ✅ "Ver Comprobante" abre archivo
+- ✅ Console sin errores
 
-**Commit:** `ea14057`  
-**Build local:** ✅ PASS  
-**Push:** ✅ Exitoso  
-**Deploy:** ⏳ En progreso (auto-deploy esperado)
+**Resultado:** ⏳ PENDIENTE
 
 ---
 
-## DEPLOY VERIFICATION REPORT (POLÍTICA 12)
+### ⏳ TEST 2 — Reemplazar comprobante
 
-**Build local:** ✅ PASS  
-**Commit:** `27a1e12`  
-**Mensaje:** "Fix: React hydration error #418 - Use ClientDate component for date formatting"  
-**Push:** ✅ PASS  
-**Vercel deploy ID:** (auto-deploy detectado)  
-**Vercel status:** READY/PROMOTED  
-**Production commit:** (pendiente verificación visual en Git UI de Vercel)  
-**Expected commit:** `27a1e12`  
-**Match:** PENDIENTE (requiere verificación manual)  
-**Production URL:** https://bagclue.vercel.app  
-**Ruta validada:** `/admin/orders/[id]` (pendiente verificación manual)  
-**Console errors:** PENDIENTE (requiere verificación manual por Jhonatan)
+**URL de prueba:** Misma orden (57faad17...)
 
-**Archivos modificados en este fix:** 3 (1 nuevo, 2 actualizados)  
-**Líneas de código agregadas:** ~30 (componente ClientDate + imports + reemplazos)  
-**Regresiones esperadas:** NINGUNA (componente solo cambia renderizado de fechas)
+**Acciones:**
+1. Abrir `<details>` "Reemplazar comprobante"
+2. Seleccionar nuevo archivo
+3. Click "Guardar nuevo"
+4. Validar mensaje de éxito
+5. Refrescar página
+6. Validar nuevo archivo aparece
+7. Click "Ver Comprobante" → abre NUEVO archivo
+
+**Validación DB:**
+```sql
+-- Verificar que metadata se actualizó
+SELECT shipping_proof_file_name,
+       shipping_proof_file_size,
+       shipping_proof_uploaded_at
+FROM orders
+WHERE id = '57faad17-94b5-4ec0-a428-320059469335';
+```
+
+**Esperado:**
+- ✅ Replace exitoso
+- ✅ Metadata actualizada
+- ✅ "Ver Comprobante" abre nuevo archivo
+- ✅ Archivo viejo sobrescrito o reemplazado
+
+**Resultado:** ⏳ PENDIENTE
+
+---
+
+### ⏳ TEST 3 — Tracking page cliente
+
+**Setup:**
+1. Obtener `tracking_token` de la orden
+2. Abrir `/track/[tracking_token]`
+
+**Acciones:**
+1. Validar que aparece bloque "Comprobante de envío"
+2. Validar botón "Ver comprobante de envío"
+3. Click botón → abre archivo
+
+**Query tracking_token:**
+```sql
+SELECT tracking_token
+FROM orders
+WHERE id = '57faad17-94b5-4ec0-a428-320059469335';
+```
+
+**URL esperada:** https://bagclue.vercel.app/track/{tracking_token}
+
+**Esperado:**
+- ✅ Bloque visible
+- ✅ Botón funcional
+- ✅ Abre archivo correctamente
+- ✅ Sin errores en console
+
+**Resultado:** ⏳ PENDIENTE
+
+---
+
+### ⏳ TEST 4 — Email shipping
+
+**Acciones:**
+1. Marcar orden como enviada (si no está)
+2. Ingresar tracking number
+3. Subir comprobante (si no existe)
+4. Confirmar envío
+5. Revisar email enviado a cliente
+
+**Validación email:**
+- ✅ Subject: "Tu pieza Bagclue va en camino"
+- ✅ Incluye tracking number
+- ✅ Incluye link "Ver comprobante de envío"
+- ✅ Link funciona (abre archivo)
+
+**Endpoint email:**
+```
+/api/admin/orders/[orderId]/shipping-proof/download
+```
+
+**Esperado:**
+- ✅ Email enviado correctamente
+- ✅ Link comprobante funcional
+- ✅ Sin errores
+
+**Resultado:** ⏳ PENDIENTE
+
+---
+
+### ⏳ TEST 5 — Casos negativos
+
+#### 5.1 Archivo inválido
+**Acción:** Upload archivo .txt o .exe  
+**Esperado:** ❌ Error "Formato no válido. Solo JPG, PNG o PDF."
+
+#### 5.2 Archivo >5MB
+**Acción:** Upload archivo 6MB  
+**Esperado:** ❌ Error "Archivo demasiado grande. Máximo 5 MB."
+
+#### 5.3 Sin comprobante
+**Acción:** Marcar enviado SIN subir comprobante  
+**Esperado:**  
+- ✅ Marca como enviada exitosamente
+- ✅ No bloquea el flujo
+- ✅ No aparece bloque comprobante en tracking
+
+#### 5.4 Seguridad logs
+**Acción:** Revisar console/network durante upload y view  
+**Esperado:**  
+- ✅ No signed URL completa en logs
+- ✅ No secrets/tokens visibles
+- ✅ Solo primeros 8 chars de orderId en logs
+
+**Resultado:** ⏳ PENDIENTE
+
+---
+
+## CRITERIOS DE CIERRE
+
+Para declarar **SHIPPING PROOF MVP: CERRADO ✅**, todos los tests deben pasar:
+
+- [ ] TEST 1: Upload PASS
+- [ ] TEST 2: Replace PASS
+- [ ] TEST 3: Tracking page PASS
+- [ ] TEST 4: Email PASS
+- [ ] TEST 5: Negativos PASS
+- [ ] Console sin React #418
+- [ ] Logs seguros (sin secrets)
 
 ---
 
 ## PRÓXIMOS PASOS
 
-1. ✅ Fix aplicado y desplegado
-2. ⏳ **PENDIENTE:** Jhonatan ejecuta verificación manual (VERIFY_REACT_ERROR_FIX.md)
-3. ⏳ **PENDIENTE:** Reportar resultado (PASS/FAIL)
-4. ⏳ Si PASS: Continuar con resto de Shipping Proof MVP QA (tests pendientes del checklist)
-5. ⏳ Si FAIL: Diagnosticar error adicional y aplicar nuevo fix
+1. **Ejecutar TEST 1-5** (Jhonatan manual testing)
+2. **Reportar resultados** en este documento
+3. **Fix si hay issues**
+4. **Declarar cierre formal** cuando todos PASS
 
 ---
 
-## LESSONS LEARNED
+## NOTAS TÉCNICAS
 
-**Hydration mismatch de fechas:**
-- `toLocaleString()` puede renderizar diferente en server vs client (timezone)
-- React detecta mismatch → Error #418
-- **Solución:** Componente client-only que usa `useEffect` para renderizar fecha
-- **Alternativa:** Formatear fecha de manera estable (ISO string) o usar librería como `date-fns` con formato explícito
+### Migration 020 status
+- **Estado:** NO ejecutada en production
+- **Motivo:** Endpoint funciona con fallback (parsear desde shipping_proof_url)
+- **Decisión:** Postponer hasta post-QA si es necesario
+- **Riesgo:** Bajo (fallback es confiable)
 
-**Patrón seguro para fechas:**
-```tsx
-// ❌ INCORRECTO (causa hydration mismatch)
-{new Date(date).toLocaleString('es-MX', {...})}
+### Endpoint estable confirmado
+- **URL:** `/api/admin/orders/[orderId]/shipping-proof/download`
+- **Método:** GET
+- **Auth:** Requiere sesión admin
+- **Flujo:** Valida sesión → consulta DB → parsea path desde URL → genera signed URL → redirect
+- **Validado:** Jhonatan confirmó funcionamiento ✅
 
-// ✅ CORRECTO (renderiza solo en cliente)
-<ClientDate date={date} />
-```
+---
 
-**Aplicable a:**
-- Fechas con timezone
-- Timestamps
-- Cualquier valor que dependa de configuración del navegador (locale, timezone, etc.)
-- Valores que usen `window`, `document`, `localStorage` durante SSR
+**Status general:** ⏳ QA EN PROGRESO  
+**Blocker:** Ninguno  
+**ETA cierre:** Según ejecución de tests 1-5
