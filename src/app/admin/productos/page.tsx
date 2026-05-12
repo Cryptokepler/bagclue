@@ -6,6 +6,7 @@ import AdminNav from '@/components/admin/AdminNav'
 import ProductFilters from '@/components/admin/ProductFilters'
 import ProductsTable from '@/components/admin/ProductsTable'
 import ProductCard from '@/components/admin/ProductCard'
+import ProductsViewTabs from '@/components/admin/ProductsViewTabs'
 import { calculateAdditionalCostsTotal, calculateProductMetrics, formatCurrency, formatMargin, calculateAverageMargin } from '@/lib/product-metrics'
 
 // Forzar dynamic rendering para que los filtros funcionen
@@ -125,6 +126,9 @@ export default async function AdminProductosPage({ searchParams }: PageProps) {
   // Next.js 16: searchParams es una Promise, debe ser awaited
   const params = await searchParams
   
+  // Vista default: Activos
+  const currentView = typeof params.view === 'string' ? params.view : 'active'
+  
   const filters = {
     search: typeof params.search === 'string' ? params.search : '',
     status: typeof params.status === 'string' ? params.status : 'all',
@@ -134,8 +138,22 @@ export default async function AdminProductosPage({ searchParams }: PageProps) {
     stock: typeof params.stock === 'string' ? params.stock : 'all',
     images: typeof params.images === 'string' ? params.images : 'all',
     cost: typeof params.cost === 'string' ? params.cost : 'all',
-    auth: typeof params.auth === 'string' ? params.auth : 'all'
+    auth: typeof params.auth === 'string' ? params.auth : 'all',
+    view: currentView
   }
+  
+  // Aplicar filtros según la vista seleccionada
+  if (currentView === 'active') {
+    // Vista Activos: solo is_published=true
+    filters.published = 'published'
+  } else if (currentView === 'inactive') {
+    // Vista Inactivos: solo is_published=false
+    filters.published = 'draft'
+  } else if (currentView === 'sold') {
+    // Vista Vendidos: solo status=sold
+    filters.status = 'sold'
+  }
+  // currentView === 'all' no aplica filtros automáticos
   
   // Log temporal para debugging (sin secretos)
   console.log('[AdminProductos] Filters applied:', filters)
@@ -158,28 +176,44 @@ export default async function AdminProductosPage({ searchParams }: PageProps) {
   
   console.log('[AdminProductos] Filtered products:', filteredProducts.length)
   console.log('[AdminProductos] All products (stats):', allProducts.length)
+  console.log('[AdminProductos] Current view:', currentView)
   
-  // Calcular stats GLOBALES (desde allProducts, no filteredProducts)
+  // Calcular stats según vista actual
+  const viewProducts = filteredProducts
+  
   const stats = {
-    total: allProducts.length,
-    published: allProducts.filter(p => p.is_published).length,
-    draft: allProducts.filter(p => !p.is_published).length,
-    available: allProducts.filter(p => p.status === 'available').length,
-    reserved: allProducts.filter(p => p.status === 'reserved').length,
-    sold: allProducts.filter(p => p.status === 'sold').length,
-    totalValue: allProducts
+    // Total de la vista actual
+    total: viewProducts.length,
+    // Stats específicas de la vista
+    published: viewProducts.filter(p => p.is_published).length,
+    draft: viewProducts.filter(p => !p.is_published).length,
+    available: viewProducts.filter(p => p.status === 'available').length,
+    reserved: viewProducts.filter(p => p.status === 'reserved').length,
+    sold: viewProducts.filter(p => p.status === 'sold').length,
+    // Valor disponible (solo available/preorder)
+    totalValue: viewProducts
       .filter(p => ['available', 'preorder'].includes(p.status))
       .reduce((sum, p) => sum + (Number(p.price) || 0), 0),
-    totalCost: allProducts
+    // Costo disponible (solo available/preorder)
+    totalCost: viewProducts
       .filter(p => ['available', 'preorder'].includes(p.status))
       .reduce((sum, p) => {
         const costPrice = Number(p.cost_price) || 0
         const additionalTotal = calculateAdditionalCostsTotal(p.additional_costs)
         return sum + costPrice + additionalTotal
       }, 0),
+    // Margen promedio (solo available/preorder)
     averageMargin: calculateAverageMargin(
-      allProducts.filter(p => ['available', 'preorder'].includes(p.status))
+      viewProducts.filter(p => ['available', 'preorder'].includes(p.status))
     )
+  }
+  
+  // Stats globales para referencia
+  const globalStats = {
+    totalAll: allProducts.length,
+    publishedAll: allProducts.filter(p => p.is_published).length,
+    draftAll: allProducts.filter(p => !p.is_published).length,
+    soldAll: allProducts.filter(p => p.status === 'sold').length
   }
 
   return (
@@ -193,98 +227,79 @@ export default async function AdminProductosPage({ searchParams }: PageProps) {
           <p className="text-gray-400">Gestión completa de productos con rentabilidad y alertas</p>
         </div>
         
-        {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
-          {/* Total - limpiar filtros */}
-          <Link
-            href="/admin/productos"
-            className="bg-white/5 border border-[#FF69B4]/20 p-4 hover:border-[#FF69B4] transition-colors cursor-pointer"
-          >
+        {/* View Tabs */}
+        <ProductsViewTabs />
+        
+        {/* Stats según vista actual */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
+          {/* Total de la vista actual */}
+          <div className="bg-white/5 border border-[#FF69B4]/20 p-4">
             <div className="text-2xl font-bold text-white mb-1">
               {stats.total}
             </div>
-            <div className="text-xs text-gray-400">Total productos</div>
-          </Link>
+            <div className="text-xs text-gray-400">
+              {currentView === 'active' && 'Total activos'}
+              {currentView === 'inactive' && 'Total inactivos'}
+              {currentView === 'sold' && 'Total vendidos'}
+              {currentView === 'all' && 'Total productos'}
+            </div>
+          </div>
           
-          {/* Activos (Publicados) */}
-          <Link
-            href="/admin/productos?published=published"
-            className="bg-white/5 border border-[#FF69B4]/20 p-4 hover:border-[#FF69B4] transition-colors cursor-pointer"
-          >
+          {/* Disponibles (siempre visible) */}
+          <div className="bg-white/5 border border-[#FF69B4]/20 p-4">
             <div className="text-2xl font-bold text-emerald-400 mb-1">
-              {stats.published}
-            </div>
-            <div className="text-xs text-gray-400">Activos</div>
-          </Link>
-          
-          {/* Inactivos (Borradores) */}
-          <Link
-            href="/admin/productos?published=draft"
-            className="bg-white/5 border border-[#FF69B4]/20 p-4 hover:border-[#FF69B4] transition-colors cursor-pointer"
-          >
-            <div className="text-2xl font-bold text-yellow-400 mb-1">
-              {stats.draft}
-            </div>
-            <div className="text-xs text-gray-400">Inactivos</div>
-          </Link>
-          
-          {/* Disponibles */}
-          <Link
-            href="/admin/productos?status=available"
-            className="bg-white/5 border border-[#FF69B4]/20 p-4 hover:border-[#FF69B4] transition-colors cursor-pointer"
-          >
-            <div className="text-2xl font-bold text-emerald-300 mb-1">
               {stats.available}
             </div>
             <div className="text-xs text-gray-400">Disponibles</div>
-          </Link>
-          
-          {/* Apartados */}
-          <Link
-            href="/admin/productos?status=reserved"
-            className="bg-white/5 border border-[#FF69B4]/20 p-4 hover:border-[#FF69B4] transition-colors cursor-pointer"
-          >
-            <div className="text-2xl font-bold text-yellow-300 mb-1">
-              {stats.reserved}
-            </div>
-            <div className="text-xs text-gray-400">Apartados</div>
-          </Link>
-          
-          {/* Vendidos */}
-          <Link
-            href="/admin/productos?status=sold"
-            className="bg-white/5 border border-[#FF69B4]/20 p-4 hover:border-[#FF69B4] transition-colors cursor-pointer"
-          >
-            <div className="text-2xl font-bold text-red-400 mb-1">
-              {stats.sold}
-            </div>
-            <div className="text-xs text-gray-400">Vendidos</div>
-          </Link>
-          
-          {/* Valor Inventario - informativo */}
-          <div className="bg-white/5 border border-[#FF69B4]/20 p-4">
-            <div className="text-2xl font-bold text-[#C9A96E] mb-1">
-              {formatCurrency(stats.totalValue)}
-            </div>
-            <div className="text-xs text-gray-400">Valor disponible</div>
           </div>
           
-          {/* Costo Total - informativo */}
-          <div className="bg-white/5 border border-[#FF69B4]/20 p-4">
-            <div className="text-2xl font-bold text-gray-400 mb-1">
-              {formatCurrency(stats.totalCost)}
+          {/* Apartados (solo si hay en vista) */}
+          {stats.reserved > 0 && (
+            <div className="bg-white/5 border border-[#FF69B4]/20 p-4">
+              <div className="text-2xl font-bold text-yellow-400 mb-1">
+                {stats.reserved}
+              </div>
+              <div className="text-xs text-gray-400">Apartados</div>
             </div>
-            <div className="text-xs text-gray-400">Costo disponible</div>
-          </div>
+          )}
           
-          {/* Margen Promedio - informativo */}
-          <div className="bg-white/5 border border-[#FF69B4]/20 p-4">
-            <div className="text-2xl font-bold text-cyan-400 mb-1">
-              {formatMargin(stats.averageMargin)}
+          {/* Vendidos (solo si hay en vista) */}
+          {stats.sold > 0 && (
+            <div className="bg-white/5 border border-[#FF69B4]/20 p-4">
+              <div className="text-2xl font-bold text-red-400 mb-1">
+                {stats.sold}
+              </div>
+              <div className="text-xs text-gray-400">Vendidos visibles</div>
             </div>
-            <div className="text-xs text-gray-400">Margen promedio</div>
-          </div>
+          )}
+          
+          {/* Valor disponible (solo si hay disponibles) */}
+          {stats.totalValue > 0 && (
+            <div className="bg-white/5 border border-[#FF69B4]/20 p-4">
+              <div className="text-2xl font-bold text-[#C9A96E] mb-1">
+                {formatCurrency(stats.totalValue)}
+              </div>
+              <div className="text-xs text-gray-400">Valor disponible</div>
+            </div>
+          )}
+          
+          {/* Margen promedio (solo si hay disponibles con costo) */}
+          {stats.averageMargin > 0 && (
+            <div className="bg-white/5 border border-[#FF69B4]/20 p-4">
+              <div className="text-2xl font-bold text-cyan-400 mb-1">
+                {formatMargin(stats.averageMargin)}
+              </div>
+              <div className="text-xs text-gray-400">Margen promedio</div>
+            </div>
+          )}
         </div>
+        
+        {/* Resumen global (referencia) */}
+        {currentView !== 'all' && (
+          <div className="mb-6 p-4 bg-white/5 border border-[#FF69B4]/10 text-sm text-gray-400">
+            <span className="font-medium text-white">Base de datos completa:</span> {globalStats.totalAll} productos total ({globalStats.publishedAll} activos, {globalStats.draftAll} inactivos, {globalStats.soldAll} vendidos)
+          </div>
+        )}
         
         {/* Actions */}
         <div className="mb-6 flex gap-4">
