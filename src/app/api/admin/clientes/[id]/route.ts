@@ -79,10 +79,6 @@ export async function GET(
     if (!profile) {
       const email = isUUID ? null : clientId
       
-      console.log('[CLIENTE DETAIL DEBUG] clientId:', clientId)
-      console.log('[CLIENTE DETAIL DEBUG] isUUID:', isUUID)
-      console.log('[CLIENTE DETAIL DEBUG] email for query:', email)
-      
       // Query condicional para user_id o email (case-insensitive)
       let ordersQuery = supabaseAdmin
         .from('orders')
@@ -98,15 +94,9 @@ export async function GET(
 
       const { data: firstOrder, error: orderError } = await ordersQuery.single()
 
-      console.log('[CLIENTE DETAIL DEBUG] orderError:', orderError)
-      console.log('[CLIENTE DETAIL DEBUG] firstOrder:', firstOrder)
-
       if (orderError || !firstOrder) {
-        console.error('[CLIENTE DETAIL ERROR] No order found for:', { clientId, email, isUUID, orderError })
-        return NextResponse.json({ 
-          error: 'Cliente no encontrado',
-          debug: { clientId, email, isUUID, errorCode: orderError?.code }
-        }, { status: 404 })
+        console.error('[CLIENTE DETAIL] No order found for clientId:', clientId)
+        return NextResponse.json({ error: 'Cliente no encontrado' }, { status: 404 })
       }
 
       // Verificar si existe customer_profile para este guest email (case-insensitive)
