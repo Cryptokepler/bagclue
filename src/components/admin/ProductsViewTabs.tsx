@@ -11,6 +11,7 @@ export default function ProductsViewTabs() {
     { id: 'active', label: 'Activos', href: '/admin/productos?view=active' },
     { id: 'inactive', label: 'Inactivos', href: '/admin/productos?view=inactive' },
     { id: 'sold', label: 'Vendidos', href: '/admin/productos?view=sold' },
+    { id: 'archived', label: 'Archivo', href: '/admin/productos?view=archived' },
     { id: 'all', label: 'Todos', href: '/admin/productos?view=all' }
   ]
   

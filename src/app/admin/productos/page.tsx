@@ -94,6 +94,14 @@ async function getProducts(filters: any) {
     query = query.or('stock.is.null,stock.eq.0')
   }
   
+  // Exclusión de status (para vista Inactivos)
+  if (filters.excludeStatuses && filters.excludeStatuses.length > 0) {
+    // Excluir múltiples status (ej: hidden, sold)
+    filters.excludeStatuses.forEach((status: string) => {
+      query = query.neq('status', status)
+    })
+  }
+  
   query = query.order('created_at', { ascending: false })
   
   const { data: products, error } = await query
@@ -129,7 +137,7 @@ export default async function AdminProductosPage({ searchParams }: PageProps) {
   // Vista default: Activos
   const currentView = typeof params.view === 'string' ? params.view : 'active'
   
-  const filters = {
+  const filters: any = {
     search: typeof params.search === 'string' ? params.search : '',
     status: typeof params.status === 'string' ? params.status : 'all',
     published: typeof params.published === 'string' ? params.published : 'all',
@@ -147,11 +155,15 @@ export default async function AdminProductosPage({ searchParams }: PageProps) {
     // Vista Activos: solo is_published=true
     filters.published = 'published'
   } else if (currentView === 'inactive') {
-    // Vista Inactivos: solo is_published=false
+    // Vista Inactivos: solo is_published=false Y NO hidden/sold
     filters.published = 'draft'
+    filters.excludeStatuses = ['hidden', 'sold'] // ✅ Excluir QA/test y vendidos
   } else if (currentView === 'sold') {
     // Vista Vendidos: solo status=sold
     filters.status = 'sold'
+  } else if (currentView === 'archived') {
+    // Vista Archivo: solo status=hidden (QA/test/descartados)
+    filters.status = 'hidden'
   }
   // currentView === 'all' no aplica filtros automáticos
   
