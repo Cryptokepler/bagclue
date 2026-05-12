@@ -205,7 +205,7 @@ export function generateBankTransferConfirmedHTML(params: BankTransferConfirmedP
       Piezas de lujo auténticas<br>
       hola@bagclue.com</p>
       <p style="margin-top: 12px;">
-        <a href="https://bagclue.vercel.app" style="color: #E85A9A; text-decoration: none;">bagclue.vercel.app</a>
+        <a href="https://bagclue.com" style="color: #E85A9A; text-decoration: none;">bagclue.com</a>
       </p>
     </div>
   </div>

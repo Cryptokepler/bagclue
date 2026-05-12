@@ -203,7 +203,7 @@ export function generateWelcomeHTML(params: WelcomeEmailParams): string {
       </p>
 
       <!-- CTA Primary -->
-      <a href="https://bagclue.vercel.app/catalogo" class="cta-primary">
+      <a href="https://bagclue.com/catalogo" class="cta-primary">
         Explorar colección →
       </a>
 
@@ -222,10 +222,10 @@ export function generateWelcomeHTML(params: WelcomeEmailParams): string {
     <!-- Footer -->
     <div class="footer">
       <div class="footer-links">
-        <a href="https://bagclue.vercel.app/catalogo" class="footer-link">Catálogo</a>
-        <a href="https://bagclue.vercel.app/apartado" class="footer-link">Apartado</a>
-        <a href="https://bagclue.vercel.app/nosotros" class="footer-link">Nosotros</a>
-        <a href="https://bagclue.vercel.app/contacto" class="footer-link">Contacto</a>
+        <a href="https://bagclue.com/catalogo" class="footer-link">Catálogo</a>
+        <a href="https://bagclue.com/apartado" class="footer-link">Apartado</a>
+        <a href="https://bagclue.com/nosotros" class="footer-link">Nosotros</a>
+        <a href="https://bagclue.com/contacto" class="footer-link">Contacto</a>
       </div>
       <p style="color: #999; font-size: 12px; margin-top: 16px;">
         © ${new Date().getFullYear()} Bagclue. Todos los derechos reservados.<br>
