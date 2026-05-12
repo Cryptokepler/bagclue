@@ -3,14 +3,31 @@ import { isAuthenticated } from '@/lib/session'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import AdminNav from '@/components/admin/AdminNav'
 
-async function getProducts() {
+// Query para tabla dashboard: solo productos activos/publicados
+async function getActiveProducts() {
   const { data: products, error } = await supabaseAdmin
     .from('products')
     .select('*, product_images(url)')
+    .eq('is_published', true)  // ✅ FILTRO ACTIVOS
     .order('created_at', { ascending: false })
 
   if (error) {
-    console.error('Error fetching products:', error)
+    console.error('Error fetching active products:', error)
+    return []
+  }
+
+  return products || []
+}
+
+// Query para stats completas: todos los productos
+async function getAllProducts() {
+  const { data: products, error } = await supabaseAdmin
+    .from('products')
+    .select('id, is_published, status, price')
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    console.error('Error fetching all products:', error)
     return []
   }
 
@@ -24,7 +41,11 @@ export default async function AdminDashboardPage() {
     redirect('/admin/login')
   }
 
-  const products = await getProducts()
+  // Productos activos para tabla
+  const activeProducts = await getActiveProducts()
+  
+  // Todos los productos para stats
+  const allProducts = await getAllProducts()
 
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
@@ -59,7 +80,7 @@ export default async function AdminDashboardPage() {
           {/* Principal: Activos/Publicados */}
           <div className="bg-white/5 border border-[#FF69B4]/20 p-6">
             <div className="text-3xl font-bold text-emerald-400 mb-1">
-              {products.filter(p => p.is_published).length}
+              {allProducts.filter(p => p.is_published).length}
             </div>
             <div className="text-sm text-gray-400">Productos activos</div>
           </div>
@@ -67,7 +88,7 @@ export default async function AdminDashboardPage() {
           {/* Disponibles para venta */}
           <div className="bg-white/5 border border-[#FF69B4]/20 p-6">
             <div className="text-3xl font-bold text-emerald-300 mb-1">
-              {products.filter(p => p.is_published && p.status === 'available').length}
+              {allProducts.filter(p => p.is_published && p.status === 'available').length}
             </div>
             <div className="text-sm text-gray-400">Disponibles venta</div>
           </div>
@@ -75,7 +96,7 @@ export default async function AdminDashboardPage() {
           {/* Inactivos/Ocultos */}
           <div className="bg-white/5 border border-[#FF69B4]/20 p-6">
             <div className="text-3xl font-bold text-yellow-400 mb-1">
-              {products.filter(p => !p.is_published).length}
+              {allProducts.filter(p => !p.is_published).length}
             </div>
             <div className="text-sm text-gray-400">Inactivos/Ocultos</div>
           </div>
@@ -83,7 +104,7 @@ export default async function AdminDashboardPage() {
           {/* Valor disponible */}
           <div className="bg-white/5 border border-[#FF69B4]/20 p-6">
             <div className="text-3xl font-bold text-[#C9A96E] mb-1">
-              ${products
+              ${allProducts
                 .filter(p => p.is_published && ['available', 'preorder'].includes(p.status))
                 .reduce((sum, p) => sum + (Number(p.price) || 0), 0)
                 .toLocaleString()}
@@ -94,13 +115,16 @@ export default async function AdminDashboardPage() {
         
         {/* Base histórica - referencia */}
         <div className="mb-6 p-4 bg-white/5 border border-[#FF69B4]/10 text-sm text-gray-400">
-          <span className="font-medium text-white">Base histórica:</span> {products.length} productos total en DB (incluye test, vendidos, inactivos)
+          <span className="font-medium text-white">Base histórica:</span> {allProducts.length} productos total en DB (incluye test, vendidos, inactivos)
         </div>
 
-        {/* Products Table */}
+        {/* Products Table - Solo Activos */}
         <div className="bg-white/5 border border-[#FF69B4]/20">
           <div className="px-6 py-4 border-b border-[#FF69B4]/10">
-            <h2 className="text-lg text-white font-medium">Productos</h2>
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg text-white font-medium">Productos Activos</h2>
+              <span className="text-sm text-gray-400">{activeProducts.length} publicados</span>
+            </div>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full">
@@ -115,14 +139,14 @@ export default async function AdminDashboardPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#FF69B4]/10">
-                {products.length === 0 ? (
+                {activeProducts.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="px-6 py-8 text-center text-gray-400">
-                      No hay productos todavía
+                      No hay productos activos todavía
                     </td>
                   </tr>
                 ) : (
-                  products.map((product: any) => (
+                  activeProducts.map((product: any) => (
                     <tr key={product.id} className="hover:bg-white/5 transition-colors">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
