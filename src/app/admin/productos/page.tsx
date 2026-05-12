@@ -294,13 +294,6 @@ export default async function AdminProductosPage({ searchParams }: PageProps) {
           )}
         </div>
         
-        {/* Resumen global (referencia) */}
-        {currentView !== 'all' && (
-          <div className="mb-6 p-4 bg-white/5 border border-[#FF69B4]/10 text-sm text-gray-400">
-            <span className="font-medium text-white">Base de datos completa:</span> {globalStats.totalAll} productos total ({globalStats.publishedAll} activos, {globalStats.draftAll} inactivos, {globalStats.soldAll} vendidos)
-          </div>
-        )}
-        
         {/* Actions */}
         <div className="mb-6 flex gap-4">
           <a

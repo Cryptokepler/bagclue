@@ -112,11 +112,6 @@ export default async function AdminDashboardPage() {
             <div className="text-sm text-gray-400">Valor disponible</div>
           </div>
         </div>
-        
-        {/* Base histórica - referencia */}
-        <div className="mb-6 p-4 bg-white/5 border border-[#FF69B4]/10 text-sm text-gray-400">
-          <span className="font-medium text-white">Base histórica:</span> {allProducts.length} productos total en DB (incluye test, vendidos, inactivos)
-        </div>
 
         {/* Products Table - Solo Activos */}
         <div className="bg-white/5 border border-[#FF69B4]/20">
