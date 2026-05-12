@@ -5,6 +5,7 @@ type Order = {
   created_at: string
   customer_name: string
   customer_email: string
+  user_id?: string | null
   total: number
   payment_status: string
   payment_method?: string
@@ -70,6 +71,15 @@ export default function VentasTableCash({ orders, showHeader = true }: VentasTab
     return method ? (map[method] || method) : '-'
   }
   
+  const getClienteId = (order: Order) => {
+    // Si tiene user_id, usar UUID
+    if (order.user_id) {
+      return order.user_id
+    }
+    // Si no, usar email encoded
+    return encodeURIComponent(order.customer_email)
+  }
+  
   return (
     <div className="bg-white/5 border border-[#FF69B4]/20 mb-6">
       {showHeader && (
@@ -90,7 +100,7 @@ export default function VentasTableCash({ orders, showHeader = true }: VentasTab
               <th className="px-6 py-3">Método pago</th>
               <th className="px-6 py-3">Estado pago</th>
               <th className="px-6 py-3">Estado envío</th>
-              <th className="px-6 py-3">Acción</th>
+              <th className="px-6 py-3">Acciones</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[#FF69B4]/10">
@@ -155,12 +165,20 @@ export default function VentasTableCash({ orders, showHeader = true }: VentasTab
                     </span>
                   </td>
                   <td className="px-6 py-4">
-                    <Link
-                      href={`/admin/orders/${order.id}`}
-                      className="text-[#FF69B4] hover:text-[#FF69B4]/80 text-sm transition-colors"
-                    >
-                      Ver pedido →
-                    </Link>
+                    <div className="flex flex-col gap-1">
+                      <Link
+                        href={`/admin/orders/${order.id}`}
+                        className="text-[#FF69B4] hover:text-[#FF69B4]/80 text-sm transition-colors"
+                      >
+                        Ver pedido →
+                      </Link>
+                      <Link
+                        href={`/admin/clientes/${getClienteId(order)}`}
+                        className="text-gray-400 hover:text-gray-300 text-xs transition-colors"
+                      >
+                        Ver cliente
+                      </Link>
+                    </div>
                   </td>
                 </tr>
               ))

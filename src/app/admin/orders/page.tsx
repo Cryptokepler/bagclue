@@ -41,7 +41,7 @@ async function getDateRange(dateFilter?: string) {
 async function getOrders(params: SearchParams) {
   let query = supabaseAdmin
     .from('orders')
-    .select('*, order_items(*, products(title, brand))')
+    .select('id, created_at, customer_name, customer_email, user_id, total, payment_status, payment_method, shipping_status, status, order_items(*, products(title, brand))')
   
   // Date filter
   const dateRange = await getDateRange(params.date)
@@ -95,6 +95,7 @@ async function getLayaways(params: SearchParams) {
       id,
       customer_name,
       customer_email,
+      user_id,
       product_title,
       product_brand,
       total_amount,

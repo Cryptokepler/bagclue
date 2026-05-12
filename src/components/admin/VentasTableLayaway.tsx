@@ -4,6 +4,7 @@ type Layaway = {
   id: string
   customer_name: string
   customer_email: string
+  user_id?: string | null
   product_title: string
   product_brand?: string
   total_amount: number
@@ -64,6 +65,15 @@ export default function VentasTableLayaway({ layaways, showHeader = true }: Vent
     return 'bg-gray-500/20 text-gray-400'
   }
   
+  const getClienteId = (layaway: Layaway) => {
+    // Si tiene user_id, usar UUID
+    if (layaway.user_id) {
+      return layaway.user_id
+    }
+    // Si no, usar email encoded
+    return encodeURIComponent(layaway.customer_email)
+  }
+  
   return (
     <div className="bg-white/5 border border-[#FF69B4]/20 mb-6">
       {showHeader && (
@@ -86,7 +96,7 @@ export default function VentasTableLayaway({ layaways, showHeader = true }: Vent
               <th className="px-6 py-3">Pagos faltantes</th>
               <th className="px-6 py-3">Próximo pago</th>
               <th className="px-6 py-3">Estado</th>
-              <th className="px-6 py-3">Acción</th>
+              <th className="px-6 py-3">Acciones</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[#FF69B4]/10">
@@ -146,12 +156,20 @@ export default function VentasTableLayaway({ layaways, showHeader = true }: Vent
                     </span>
                   </td>
                   <td className="px-6 py-4">
-                    <Link
-                      href={`/admin/layaways/${layaway.id}`}
-                      className="text-[#FF69B4] hover:text-[#FF69B4]/80 text-sm transition-colors"
-                    >
-                      Ver apartado →
-                    </Link>
+                    <div className="flex flex-col gap-1">
+                      <Link
+                        href={`/admin/layaways/${layaway.id}`}
+                        className="text-[#FF69B4] hover:text-[#FF69B4]/80 text-sm transition-colors"
+                      >
+                        Ver apartado →
+                      </Link>
+                      <Link
+                        href={`/admin/clientes/${getClienteId(layaway)}`}
+                        className="text-gray-400 hover:text-gray-300 text-xs transition-colors"
+                      >
+                        Ver cliente
+                      </Link>
+                    </div>
                   </td>
                 </tr>
               ))
