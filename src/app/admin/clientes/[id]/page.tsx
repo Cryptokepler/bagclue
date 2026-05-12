@@ -1,39 +1,9 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { isAuthenticated } from '@/lib/session'
+import { getAdminClienteDetail } from '@/lib/admin/clientes'
 import AdminNav from '@/components/admin/AdminNav'
-import ClienteProfile from '@/components/admin/clientes/ClienteProfile'
-import ClienteStats from '@/components/admin/clientes/ClienteStats'
-import ClienteOrders from '@/components/admin/clientes/ClienteOrders'
-import ClienteLayaways from '@/components/admin/clientes/ClienteLayaways'
-import ClientePaymentReviews from '@/components/admin/clientes/ClientePaymentReviews'
 import ClienteDetailClient from './ClienteDetailClient'
-import type { ClienteDetailResponse } from '@/types/admin-clientes'
-
-async function getClienteDetail(id: string): Promise<ClienteDetailResponse | null> {
-  try {
-    // En server-side (RSC), usar URL absoluta con VERCEL_URL o relativa
-    // VERCEL_URL está disponible en deployment de Vercel
-    const baseUrl = process.env.VERCEL_URL 
-      ? `https://${process.env.VERCEL_URL}`
-      : (process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000')
-    
-    // NO hacer encodeURIComponent porque id ya viene encoded desde Next.js params
-    const res = await fetch(`${baseUrl}/api/admin/clientes/${id}`, {
-      cache: 'no-store'
-    })
-    
-    if (!res.ok) {
-      console.error('[CLIENTE DETAIL PAGE] Fetch failed:', res.status, 'URL:', `${baseUrl}/api/admin/clientes/${id}`)
-      return null
-    }
-    
-    return await res.json()
-  } catch (error) {
-    console.error('[CLIENTE DETAIL PAGE] Error:', error)
-    return null
-  }
-}
 
 export default async function AdminClienteDetailPage({
   params
@@ -47,7 +17,7 @@ export default async function AdminClienteDetailPage({
   }
 
   const { id } = await params
-  const clienteDetail = await getClienteDetail(id)
+  const clienteDetail = await getAdminClienteDetail(id)
 
   if (!clienteDetail) {
     return (
