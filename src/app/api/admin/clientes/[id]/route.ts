@@ -132,47 +132,66 @@ export async function GET(
       }
     }
 
-    // Fetch orders (case-insensitive email match)
-    let ordersQuery = supabaseAdmin
-      .from('orders')
-      .select(`
-        id,
-        customer_name,
-        customer_email,
-        total,
-        status,
-        payment_status,
-        shipping_status,
-        created_at,
-        tracking_token,
-        tracking_number,
-        shipping_proof_url,
-        order_items (
-          product_id,
-          quantity,
-          price,
-          products (
-            title,
-            brand
-          )
+    // Fetch orders (case-insensitive email match + user_id para híbridos)
+    // Para clientes registrados con orders previas como guest, hacer dos queries
+    const ordersBaseSelect = `
+      id,
+      customer_name,
+      customer_email,
+      total,
+      status,
+      payment_status,
+      shipping_status,
+      created_at,
+      tracking_token,
+      tracking_number,
+      shipping_proof_url,
+      order_items (
+        product_id,
+        quantity,
+        price,
+        products (
+          title,
+          brand
         )
-      `)
-      .order('created_at', { ascending: false })
+      )
+    `
+    
+    let allOrdersData: any[] = []
     
     if (isRegistered) {
-      ordersQuery = ordersQuery.eq('user_id', clientId)
+      // Buscar por user_id
+      const { data: ordersByUserId } = await supabaseAdmin
+        .from('orders')
+        .select(ordersBaseSelect)
+        .eq('user_id', clientId)
+      
+      // Buscar por email (orders pre-registro)
+      const { data: ordersByEmail } = await supabaseAdmin
+        .from('orders')
+        .select(ordersBaseSelect)
+        .ilike('customer_email', profile.email)
+        .is('user_id', null)  // Solo orders sin user_id para evitar duplicados
+      
+      allOrdersData = [...(ordersByUserId || []), ...(ordersByEmail || [])]
+      // Ordenar por fecha
+      allOrdersData.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
     } else {
-      ordersQuery = ordersQuery.ilike('customer_email', profile.email)
+      const { data: guestOrders, error: ordersError } = await supabaseAdmin
+        .from('orders')
+        .select(ordersBaseSelect)
+        .ilike('customer_email', profile.email)
+        .order('created_at', { ascending: false })
+      
+      if (ordersError) {
+        console.error('[CLIENTE DETAIL] Orders error:', ordersError)
+        return NextResponse.json({ error: 'Database error' }, { status: 500 })
+      }
+      
+      allOrdersData = guestOrders || []
     }
 
-    const { data: ordersData, error: ordersError } = await ordersQuery
-
-    if (ordersError) {
-      console.error('[CLIENTE DETAIL] Orders error:', ordersError)
-      return NextResponse.json({ error: 'Database error' }, { status: 500 })
-    }
-
-    const orders = (ordersData || []).map((order: any) => ({
+    const orders = allOrdersData.map((order: any) => ({
       id: order.id,
       customer_name: order.customer_name,
       customer_email: order.customer_email,
@@ -193,41 +212,58 @@ export async function GET(
       }))
     }))
 
-    // Fetch layaways (case-insensitive email match)
-    let layawaysQuery = supabaseAdmin
-      .from('layaways')
-      .select(`
-        id,
-        product_id,
-        total_amount,
-        amount_paid,
-        amount_remaining,
-        status,
-        next_payment_due_date,
-        next_payment_amount,
-        created_at,
-        layaway_token,
-        products (
-          title,
-          brand
-        )
-      `)
-      .order('created_at', { ascending: false })
+    // Fetch layaways (case-insensitive email match + user_id para híbridos)
+    const layawaysBaseSelect = `
+      id,
+      product_id,
+      total_amount,
+      amount_paid,
+      amount_remaining,
+      status,
+      next_payment_due_date,
+      next_payment_amount,
+      created_at,
+      layaway_token,
+      products (
+        title,
+        brand
+      )
+    `
+    
+    let allLayawaysData: any[] = []
     
     if (isRegistered) {
-      layawaysQuery = layawaysQuery.eq('user_id', clientId)
+      // Buscar por user_id
+      const { data: layawaysByUserId } = await supabaseAdmin
+        .from('layaways')
+        .select(layawaysBaseSelect)
+        .eq('user_id', clientId)
+      
+      // Buscar por email (layaways pre-registro)
+      const { data: layawaysByEmail } = await supabaseAdmin
+        .from('layaways')
+        .select(layawaysBaseSelect)
+        .ilike('customer_email', profile.email)
+        .is('user_id', null)
+      
+      allLayawaysData = [...(layawaysByUserId || []), ...(layawaysByEmail || [])]
+      allLayawaysData.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
     } else {
-      layawaysQuery = layawaysQuery.ilike('customer_email', profile.email)
+      const { data: guestLayaways, error: layawaysError } = await supabaseAdmin
+        .from('layaways')
+        .select(layawaysBaseSelect)
+        .ilike('customer_email', profile.email)
+        .order('created_at', { ascending: false })
+      
+      if (layawaysError) {
+        console.error('[CLIENTE DETAIL] Layaways error:', layawaysError)
+        return NextResponse.json({ error: 'Database error' }, { status: 500 })
+      }
+      
+      allLayawaysData = guestLayaways || []
     }
 
-    const { data: layawaysData, error: layawaysError } = await layawaysQuery
-
-    if (layawaysError) {
-      console.error('[CLIENTE DETAIL] Layaways error:', layawaysError)
-      return NextResponse.json({ error: 'Database error' }, { status: 500 })
-    }
-
-    const layaways = (layawaysData || []).map((layaway: any) => ({
+    const layaways = allLayawaysData.map((layaway: any) => ({
       id: layaway.id,
       product_id: layaway.product_id,
       product_title: layaway.products?.title,

@@ -178,8 +178,25 @@ export async function GET(request: NextRequest) {
     })
 
     // Add registered_at and archived_at from profiles
+    // También unificar clientes híbridos (guest que se registraron)
     profiles?.forEach(profile => {
-      const client = clientMap.get(profile.user_id)
+      let client = clientMap.get(profile.user_id)
+      
+      // Si no existe con user_id, buscar por email lowercase (puede ser guest previo)
+      if (!client) {
+        const emailLower = profile.email.toLowerCase()
+        client = clientMap.get(emailLower)
+        
+        // Si existe como guest, migrarlo a usar user_id como key
+        if (client) {
+          clientMap.delete(emailLower)
+          client.id = profile.user_id
+          client.user_id = profile.user_id
+          client.type = client.total_orders > 0 ? 'hybrid' : 'registered'
+          clientMap.set(profile.user_id, client)
+        }
+      }
+      
       if (client) {
         client.registered_at = profile.created_at
         client.archived_at = profile.archived_at
