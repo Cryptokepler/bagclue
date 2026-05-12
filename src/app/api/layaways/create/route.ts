@@ -89,11 +89,13 @@ export async function POST(request: NextRequest) {
     }
 
     // 3. Validate first payment
-    const minimum_first_payment = Math.ceil(selected_plan_price / plan_weeks)
+    const STRIPE_MINIMUM_MXN = 10 // Stripe minimum ~$0.50 USD
+    const minimum_first_payment_calculated = Math.ceil(selected_plan_price / plan_weeks)
+    const minimum_first_payment = Math.max(minimum_first_payment_calculated, STRIPE_MINIMUM_MXN)
     
     if (first_payment_amount < minimum_first_payment) {
       return NextResponse.json({
-        error: `First payment must be at least ${minimum_first_payment} ${product.currency}`,
+        error: `El pago inicial mínimo para apartar debe ser de al menos $${minimum_first_payment} ${product.currency}. Elige un pago inicial mayor.`,
         minimum_first_payment
       }, { status: 400 })
     }

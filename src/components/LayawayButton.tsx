@@ -40,8 +40,10 @@ export default function LayawayButton({ product }: LayawayButtonProps) {
     }
   }
 
+  const STRIPE_MINIMUM_MXN = 10 // Stripe minimum ~$0.50 USD
   const selectedPlanPrice = selectedPlan ? getPlanPrice(selectedPlan) : 0
-  const minimumPayment = selectedPlan ? Math.ceil(selectedPlanPrice / selectedPlan) : 0
+  const minimumPaymentCalculated = selectedPlan ? Math.ceil(selectedPlanPrice / selectedPlan) : 0
+  const minimumPayment = Math.max(minimumPaymentCalculated, STRIPE_MINIMUM_MXN)
   const amountRemaining = Math.max(0, selectedPlanPrice - firstPaymentAmount)
   const paymentsRemaining = selectedPlan ? selectedPlan - 1 : 0
   const nextPaymentAmount = paymentsRemaining > 0 && amountRemaining > 0
@@ -52,10 +54,17 @@ export default function LayawayButton({ product }: LayawayButtonProps) {
   // Format numbers consistently
   const formatCurrency = (amount: number) => amount.toLocaleString('es-MX')
 
+  // Calculate minimum payment for display (applies Stripe minimum)
+  const getMinimumPaymentForPlan = (planPrice: number, weeks: number): number => {
+    const calculated = Math.ceil(planPrice / weeks)
+    return Math.max(calculated, STRIPE_MINIMUM_MXN)
+  }
+
   const handlePlanSelect = (weeks: PlanWeeks) => {
     setSelectedPlan(weeks)
     const planPrice = getPlanPrice(weeks)
-    const minPayment = Math.ceil(planPrice / weeks)
+    const minPaymentCalculated = Math.ceil(planPrice / weeks)
+    const minPayment = Math.max(minPaymentCalculated, STRIPE_MINIMUM_MXN)
     setFirstPaymentAmount(minPayment) // Set default to minimum
     setError('')
     setStep('amount')
@@ -188,7 +197,7 @@ export default function LayawayButton({ product }: LayawayButtonProps) {
                     </div>
                     <div className="space-y-1 text-sm text-gray-600">
                       <p><strong>Precio final:</strong> ${formatCurrency(price_4_weeks)} {product.currency}</p>
-                      <p><strong>Primer pago desde:</strong> ${formatCurrency(Math.ceil(price_4_weeks / 4))} {product.currency}</p>
+                      <p><strong>Primer pago desde:</strong> ${formatCurrency(getMinimumPaymentForPlan(price_4_weeks, 4))} {product.currency}</p>
                       <p><strong>Pagos restantes:</strong> 3 pagos semanales</p>
                     </div>
                   </button>
@@ -208,7 +217,7 @@ export default function LayawayButton({ product }: LayawayButtonProps) {
                     </div>
                     <div className="space-y-1 text-sm text-gray-600">
                       <p><strong>Precio final:</strong> ${formatCurrency(price_8_weeks)} {product.currency}</p>
-                      <p><strong>Primer pago desde:</strong> ${formatCurrency(Math.ceil(price_8_weeks / 8))} {product.currency}</p>
+                      <p><strong>Primer pago desde:</strong> ${formatCurrency(getMinimumPaymentForPlan(price_8_weeks, 8))} {product.currency}</p>
                       <p><strong>Pagos restantes:</strong> 7 pagos semanales</p>
                     </div>
                   </button>
@@ -228,7 +237,7 @@ export default function LayawayButton({ product }: LayawayButtonProps) {
                     </div>
                     <div className="space-y-1 text-sm text-gray-600">
                       <p><strong>Precio final:</strong> ${formatCurrency(price_18_weeks)} {product.currency}</p>
-                      <p><strong>Primer pago desde:</strong> ${formatCurrency(Math.ceil(price_18_weeks / 18))} {product.currency}</p>
+                      <p><strong>Primer pago desde:</strong> ${formatCurrency(getMinimumPaymentForPlan(price_18_weeks, 18))} {product.currency}</p>
                       <p><strong>Pagos restantes:</strong> 17 pagos semanales</p>
                     </div>
                   </button>
