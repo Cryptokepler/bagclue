@@ -78,23 +78,31 @@ export async function GET(
     // If no profile found (guest or failed UUID lookup), build from orders
     if (!profile) {
       const email = isUUID ? null : clientId
-      const { data: firstOrder, error: orderError } = await supabaseAdmin
+      
+      // Query condicional para user_id o email (case-insensitive)
+      let ordersQuery = supabaseAdmin
         .from('orders')
         .select('customer_email, customer_name, customer_phone, created_at')
-        .or(isUUID ? `user_id.eq.${clientId}` : `customer_email.eq.${email}`)
         .order('created_at', { ascending: true })
         .limit(1)
-        .single()
+      
+      if (isUUID) {
+        ordersQuery = ordersQuery.eq('user_id', clientId)
+      } else {
+        ordersQuery = ordersQuery.ilike('customer_email', email!)
+      }
+
+      const { data: firstOrder, error: orderError } = await ordersQuery.single()
 
       if (orderError || !firstOrder) {
         return NextResponse.json({ error: 'Cliente no encontrado' }, { status: 404 })
       }
 
-      // Verificar si existe customer_profile para este guest email
+      // Verificar si existe customer_profile para este guest email (case-insensitive)
       const { data: guestProfile } = await supabaseAdmin
         .from('customer_profiles')
         .select('internal_notes, archived_at, name, phone, phone_country_code, phone_country_iso')
-        .eq('email', firstOrder.customer_email)
+        .ilike('email', firstOrder.customer_email)
         .maybeSingle()
 
       profile = {
@@ -113,8 +121,8 @@ export async function GET(
       }
     }
 
-    // Fetch orders
-    const { data: ordersData, error: ordersError } = await supabaseAdmin
+    // Fetch orders (case-insensitive email match)
+    let ordersQuery = supabaseAdmin
       .from('orders')
       .select(`
         id,
@@ -138,8 +146,15 @@ export async function GET(
           )
         )
       `)
-      .or(isRegistered ? `user_id.eq.${clientId}` : `customer_email.eq.${profile.email}`)
       .order('created_at', { ascending: false })
+    
+    if (isRegistered) {
+      ordersQuery = ordersQuery.eq('user_id', clientId)
+    } else {
+      ordersQuery = ordersQuery.ilike('customer_email', profile.email)
+    }
+
+    const { data: ordersData, error: ordersError } = await ordersQuery
 
     if (ordersError) {
       console.error('[CLIENTE DETAIL] Orders error:', ordersError)
@@ -167,8 +182,8 @@ export async function GET(
       }))
     }))
 
-    // Fetch layaways
-    const { data: layawaysData, error: layawaysError } = await supabaseAdmin
+    // Fetch layaways (case-insensitive email match)
+    let layawaysQuery = supabaseAdmin
       .from('layaways')
       .select(`
         id,
@@ -186,8 +201,15 @@ export async function GET(
           brand
         )
       `)
-      .or(isRegistered ? `user_id.eq.${clientId}` : `customer_email.eq.${profile.email}`)
       .order('created_at', { ascending: false })
+    
+    if (isRegistered) {
+      layawaysQuery = layawaysQuery.eq('user_id', clientId)
+    } else {
+      layawaysQuery = layawaysQuery.ilike('customer_email', profile.email)
+    }
+
+    const { data: layawaysData, error: layawaysError } = await layawaysQuery
 
     if (layawaysError) {
       console.error('[CLIENTE DETAIL] Layaways error:', layawaysError)
@@ -335,13 +357,13 @@ export async function PATCH(
       return NextResponse.json({ success: true, profile: data })
 
     } else {
-      // Cliente guest (email) - verificar si ya tiene profile
+      // Cliente guest (email) - verificar si ya tiene profile (case-insensitive)
       const email = clientId
 
       const { data: existingProfile, error: fetchError } = await supabaseAdmin
         .from('customer_profiles')
         .select('*')
-        .eq('email', email)
+        .ilike('email', email)
         .maybeSingle()
 
       if (fetchError) {
@@ -350,7 +372,7 @@ export async function PATCH(
       }
 
       if (existingProfile) {
-        // Ya existe profile - actualizar
+        // Ya existe profile - actualizar (case-insensitive)
         const { data, error } = await supabaseAdmin
           .from('customer_profiles')
           .update({
@@ -361,7 +383,7 @@ export async function PATCH(
             internal_notes: body.internal_notes,
             updated_at: new Date().toISOString()
           })
-          .eq('email', email)
+          .ilike('email', email)
           .select()
           .single()
 
