@@ -13,7 +13,8 @@ import type { ClienteDetailResponse } from '@/types/admin-clientes'
 async function getClienteDetail(id: string): Promise<ClienteDetailResponse | null> {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
-    const res = await fetch(`${baseUrl}/api/admin/clientes/${encodeURIComponent(id)}`, {
+    // NO hacer encodeURIComponent porque id ya viene encoded desde Next.js params
+    const res = await fetch(`${baseUrl}/api/admin/clientes/${id}`, {
       cache: 'no-store'
     })
     

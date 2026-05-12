@@ -75,50 +75,86 @@ export async function GET(
       }
     }
 
-    // If no profile found (guest or failed UUID lookup), build from orders
+    // If no profile found (guest or failed UUID lookup), try to build from email
     if (!profile) {
       const email = isUUID ? null : clientId
       
-      // Query condicional para user_id o email (case-insensitive)
-      let ordersQuery = supabaseAdmin
-        .from('orders')
-        .select('customer_email, customer_name, customer_phone, created_at')
-        .order('created_at', { ascending: true })
-        .limit(1)
+      // Si es email, primero intentar buscar profile por email (puede ser guest con profile)
+      if (!isUUID && email) {
+        const { data: profileByEmail } = await supabaseAdmin
+          .from('customer_profiles')
+          .select('*')
+          .ilike('email', email)
+          .maybeSingle()
+        
+        if (profileByEmail) {
+          profile = {
+            user_id: profileByEmail.user_id,
+            email: profileByEmail.email,
+            name: profileByEmail.name,
+            phone: profileByEmail.phone,
+            phone_country_code: profileByEmail.phone_country_code,
+            phone_country_iso: profileByEmail.phone_country_iso,
+            registered_at: profileByEmail.created_at,
+            welcome_email_sent_at: profileByEmail.welcome_email_sent_at,
+            first_purchase_at: null,
+            type: (profileByEmail.user_id ? 'registered' : 'guest') as 'registered' | 'guest',
+            internal_notes: profileByEmail.internal_notes,
+            archived_at: profileByEmail.archived_at
+          }
+          
+          // Si tiene user_id, actualizar isRegistered
+          if (profileByEmail.user_id) {
+            isRegistered = true
+            
+            // Fetch addresses
+            const { data: addressesData } = await supabaseAdmin
+              .from('customer_addresses')
+              .select('*')
+              .eq('user_id', profileByEmail.user_id)
+              .order('is_default', { ascending: false })
+              .order('created_at', { ascending: false })
+            
+            addresses = addressesData || []
+          }
+        }
+      }
       
-      if (isUUID) {
-        ordersQuery = ordersQuery.eq('user_id', clientId)
-      } else {
-        ordersQuery = ordersQuery.ilike('customer_email', email!)
-      }
+      // Si no encontró profile por email, intentar construir desde orders
+      if (!profile) {
+        let ordersQuery = supabaseAdmin
+          .from('orders')
+          .select('customer_email, customer_name, customer_phone, created_at')
+          .order('created_at', { ascending: true })
+          .limit(1)
+        
+        if (isUUID) {
+          ordersQuery = ordersQuery.eq('user_id', clientId)
+        } else {
+          ordersQuery = ordersQuery.ilike('customer_email', email!)
+        }
 
-      const { data: firstOrder, error: orderError } = await ordersQuery.single()
+        const { data: firstOrder, error: orderError } = await ordersQuery.single()
 
-      if (orderError || !firstOrder) {
-        console.error('[CLIENTE DETAIL] No order found for clientId:', clientId)
-        return NextResponse.json({ error: 'Cliente no encontrado' }, { status: 404 })
-      }
+        if (orderError || !firstOrder) {
+          console.error('[CLIENTE DETAIL] No profile or orders found for clientId:', clientId)
+          return NextResponse.json({ error: 'Cliente no encontrado' }, { status: 404 })
+        }
 
-      // Verificar si existe customer_profile para este guest email (case-insensitive)
-      const { data: guestProfile } = await supabaseAdmin
-        .from('customer_profiles')
-        .select('internal_notes, archived_at, name, phone, phone_country_code, phone_country_iso')
-        .ilike('email', firstOrder.customer_email)
-        .maybeSingle()
-
-      profile = {
-        user_id: null,
-        email: firstOrder.customer_email,
-        name: guestProfile?.name || firstOrder.customer_name,
-        phone: guestProfile?.phone || firstOrder.customer_phone,
-        phone_country_code: guestProfile?.phone_country_code || null,
-        phone_country_iso: guestProfile?.phone_country_iso || null,
-        registered_at: null,
-        welcome_email_sent_at: null,
-        first_purchase_at: firstOrder.created_at,
-        type: 'guest' as const,
-        internal_notes: guestProfile?.internal_notes || null,
-        archived_at: guestProfile?.archived_at || null
+        profile = {
+          user_id: null,
+          email: firstOrder.customer_email,
+          name: firstOrder.customer_name,
+          phone: firstOrder.customer_phone,
+          phone_country_code: null,
+          phone_country_iso: null,
+          registered_at: null,
+          welcome_email_sent_at: null,
+          first_purchase_at: firstOrder.created_at,
+          type: 'guest' as const,
+          internal_notes: null,
+          archived_at: null
+        }
       }
     }
 
