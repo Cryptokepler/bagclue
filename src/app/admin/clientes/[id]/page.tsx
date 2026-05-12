@@ -12,14 +12,19 @@ import type { ClienteDetailResponse } from '@/types/admin-clientes'
 
 async function getClienteDetail(id: string): Promise<ClienteDetailResponse | null> {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
+    // En server-side (RSC), usar URL absoluta con VERCEL_URL o relativa
+    // VERCEL_URL está disponible en deployment de Vercel
+    const baseUrl = process.env.VERCEL_URL 
+      ? `https://${process.env.VERCEL_URL}`
+      : (process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000')
+    
     // NO hacer encodeURIComponent porque id ya viene encoded desde Next.js params
     const res = await fetch(`${baseUrl}/api/admin/clientes/${id}`, {
       cache: 'no-store'
     })
     
     if (!res.ok) {
-      console.error('[CLIENTE DETAIL PAGE] Fetch failed:', res.status)
+      console.error('[CLIENTE DETAIL PAGE] Fetch failed:', res.status, 'URL:', `${baseUrl}/api/admin/clientes/${id}`)
       return null
     }
     
