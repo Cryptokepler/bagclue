@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Playfair_Display, Inter } from "next/font/google";
+import { Playfair_Display, Inter, Cormorant_Garamond, Manrope } from "next/font/google";
 import "./globals.css";
 import ClientProviders from "@/components/ClientProviders";
 import ConditionalLayout from "@/components/ConditionalLayout";
@@ -13,6 +13,21 @@ const playfair = Playfair_Display({
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
+  display: "swap",
+});
+
+const cormorant = Cormorant_Garamond({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  style: ["normal", "italic"],
+  variable: "--font-cormorant",
+  display: "swap",
+});
+
+const manrope = Manrope({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  variable: "--font-manrope",
   display: "swap",
 });
 
@@ -33,7 +48,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" className={`${playfair.variable} ${inter.variable}`}>
+    <html lang="es" className={`${playfair.variable} ${inter.variable} ${cormorant.variable} ${manrope.variable}`}>
       <body className="bg-white text-gray-900 font-sans antialiased">
         <ClientProviders>
           <ConditionalLayout>

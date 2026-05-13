@@ -3,10 +3,26 @@
 @theme {
   --font-playfair: var(--font-playfair);
   --font-inter: var(--font-inter);
+  --font-cormorant: var(--font-cormorant);
+  --font-manrope: var(--font-manrope);
+  
+  /* Legacy colors (mantener para no romper) */
   --color-gold: #FF69B4;
   --color-cream: #FFF0F5;
   --color-dark: #FFFFFF;
   --color-rose: #FFB6C1;
+  
+  /* Nueva paleta editorial luxury */
+  --color-ivory: #FFFBF8;
+  --color-crema: #F5F1ED;
+  --color-beige: #E8E3DC;
+  --color-taupe: #9B8F87;
+  --color-warm-gray: #C9BFB7;
+  --color-charcoal: #3A3431;
+  --color-chocolate: #2D2420;
+  --color-espresso: #1A1512;
+  --color-vino: #8B4852;
+  --color-rosa: #E85A9A;
 }
 
 html {
