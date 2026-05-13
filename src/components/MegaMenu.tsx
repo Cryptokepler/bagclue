@@ -14,7 +14,7 @@ export default function MegaMenu({ isOpen, onClose, onMouseEnter, onMouseLeave }
 
   return (
     <div 
-      className="absolute left-0 right-0 top-full z-[80] hidden lg:block"
+      className="absolute left-0 right-0 top-full z-[80]"
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       style={{
