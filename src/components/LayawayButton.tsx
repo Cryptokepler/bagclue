@@ -7,11 +7,22 @@ interface LayawayButtonProps {
     id: string
     price: number
     currency: string
+    brand?: string
   }
 }
 
 type Step = 'plans' | 'amount' | 'customer'
 type PlanWeeks = 4 | 8 | 18
+
+// Helper functions for Hermès brand detection
+function normalizeBrand(brand: string): string {
+  return brand.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+}
+
+function isHermes(brand: string): boolean {
+  const normalized = normalizeBrand(brand)
+  return normalized === 'hermes'
+}
 
 export default function LayawayButton({ product }: LayawayButtonProps) {
   const [showModal, setShowModal] = useState(false)
@@ -26,17 +37,52 @@ export default function LayawayButton({ product }: LayawayButtonProps) {
     customer_phone: ''
   })
 
+  // Check if product is Hermès
+  const isHermesBrand = isHermes(product.brand || '')
+  
+  // Determine available plans based on brand
+  const availablePlans: PlanWeeks[] = isHermesBrand 
+    ? [4, 8]  // Hermès: only 4 and 8 weeks
+    : [4, 8, 18]  // Other brands: 4, 8, 18 weeks
+  
   // Calculate plan prices
   const price_cash = product.price
   const price_4_weeks = price_cash
-  const price_8_weeks = Math.round(price_cash * 1.035)
+  const price_8_weeks = isHermesBrand ? price_cash : Math.round(price_cash * 1.035)
   const price_18_weeks = Math.round(price_cash * 1.056)
 
   const getPlanPrice = (weeks: PlanWeeks): number => {
+    if (isHermesBrand) {
+      // Hermès: no increment
+      return price_cash
+    }
+    // Other brands: normal increment
     switch(weeks) {
       case 4: return price_4_weeks
       case 8: return price_8_weeks
       case 18: return price_18_weeks
+    }
+  }
+  
+  const getPlanIncrement = (weeks: PlanWeeks): string => {
+    if (isHermesBrand) {
+      return 'Sin incremento'
+    }
+    switch(weeks) {
+      case 4: return 'Sin incremento'
+      case 8: return '+3.5%'
+      case 18: return '+5.6%'
+    }
+  }
+  
+  const getPlanBadgeColor = (weeks: PlanWeeks): string => {
+    if (isHermesBrand || weeks === 4) {
+      return 'bg-green-100 text-green-700'
+    }
+    switch(weeks) {
+      case 8: return 'bg-blue-100 text-blue-700'
+      case 18: return 'bg-purple-100 text-purple-700'
+      default: return 'bg-gray-100 text-gray-700'
     }
   }
 
@@ -157,7 +203,10 @@ export default function LayawayButton({ product }: LayawayButtonProps) {
           Apartar con pagos semanales
         </span>
         <span className="text-xs block mt-1">
-          Elige entre 4, 8 o 18 semanas. Puedes adelantar más en tu primer pago.
+          {isHermesBrand 
+            ? 'Elige entre 4 u 8 semanas. Puedes adelantar más en tu primer pago.'
+            : 'Elige entre 4, 8 o 18 semanas. Puedes adelantar más en tu primer pago.'
+          }
         </span>
       </button>
 
@@ -182,65 +231,32 @@ export default function LayawayButton({ product }: LayawayButtonProps) {
                 </p>
 
                 <div className="space-y-4">
-                  {/* Plan 4 weeks */}
-                  <button
-                    onClick={() => handlePlanSelect(4)}
-                    className="w-full border-2 border-gray-200 hover:border-[#E85A9A] p-4 rounded-lg text-left transition-colors group"
-                  >
-                    <div className="flex justify-between items-start mb-2">
-                      <h3 className="text-lg font-semibold text-gray-900 group-hover:text-[#E85A9A]">
-                        Plan 4 semanas
-                      </h3>
-                      <span className="px-3 py-1 bg-green-100 text-green-700 text-sm font-medium rounded">
-                        ✨ Sin incremento
-                      </span>
-                    </div>
-                    <div className="space-y-1 text-sm text-gray-600">
-                      <p><strong>Precio final:</strong> ${formatCurrency(price_4_weeks)} {product.currency}</p>
-                      <p><strong>Primer pago desde:</strong> ${formatCurrency(getMinimumPaymentForPlan(price_4_weeks, 4))} {product.currency}</p>
-                      <p><strong>Pagos restantes:</strong> 3 pagos semanales</p>
-                    </div>
-                  </button>
-
-                  {/* Plan 8 weeks */}
-                  <button
-                    onClick={() => handlePlanSelect(8)}
-                    className="w-full border-2 border-gray-200 hover:border-[#E85A9A] p-4 rounded-lg text-left transition-colors group"
-                  >
-                    <div className="flex justify-between items-start mb-2">
-                      <h3 className="text-lg font-semibold text-gray-900 group-hover:text-[#E85A9A]">
-                        Plan 8 semanas
-                      </h3>
-                      <span className="px-3 py-1 bg-blue-100 text-blue-700 text-sm font-medium rounded">
-                        +3.5%
-                      </span>
-                    </div>
-                    <div className="space-y-1 text-sm text-gray-600">
-                      <p><strong>Precio final:</strong> ${formatCurrency(price_8_weeks)} {product.currency}</p>
-                      <p><strong>Primer pago desde:</strong> ${formatCurrency(getMinimumPaymentForPlan(price_8_weeks, 8))} {product.currency}</p>
-                      <p><strong>Pagos restantes:</strong> 7 pagos semanales</p>
-                    </div>
-                  </button>
-
-                  {/* Plan 18 weeks */}
-                  <button
-                    onClick={() => handlePlanSelect(18)}
-                    className="w-full border-2 border-gray-200 hover:border-[#E85A9A] p-4 rounded-lg text-left transition-colors group"
-                  >
-                    <div className="flex justify-between items-start mb-2">
-                      <h3 className="text-lg font-semibold text-gray-900 group-hover:text-[#E85A9A]">
-                        Plan 18 semanas
-                      </h3>
-                      <span className="px-3 py-1 bg-purple-100 text-purple-700 text-sm font-medium rounded">
-                        +5.6%
-                      </span>
-                    </div>
-                    <div className="space-y-1 text-sm text-gray-600">
-                      <p><strong>Precio final:</strong> ${formatCurrency(price_18_weeks)} {product.currency}</p>
-                      <p><strong>Primer pago desde:</strong> ${formatCurrency(getMinimumPaymentForPlan(price_18_weeks, 18))} {product.currency}</p>
-                      <p><strong>Pagos restantes:</strong> 17 pagos semanales</p>
-                    </div>
-                  </button>
+                  {availablePlans.map(weeks => {
+                    const planPrice = getPlanPrice(weeks)
+                    const paymentsRemaining = weeks - 1
+                    
+                    return (
+                      <button
+                        key={weeks}
+                        onClick={() => handlePlanSelect(weeks)}
+                        className="w-full border-2 border-gray-200 hover:border-[#E85A9A] p-4 rounded-lg text-left transition-colors group"
+                      >
+                        <div className="flex justify-between items-start mb-2">
+                          <h3 className="text-lg font-semibold text-gray-900 group-hover:text-[#E85A9A]">
+                            Plan {weeks} semanas
+                          </h3>
+                          <span className={`px-3 py-1 ${getPlanBadgeColor(weeks)} text-sm font-medium rounded`}>
+                            {weeks === 4 && !isHermesBrand && '✨ '}{getPlanIncrement(weeks)}
+                          </span>
+                        </div>
+                        <div className="space-y-1 text-sm text-gray-600">
+                          <p><strong>Precio final:</strong> ${formatCurrency(planPrice)} {product.currency}</p>
+                          <p><strong>Primer pago desde:</strong> ${formatCurrency(getMinimumPaymentForPlan(planPrice, weeks))} {product.currency}</p>
+                          <p><strong>Pagos restantes:</strong> {paymentsRemaining} {paymentsRemaining === 1 ? 'pago semanal' : 'pagos semanales'}</p>
+                        </div>
+                      </button>
+                    )
+                  })}
                 </div>
               </div>
             )}

@@ -6,6 +6,16 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2026-04-22.dahlia'
 })
 
+// Helper functions for Hermès brand detection
+function normalizeBrand(brand: string): string {
+  return brand.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+}
+
+function isHermes(brand: string): boolean {
+  const normalized = normalizeBrand(brand)
+  return normalized === 'hermes'
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
@@ -64,28 +74,53 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
-    // 2. Calculate plan pricing
+    // 2. Check Hermès brand rules
+    const isHermesBrand = isHermes(product.brand || '')
+    
+    // Hermès does not allow 18-week plans
+    if (isHermesBrand && plan_weeks === 18) {
+      return NextResponse.json({ 
+        error: 'El plan de 18 semanas no está disponible para piezas Hermès.' 
+      }, { status: 400 })
+    }
+
+    // 3. Calculate plan pricing
     const price_cash = product.price
     const price_4_weeks = price_cash
     const price_8_weeks = Math.round(price_cash * 1.035)
     const price_18_weeks = Math.round(price_cash * 1.056)
 
-    // Select plan price
+    // Select plan price based on brand rules
     let selected_plan_price: number
-    switch(plan_weeks) {
-      case 4:
-        selected_plan_price = price_4_weeks
-        break
-      case 8:
-        selected_plan_price = price_8_weeks
-        break
-      case 18:
-        selected_plan_price = price_18_weeks
-        break
-      default:
-        return NextResponse.json({ 
-          error: 'Invalid plan_weeks' 
-        }, { status: 400 })
+    if (isHermesBrand) {
+      // Hermès: no increment for 4 and 8 weeks
+      switch(plan_weeks) {
+        case 4:
+        case 8:
+          selected_plan_price = price_cash
+          break
+        default:
+          return NextResponse.json({ 
+            error: 'Invalid plan_weeks' 
+          }, { status: 400 })
+      }
+    } else {
+      // Other brands: normal increment
+      switch(plan_weeks) {
+        case 4:
+          selected_plan_price = price_4_weeks
+          break
+        case 8:
+          selected_plan_price = price_8_weeks
+          break
+        case 18:
+          selected_plan_price = price_18_weeks
+          break
+        default:
+          return NextResponse.json({ 
+            error: 'Invalid plan_weeks' 
+          }, { status: 400 })
+      }
     }
 
     // 3. Validate first payment
