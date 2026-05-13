@@ -180,7 +180,8 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
                       product={{
                         id: product.id,
                         price: product.price,
-                        currency: product.currency
+                        currency: product.currency,
+                        brand: product.brand
                       }}
                     />
                   )}
