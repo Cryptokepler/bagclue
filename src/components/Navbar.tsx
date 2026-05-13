@@ -68,7 +68,7 @@ export default function Navbar() {
         </Link>
 
         {/* Desktop */}
-        <div className="hidden lg:flex items-center gap-10">
+        <div className="hidden md:flex items-center gap-8">
           {/* Botón Catálogo */}
           <div 
             onMouseEnter={openMenu}
@@ -109,7 +109,7 @@ export default function Navbar() {
         </div>
 
         {/* Mobile toggle */}
-        <button className="lg:hidden text-gray-900" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Menu">
+        <button className="md:hidden text-gray-900" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Menu">
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             {mobileOpen ? <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" /> : <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 12h16M4 18h16" />}
           </svg>
@@ -126,7 +126,7 @@ export default function Navbar() {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="lg:hidden bg-white/98 backdrop-blur-md border-t border-gray-100 animate-fade-in">
+        <div className="md:hidden bg-white/98 backdrop-blur-md border-t border-gray-100 animate-fade-in">
           <div className="px-6 py-6 flex flex-col gap-4">
             <Link href="/catalogo" onClick={() => setMobileOpen(false)} className="font-[family-name:var(--font-inter)] text-sm tracking-[0.16em] uppercase text-gray-600 hover:text-[#E85A9A] transition-colors py-2 outline-none focus-visible:ring-1 focus-visible:ring-[#E85A9A] focus-visible:ring-offset-2 focus-visible:ring-offset-white">
               Catálogo
