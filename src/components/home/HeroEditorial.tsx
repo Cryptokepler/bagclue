@@ -26,16 +26,16 @@ export default function HeroEditorial() {
         <h1 
           className="text-[#FFFBF8] font-[family-name:var(--font-cormorant)] font-semibold text-4xl md:text-[56px] leading-[1.1] tracking-[-0.02em] mb-8"
         >
-          Luxury sourcing between <br className="hidden md:block" />
-          Paris & Mexico
+          Luxury sourcing entre <br className="hidden md:block" />
+          París y México
         </h1>
         
         {/* Subheadline */}
         <p 
           className="text-[#FFFBF8]/85 font-[family-name:var(--font-manrope)] text-base md:text-lg leading-[1.7] max-w-2xl mx-auto mb-12"
         >
-          Curated luxury pieces sourced internationally for women 
-          who want access, rarity and elegance.
+          Piezas de lujo curadas internacionalmente para mujeres 
+          que buscan acceso, rareza y elegancia.
         </p>
         
         {/* CTAs */}

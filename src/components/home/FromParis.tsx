@@ -25,8 +25,8 @@ export default function FromParis() {
             
             {/* Headline */}
             <h2 className="text-[#3A3431] font-[family-name:var(--font-cormorant)] font-medium text-3xl md:text-4xl leading-[1.3] mb-8">
-              Rare finds, runway energy and curated pieces 
-              sourced from Europe for clients in Mexico
+              Piezas difíciles de encontrar, tendencias europeas 
+              y curaduría personalizada para clientas en México
             </h2>
             
             {/* Link */}

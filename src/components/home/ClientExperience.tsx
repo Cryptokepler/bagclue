@@ -27,7 +27,7 @@ export default function ClientExperience() {
       <div className="max-w-6xl mx-auto">
         {/* Headline */}
         <h2 className="text-[#3A3431] font-[family-name:var(--font-cormorant)] font-medium text-3xl md:text-4xl text-center mb-12 md:mb-16">
-          Client Experience
+          La experiencia Bagclue
         </h2>
         
         {/* Grid */}

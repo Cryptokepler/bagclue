@@ -51,7 +51,7 @@ export default async function NewArrivals() {
       <div className="max-w-7xl mx-auto">
         {/* Headline */}
         <h2 className="text-[#3A3431] font-[family-name:var(--font-cormorant)] font-medium text-3xl md:text-4xl text-center mb-12 md:mb-16">
-          New Arrivals
+          Recién llegados
         </h2>
         
         {/* Grid */}
@@ -95,7 +95,7 @@ export default async function NewArrivals() {
         <div className="text-center mt-12 md:mt-16">
           <Link
             href="/catalogo"
-            className="inline-block text-[#3A3431] font-[family-name:var(--font-manrope)] text-[15px] font-medium hover:text-[#E85A9A] hover:underline transition-all duration-300"
+            className="inline-block text-[#8B4852] font-[family-name:var(--font-manrope)] text-[15px] font-medium hover:text-[#E85A9A] hover:underline transition-all duration-300"
           >
             Ver colección completa →
           </Link>
