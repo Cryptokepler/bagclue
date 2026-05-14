@@ -144,9 +144,9 @@ export async function POST(request: NextRequest) {
     const insertData: any = {
       user_id: user.id, // Always use authenticated user's ID (never trust body)
       full_name: sanitizedData.full_name,
-      phone_country_code: sanitizedData.phone_country_code,
-      phone_country_iso: sanitizedData.phone_country_iso,
-      phone: sanitizedData.phone,
+      phone_country_code: sanitizedData.phone_country_code, // Required
+      phone_country_iso: sanitizedData.phone_country_iso, // Required
+      phone: sanitizedData.phone, // Required
       country: sanitizedData.country,
       state: sanitizedData.state,
       city: sanitizedData.city,

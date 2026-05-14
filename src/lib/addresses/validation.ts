@@ -46,33 +46,25 @@ export function validateCreateAddress(data: any): AddressValidationError[] {
     errors.push({ field: 'address_line1', message: 'Address line 1 must not exceed 255 characters' });
   }
 
-  // Optional fields - validate format if provided
-  if (data.phone_country_code !== undefined && data.phone_country_code !== null) {
-    if (typeof data.phone_country_code !== 'string') {
-      errors.push({ field: 'phone_country_code', message: 'Phone country code must be a string' });
-    } else if (!/^\+\d{1,4}$/.test(data.phone_country_code)) {
-      errors.push({ field: 'phone_country_code', message: 'Phone country code must start with + followed by 1-4 digits (e.g., +52)' });
-    }
+  // Phone fields - NOW REQUIRED (changed per customer request)
+  if (!data.phone_country_code || typeof data.phone_country_code !== 'string') {
+    errors.push({ field: 'phone_country_code', message: 'Phone country code is required' });
+  } else if (!/^\+\d{1,4}$/.test(data.phone_country_code)) {
+    errors.push({ field: 'phone_country_code', message: 'Phone country code must start with + followed by 1-4 digits (e.g., +52)' });
   }
 
-  if (data.phone_country_iso !== undefined && data.phone_country_iso !== null) {
-    if (typeof data.phone_country_iso !== 'string') {
-      errors.push({ field: 'phone_country_iso', message: 'Phone country ISO must be a string' });
-    } else if (!/^[A-Z]{2}$/.test(data.phone_country_iso)) {
-      errors.push({ field: 'phone_country_iso', message: 'Phone country ISO must be 2 uppercase letters (e.g., MX)' });
-    }
+  if (!data.phone_country_iso || typeof data.phone_country_iso !== 'string') {
+    errors.push({ field: 'phone_country_iso', message: 'Phone country ISO is required' });
+  } else if (!/^[A-Z]{2}$/.test(data.phone_country_iso)) {
+    errors.push({ field: 'phone_country_iso', message: 'Phone country ISO must be 2 uppercase letters (e.g., MX)' });
   }
 
-  if (data.phone !== undefined && data.phone !== null) {
-    if (typeof data.phone !== 'string') {
-      errors.push({ field: 'phone', message: 'Phone must be a string' });
-    } else if (data.phone.trim().length > 0) {
-      if (data.phone.trim().length < 7) {
-        errors.push({ field: 'phone', message: 'Phone must be at least 7 characters' });
-      } else if (data.phone.trim().length > 20) {
-        errors.push({ field: 'phone', message: 'Phone must not exceed 20 characters' });
-      }
-    }
+  if (!data.phone || typeof data.phone !== 'string') {
+    errors.push({ field: 'phone', message: 'Phone is required' });
+  } else if (data.phone.trim().length < 7) {
+    errors.push({ field: 'phone', message: 'Phone must be at least 7 characters' });
+  } else if (data.phone.trim().length > 20) {
+    errors.push({ field: 'phone', message: 'Phone must not exceed 20 characters' });
   }
 
   if (data.state !== undefined && data.state !== null && typeof data.state === 'string') {
@@ -112,9 +104,9 @@ export function validateCreateAddress(data: any): AddressValidationError[] {
 export function sanitizeAddressData(data: any): CreateAddressDTO {
   return {
     full_name: data.full_name?.trim() || '',
-    phone_country_code: data.phone_country_code?.trim() || null,
-    phone_country_iso: data.phone_country_iso?.trim().toUpperCase() || null,
-    phone: data.phone?.trim() || null,
+    phone_country_code: data.phone_country_code?.trim() || '',
+    phone_country_iso: data.phone_country_iso?.trim().toUpperCase() || '',
+    phone: data.phone?.trim() || '',
     country: data.country?.trim() || '',
     state: data.state?.trim() || null,
     city: data.city?.trim() || '',

@@ -8,9 +8,9 @@ export interface Address {
   id: string;
   user_id: string;
   full_name: string;
-  phone_country_code: string | null;
-  phone_country_iso: string | null;
-  phone: string | null;
+  phone_country_code: string;
+  phone_country_iso: string;
+  phone: string;
   country: string;
   state: string | null;
   city: string;
@@ -25,9 +25,9 @@ export interface Address {
 
 export interface CreateAddressDTO {
   full_name: string;
-  phone_country_code?: string | null;
-  phone_country_iso?: string | null;
-  phone?: string | null;
+  phone_country_code: string;
+  phone_country_iso: string;
+  phone: string;
   country: string;
   state?: string | null;
   city: string;

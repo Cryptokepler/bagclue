@@ -16,8 +16,15 @@ const COUNTRIES = [
   { name: 'México', code: '+52', iso: 'MX' },
   { name: 'España', code: '+34', iso: 'ES' },
   { name: 'Estados Unidos', code: '+1', iso: 'US' },
-  { name: 'Venezuela', code: '+58', iso: 'VE' },
   { name: 'Colombia', code: '+57', iso: 'CO' },
+  { name: 'Venezuela', code: '+58', iso: 'VE' },
+  { name: 'Panamá', code: '+507', iso: 'PA' },
+  { name: 'Chile', code: '+56', iso: 'CL' },
+  { name: 'Argentina', code: '+54', iso: 'AR' },
+  { name: 'Perú', code: '+51', iso: 'PE' },
+  { name: 'República Dominicana', code: '+1', iso: 'DO' },
+  { name: 'Francia', code: '+33', iso: 'FR' },
+  { name: 'Italia', code: '+39', iso: 'IT' },
   { name: 'Otro', code: '', iso: '' }
 ]
 
@@ -76,24 +83,30 @@ export default function AddressForm({
     if (!formData.city.trim()) newErrors.city = 'Ciudad es requerida'
     if (!formData.address_line1.trim()) newErrors.address_line1 = 'Dirección es requerida'
 
-    // Validar long name
-    if (formData.full_name.length > 100) newErrors.full_name = 'Nombre muy largo (máx 100 caracteres)'
-    if (formData.full_name.length > 0 && formData.full_name.length < 2) newErrors.full_name = 'Nombre debe tener al menos 2 caracteres'
-
-    // Validar phone_country_code si se proporciona
-    if (formData.phone_country_code && !/^\+\d{1,4}$/.test(formData.phone_country_code)) {
+    // Teléfono ahora es OBLIGATORIO
+    if (!formData.phone_country_code || !formData.phone_country_code.trim()) {
+      newErrors.phone_country_code = 'Código de país es requerido'
+    } else if (!/^\+\d{1,4}$/.test(formData.phone_country_code)) {
       newErrors.phone_country_code = 'Formato inválido. Ej: +52'
     }
 
-    // Validar phone_country_iso si se proporciona
-    if (formData.phone_country_iso && !/^[A-Z]{2}$/.test(formData.phone_country_iso)) {
+    if (!formData.phone_country_iso || !formData.phone_country_iso.trim()) {
+      newErrors.phone_country_iso = 'ISO de país es requerido'
+    } else if (!/^[A-Z]{2}$/.test(formData.phone_country_iso)) {
       newErrors.phone_country_iso = 'Código ISO inválido. Ej: MX'
     }
 
-    // Validar phone si se proporciona
-    if (formData.phone && (formData.phone.length < 8 || formData.phone.length > 15)) {
-      newErrors.phone = 'Teléfono debe tener entre 8 y 15 dígitos'
+    if (!formData.phone || !formData.phone.trim()) {
+      newErrors.phone = 'El teléfono es requerido para coordinar tu entrega'
+    } else if (formData.phone.length < 7) {
+      newErrors.phone = 'Teléfono debe tener al menos 7 dígitos'
+    } else if (formData.phone.length > 20) {
+      newErrors.phone = 'Teléfono debe tener máximo 20 dígitos'
     }
+
+    // Validar long name
+    if (formData.full_name.length > 100) newErrors.full_name = 'Nombre muy largo (máx 100 caracteres)'
+    if (formData.full_name.length > 0 && formData.full_name.length < 2) newErrors.full_name = 'Nombre debe tener al menos 2 caracteres'
 
     // Validar delivery_references length
     if (formData.delivery_references && formData.delivery_references.length > 500) {
@@ -151,16 +164,19 @@ export default function AddressForm({
         if (response.status === 400 && data.errors) {
           // Mapear errores de backend a campos
           const backendErrors: Record<string, string> = {}
-          data.errors.forEach((err: string) => {
-            if (err.includes('full_name')) backendErrors.full_name = err
-            else if (err.includes('phone_country_code')) backendErrors.phone_country_code = err
-            else if (err.includes('phone_country_iso')) backendErrors.phone_country_iso = err
-            else if (err.includes('country')) backendErrors.country = err
-            else if (err.includes('city')) backendErrors.city = err
-            else if (err.includes('address_line1')) backendErrors.address_line1 = err
-            else backendErrors.general = err
+          data.errors.forEach((err: any) => {
+            const errorMsg = typeof err === 'string' ? err : err.message || 'Error de validación'
+            if (errorMsg.includes('full_name') || errorMsg.includes('Full name')) backendErrors.full_name = errorMsg
+            else if (errorMsg.includes('phone_country_code') || errorMsg.includes('Phone country code')) backendErrors.phone_country_code = errorMsg
+            else if (errorMsg.includes('phone_country_iso') || errorMsg.includes('Phone country ISO')) backendErrors.phone_country_iso = errorMsg
+            else if (errorMsg.includes('phone') || errorMsg.includes('Phone')) backendErrors.phone = errorMsg
+            else if (errorMsg.includes('country') || errorMsg.includes('Country')) backendErrors.country = errorMsg
+            else if (errorMsg.includes('city') || errorMsg.includes('City')) backendErrors.city = errorMsg
+            else if (errorMsg.includes('address_line1') || errorMsg.includes('Address line 1')) backendErrors.address_line1 = errorMsg
+            else backendErrors.general = errorMsg
           })
           setErrors(backendErrors)
+          alert('No pudimos guardar la dirección. Revisa los campos marcados en rojo e intenta nuevamente.')
           return
         }
         
@@ -170,6 +186,7 @@ export default function AddressForm({
           return
         }
 
+        alert(`Error al guardar dirección: ${data.error || 'Error desconocido'}. Por favor intenta nuevamente.`)
         throw new Error(data.error || 'Error al guardar dirección')
       }
 
@@ -250,7 +267,7 @@ export default function AddressForm({
               >
                 {COUNTRIES.map((c) => (
                   <option key={c.name} value={c.name}>
-                    {c.name} {c.code && `(${c.code})`}
+                    {c.name}
                   </option>
                 ))}
               </select>
@@ -358,7 +375,7 @@ export default function AddressForm({
             {/* Teléfono */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Teléfono (opcional)
+                Teléfono <span className="text-red-500">*</span>
               </label>
               <div className="grid grid-cols-3 gap-2">
                 <input
