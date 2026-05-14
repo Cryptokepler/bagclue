@@ -11,20 +11,73 @@ interface AddressFormProps {
   authToken: string
 }
 
-// Países con código telefónico
+// Países con código telefónico (lista completa)
 const COUNTRIES = [
+  // América
   { name: 'México', code: '+52', iso: 'MX' },
-  { name: 'España', code: '+34', iso: 'ES' },
   { name: 'Estados Unidos', code: '+1', iso: 'US' },
-  { name: 'Colombia', code: '+57', iso: 'CO' },
-  { name: 'Venezuela', code: '+58', iso: 'VE' },
-  { name: 'Panamá', code: '+507', iso: 'PA' },
-  { name: 'Chile', code: '+56', iso: 'CL' },
+  { name: 'Canadá', code: '+1', iso: 'CA' },
   { name: 'Argentina', code: '+54', iso: 'AR' },
+  { name: 'Bolivia', code: '+591', iso: 'BO' },
+  { name: 'Brasil', code: '+55', iso: 'BR' },
+  { name: 'Chile', code: '+56', iso: 'CL' },
+  { name: 'Colombia', code: '+57', iso: 'CO' },
+  { name: 'Costa Rica', code: '+506', iso: 'CR' },
+  { name: 'Cuba', code: '+53', iso: 'CU' },
+  { name: 'Ecuador', code: '+593', iso: 'EC' },
+  { name: 'El Salvador', code: '+503', iso: 'SV' },
+  { name: 'Guatemala', code: '+502', iso: 'GT' },
+  { name: 'Honduras', code: '+504', iso: 'HN' },
+  { name: 'Nicaragua', code: '+505', iso: 'NI' },
+  { name: 'Panamá', code: '+507', iso: 'PA' },
+  { name: 'Paraguay', code: '+595', iso: 'PY' },
   { name: 'Perú', code: '+51', iso: 'PE' },
+  { name: 'Puerto Rico', code: '+1', iso: 'PR' },
   { name: 'República Dominicana', code: '+1', iso: 'DO' },
+  { name: 'Uruguay', code: '+598', iso: 'UY' },
+  { name: 'Venezuela', code: '+58', iso: 'VE' },
+  
+  // Europa
+  { name: 'Alemania', code: '+49', iso: 'DE' },
+  { name: 'Austria', code: '+43', iso: 'AT' },
+  { name: 'Bélgica', code: '+32', iso: 'BE' },
+  { name: 'España', code: '+34', iso: 'ES' },
   { name: 'Francia', code: '+33', iso: 'FR' },
+  { name: 'Grecia', code: '+30', iso: 'GR' },
+  { name: 'Irlanda', code: '+353', iso: 'IE' },
   { name: 'Italia', code: '+39', iso: 'IT' },
+  { name: 'Países Bajos', code: '+31', iso: 'NL' },
+  { name: 'Polonia', code: '+48', iso: 'PL' },
+  { name: 'Portugal', code: '+351', iso: 'PT' },
+  { name: 'Reino Unido', code: '+44', iso: 'GB' },
+  { name: 'Rusia', code: '+7', iso: 'RU' },
+  { name: 'Suecia', code: '+46', iso: 'SE' },
+  { name: 'Suiza', code: '+41', iso: 'CH' },
+  
+  // Asia
+  { name: 'Arabia Saudita', code: '+966', iso: 'SA' },
+  { name: 'China', code: '+86', iso: 'CN' },
+  { name: 'Corea del Sur', code: '+82', iso: 'KR' },
+  { name: 'Emiratos Árabes Unidos', code: '+971', iso: 'AE' },
+  { name: 'Filipinas', code: '+63', iso: 'PH' },
+  { name: 'India', code: '+91', iso: 'IN' },
+  { name: 'Indonesia', code: '+62', iso: 'ID' },
+  { name: 'Israel', code: '+972', iso: 'IL' },
+  { name: 'Japón', code: '+81', iso: 'JP' },
+  { name: 'Malasia', code: '+60', iso: 'MY' },
+  { name: 'Singapur', code: '+65', iso: 'SG' },
+  { name: 'Tailandia', code: '+66', iso: 'TH' },
+  { name: 'Turquía', code: '+90', iso: 'TR' },
+  
+  // Oceanía
+  { name: 'Australia', code: '+61', iso: 'AU' },
+  { name: 'Nueva Zelanda', code: '+64', iso: 'NZ' },
+  
+  // África
+  { name: 'Egipto', code: '+20', iso: 'EG' },
+  { name: 'Marruecos', code: '+212', iso: 'MA' },
+  { name: 'Sudáfrica', code: '+27', iso: 'ZA' },
+  
   { name: 'Otro', code: '', iso: '' }
 ]
 
