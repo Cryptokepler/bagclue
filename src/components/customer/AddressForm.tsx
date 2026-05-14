@@ -88,12 +88,15 @@ export default function AddressForm({
   onCancel,
   authToken
 }: AddressFormProps) {
+  // Default country si no hay initialData
+  const defaultCountry = COUNTRIES.find(c => c.name === 'México')!
+  
   const [formData, setFormData] = useState({
     full_name: initialData?.full_name || '',
-    phone_country_code: initialData?.phone_country_code || '+52',
-    phone_country_iso: initialData?.phone_country_iso || 'MX',
+    phone_country_code: initialData?.phone_country_code || defaultCountry.code,
+    phone_country_iso: initialData?.phone_country_iso || defaultCountry.iso,
     phone: initialData?.phone || '',
-    country: initialData?.country || '',
+    country: initialData?.country || defaultCountry.name, // ✅ FIX: default 'México'
     state: initialData?.state || '',
     city: initialData?.city || '',
     postal_code: initialData?.postal_code || '',
@@ -110,16 +113,16 @@ export default function AddressForm({
       const found = COUNTRIES.find(c => c.name === initialData.country)
       return found ? found.name : 'Otro'
     }
-    return 'México'
+    return defaultCountry.name // 'México'
   })
 
   // Estado separado para código de país del teléfono
   const [selectedPhoneCountry, setSelectedPhoneCountry] = useState(() => {
     if (initialData?.phone_country_iso) {
       const found = COUNTRIES.find(c => c.iso === initialData.phone_country_iso)
-      return found ? found.name : 'México'
+      return found ? found.name : defaultCountry.name
     }
-    return 'México'
+    return defaultCountry.name // 'México'
   })
 
   const handleCountryChange = (countryName: string) => {
@@ -127,9 +130,11 @@ export default function AddressForm({
     const country = COUNTRIES.find(c => c.name === countryName)
     
     if (country) {
+      // Si elige "Otro", mantener el valor actual solo si ya tenía algo
+      // Si no tenía nada, dejar vacío para que el usuario lo escriba manualmente
       setFormData(prev => ({
         ...prev,
-        country: country.name === 'Otro' ? prev.country : country.name
+        country: country.name === 'Otro' ? (prev.country || '') : country.name
       }))
     }
   }
@@ -193,7 +198,20 @@ export default function AddressForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!validate()) return
+    // Debug logging (temporal - safe for local testing)
+    console.log('[AddressForm] Submit attempt:', {
+      country: formData.country,
+      city: formData.city,
+      phone_country_code: formData.phone_country_code,
+      phone_country_iso: formData.phone_country_iso,
+      phone: formData.phone ? `${formData.phone.substring(0, 3)}***` : '(empty)',
+      full_name: formData.full_name ? 'present' : 'empty'
+    })
+    
+    if (!validate()) {
+      console.log('[AddressForm] Validation failed:', errors)
+      return
+    }
 
     setLoading(true)
 
@@ -221,6 +239,12 @@ export default function AddressForm({
       
       // Siempre enviar is_default
       payload.is_default = formData.is_default
+
+      console.log('[AddressForm] Sending payload:', {
+        ...payload,
+        phone: payload.phone ? `${payload.phone.substring(0, 3)}***` : undefined,
+        full_name: payload.full_name ? 'present' : undefined
+      })
 
       const response = await fetch(url, {
         method,
