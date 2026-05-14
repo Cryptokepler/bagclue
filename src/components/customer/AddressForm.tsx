@@ -37,8 +37,8 @@ export default function AddressForm({
 }: AddressFormProps) {
   const [formData, setFormData] = useState({
     full_name: initialData?.full_name || '',
-    phone_country_code: initialData?.phone_country_code || '',
-    phone_country_iso: initialData?.phone_country_iso || '',
+    phone_country_code: initialData?.phone_country_code || '+52',
+    phone_country_iso: initialData?.phone_country_iso || 'MX',
     phone: initialData?.phone || '',
     country: initialData?.country || '',
     state: initialData?.state || '',
@@ -60,6 +60,15 @@ export default function AddressForm({
     return 'México'
   })
 
+  // Estado separado para código de país del teléfono
+  const [selectedPhoneCountry, setSelectedPhoneCountry] = useState(() => {
+    if (initialData?.phone_country_iso) {
+      const found = COUNTRIES.find(c => c.iso === initialData.phone_country_iso)
+      return found ? found.name : 'México'
+    }
+    return 'México'
+  })
+
   const handleCountryChange = (countryName: string) => {
     setSelectedCountry(countryName)
     const country = COUNTRIES.find(c => c.name === countryName)
@@ -67,7 +76,18 @@ export default function AddressForm({
     if (country) {
       setFormData(prev => ({
         ...prev,
-        country: country.name === 'Otro' ? prev.country : country.name,
+        country: country.name === 'Otro' ? prev.country : country.name
+      }))
+    }
+  }
+
+  const handlePhoneCountryChange = (countryName: string) => {
+    setSelectedPhoneCountry(countryName)
+    const country = COUNTRIES.find(c => c.name === countryName)
+    
+    if (country && country.code && country.iso) {
+      setFormData(prev => ({
+        ...prev,
         phone_country_code: country.code,
         phone_country_iso: country.iso
       }))
@@ -377,38 +397,46 @@ export default function AddressForm({
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Teléfono <span className="text-red-500">*</span>
               </label>
-              <div className="grid grid-cols-3 gap-2">
-                <input
-                  type="text"
-                  value={formData.phone_country_code}
-                  onChange={(e) => setFormData({ ...formData, phone_country_code: e.target.value })}
-                  className={`px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 ${
-                    errors.phone_country_code ? 'border-red-300' : 'border-gray-300'
+              
+              {/* Selector de código de país */}
+              <div className="mb-2">
+                <select
+                  value={selectedPhoneCountry}
+                  onChange={(e) => handlePhoneCountryChange(e.target.value)}
+                  className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 ${
+                    errors.phone_country_code || errors.phone_country_iso ? 'border-red-300' : 'border-gray-300'
                   }`}
-                  placeholder="+52"
-                  disabled={selectedCountry !== 'Otro'}
-                />
-                <input
-                  type="text"
-                  value={formData.phone_country_iso}
-                  onChange={(e) => setFormData({ ...formData, phone_country_iso: e.target.value.toUpperCase() })}
-                  className={`px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 ${
-                    errors.phone_country_iso ? 'border-red-300' : 'border-gray-300'
-                  }`}
-                  placeholder="MX"
-                  maxLength={2}
-                  disabled={selectedCountry !== 'Otro'}
-                />
+                >
+                  {COUNTRIES.filter(c => c.code && c.iso).map((c) => (
+                    <option key={c.iso} value={c.name}>
+                      {c.name} ({c.code})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Número de teléfono */}
+              <div className="flex gap-2">
+                <div className="w-24">
+                  <input
+                    type="text"
+                    value={formData.phone_country_code}
+                    readOnly
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600"
+                    placeholder="+52"
+                  />
+                </div>
                 <input
                   type="text"
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value.replace(/\D/g, '') })}
-                  className={`px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 ${
+                  className={`flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 ${
                     errors.phone ? 'border-red-300' : 'border-gray-300'
                   }`}
                   placeholder="5512345678"
                 />
               </div>
+              
               {(errors.phone_country_code || errors.phone_country_iso || errors.phone) && (
                 <p className="text-sm text-red-600 mt-1">
                   {errors.phone_country_code || errors.phone_country_iso || errors.phone}
