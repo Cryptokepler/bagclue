@@ -1,4 +1,5 @@
 import HeroEditorial from '@/components/home/HeroEditorial'
+import YourAccountBagclue from '@/components/home/YourAccountBagclue'
 import FromParis from '@/components/home/FromParis'
 import NewArrivals from '@/components/home/NewArrivals'
 import ClientExperience from '@/components/home/ClientExperience'
@@ -12,6 +13,7 @@ export default async function Home() {
   return (
     <div className="min-h-screen">
       <HeroEditorial />
+      <YourAccountBagclue />
       <FromParis />
       <NewArrivals />
       <ClientExperience />

@@ -32,10 +32,17 @@ export default function HeroEditorial() {
         
         {/* Subheadline */}
         <p 
-          className="text-[#2D2420] font-[family-name:var(--font-manrope)] text-base md:text-lg leading-[1.7] max-w-2xl mx-auto mb-12 opacity-90"
+          className="text-[#2D2420] font-[family-name:var(--font-manrope)] text-base md:text-lg leading-[1.7] max-w-2xl mx-auto mb-6 opacity-90"
         >
           Piezas de lujo curadas internacionalmente para mujeres 
           que buscan acceso, rareza y elegancia.
+        </p>
+
+        {/* Account CTA copy */}
+        <p 
+          className="text-[#5B5551] font-[family-name:var(--font-manrope)] text-sm md:text-base leading-[1.6] max-w-xl mx-auto mb-10 opacity-80"
+        >
+          Crea tu cuenta para comprar, apartar y dar seguimiento a tus piezas.
         </p>
         
         {/* CTAs */}
@@ -47,13 +54,23 @@ export default function HeroEditorial() {
             Explorar piezas
           </Link>
           
+          <Link
+            href="/account/login"
+            className="border-[1.5px] border-[#E85A9A] text-[#E85A9A] bg-transparent px-10 py-4 rounded-full font-[family-name:var(--font-manrope)] font-medium text-[15px] hover:bg-[#E85A9A] hover:text-white transition-all duration-400 ease-out"
+          >
+            Crear cuenta
+          </Link>
+        </div>
+        
+        {/* Sourcing privado como link terciario */}
+        <div className="mt-6">
           <a
             href="https://ig.me/m/salebybagcluemx"
             target="_blank"
             rel="noopener noreferrer"
-            className="border-[1.5px] border-[#E85A9A] text-[#E85A9A] bg-transparent px-10 py-4 rounded-full font-[family-name:var(--font-manrope)] font-medium text-[15px] hover:bg-[#E85A9A] hover:text-white transition-all duration-400 ease-out"
+            className="text-[#E85A9A] font-[family-name:var(--font-manrope)] text-sm hover:underline underline-offset-4"
           >
-            Solicitar sourcing privado
+            Solicitar sourcing privado →
           </a>
         </div>
         
