@@ -48,17 +48,17 @@ export default function HeroEditorial() {
         {/* CTAs */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <Link
-            href="/catalogo"
+            href="/account/login"
             className="bg-[#E85A9A] text-white px-10 py-4 rounded-full font-[family-name:var(--font-manrope)] font-semibold text-[15px] tracking-[0.02em] hover:bg-[#EC5C9F] hover:-translate-y-0.5 transition-all duration-400 ease-out shadow-sm"
           >
-            Explorar piezas
+            Crear cuenta
           </Link>
           
           <Link
-            href="/account/login"
+            href="/catalogo"
             className="border-[1.5px] border-[#E85A9A] text-[#E85A9A] bg-transparent px-10 py-4 rounded-full font-[family-name:var(--font-manrope)] font-medium text-[15px] hover:bg-[#E85A9A] hover:text-white transition-all duration-400 ease-out"
           >
-            Crear cuenta
+            Explorar piezas
           </Link>
         </div>
         
